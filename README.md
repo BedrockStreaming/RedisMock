@@ -24,7 +24,7 @@ $ composer update m6web/redis-php-mock
 
 ```shell
 $ php composer.phar install --dev
-$ ./vendor/bin/atoum -d tests
+$ ./vendor/bin/atoum -d tests -bf tests/bootstrap.php
 ```
 
 ## Credits
