@@ -290,17 +290,17 @@ class RedisMock
     }
 
     public function zremrangebyscore($key, $min, $max) {
-        $results = [];
+        $remNumber = 0;
         
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
                 if ($this->zrem($key, $member)) {
-                    $results[] = $member;
+                    $remNumber++;
                 }
             }
         }
 
-        return self::$pipeline ? $this : $results;
+        return self::$pipeline ? $this : $remNumber;
     }
 
     public function zrem($key, $member) {

@@ -76,7 +76,7 @@ class RedisMock extends test
                 ->containsValues(['something', 'someting_else']);
     }
 
-    public function setSaddSmembersSrem()
+    public function setSAddSMembersSRem()
     {
         $redisMock = new Redis();
 
@@ -89,17 +89,21 @@ class RedisMock extends test
                 ->isEqual(1)
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(0)
+            ->array($redisMock->smembers('test'))
+                ->containsValues(['test1'])
             ->integer($redisMock->srem('test', 'test1'))
                 ->isEqual(1)
-             ->integer($redisMock->sadd('test', 'test1'))
+            ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(1)
             ->integer($redisMock->sadd('test', 'test2'))
                 ->isEqual(1)
+            ->array($redisMock->smembers('test'))
+                ->containsValues(['test1', 'test2'])
             ->integer($redisMock->del('test'))
                 ->isEqual(2);
     }
 
-    public function testZaddZrem()
+    public function testZAddZRemZRemRangeByScore()
     {
         $redisMock = new Redis();
 
@@ -114,10 +118,20 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->integer($redisMock->zadd('test', 1, 'test1'))
                 ->isEqualTo(1)
-            ->integer($redisMock->zadd('test', 1, 'test2'))
+            ->integer($redisMock->zadd('test', 30, 'test2'))
                 ->isEqualTo(1)
+            ->integer($redisMock->zadd('test', -1, 'test3'))
+                ->isEqualTo(1)
+            ->integer($redisMock->zremrangebyscore('test', '-3', '(-1'))
+                ->isEqualTo(0)
+            ->integer($redisMock->zremrangebyscore('test', '-3', '-1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->zadd('test', -1, 'test3'))
+                ->isEqualTo(1)
+            ->integer($redisMock->zremrangebyscore('test', '-inf', '+inf'))
+                ->isEqualTo(3)
             ->integer($redisMock->del('test'))
-                ->isEqualTo(2);
+                ->isEqualTo(0);
     }
 
     public function testZRangeByScore()
