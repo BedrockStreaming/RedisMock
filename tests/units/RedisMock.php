@@ -50,6 +50,32 @@ class RedisMock extends test
                 ->isEqualTo(1);
     }
 
+    public function testKeys() {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->object($redisMock->set('something', 'a'))
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock')
+            ->object($redisMock->set('someting_else', 'b'))
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock')
+            ->object($redisMock->set('others', 'c'))
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock')
+            ->array($redisMock->keys('some'))
+                ->isEmpty()
+            ->array($redisMock->keys('some*'))
+                ->containsValues(['something', 'someting_else'])
+            ->array($redisMock->keys('*o*'))
+                ->containsValues(['something', 'someting_else', 'others'])
+            ->array($redisMock->keys('*[ra]s*'))
+                ->containsValues(['others'])
+            ->array($redisMock->keys('*[rl]s*'))
+                ->containsValues(['someting_else', 'others'])
+            ->array($redisMock->keys('somet?ing*'))
+                ->containsValues(['something'])
+            ->array($redisMock->keys('somet*ing*'))
+                ->containsValues(['something', 'someting_else']);
+    }
+
     public function testZaddZrem()
     {
         $redisMock = new Redis();

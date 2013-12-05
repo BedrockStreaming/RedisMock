@@ -80,9 +80,11 @@ class RedisMock
 
     public function keys($pattern)
     {
+        $pattern = preg_replace(['#\*#', '#\?#', '#(\[[^\]]+\])#'], ['.*', '.', '$1+'], $pattern);
+
         $results = [];
         foreach (self::$data as $key => $value) {
-            if (preg_match('#' . $pattern . '#', $key)) {
+            if (preg_match('#^' . $pattern . '$#', $key)) {
                 $results[] = $key;
             }
         }
