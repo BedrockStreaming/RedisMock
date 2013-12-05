@@ -76,6 +76,29 @@ class RedisMock extends test
                 ->containsValues(['something', 'someting_else']);
     }
 
+    public function setSaddSmembersSrem()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->array($redisMock->smembers('test'))
+                ->isEmpty()
+            ->integer($redisMock->srem('test', 'test1'))
+                ->isEqual(0)
+            ->integer($redisMock->sadd('test', 'test1'))
+                ->isEqual(1)
+            ->integer($redisMock->sadd('test', 'test1'))
+                ->isEqual(0)
+            ->integer($redisMock->srem('test', 'test1'))
+                ->isEqual(1)
+             ->integer($redisMock->sadd('test', 'test1'))
+                ->isEqual(1)
+            ->integer($redisMock->sadd('test', 'test2'))
+                ->isEqual(1)
+            ->integer($redisMock->del('test'))
+                ->isEqual(2);
+    }
+
     public function testZaddZrem()
     {
         $redisMock = new Redis();
