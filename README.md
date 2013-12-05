@@ -40,9 +40,9 @@ Redis function                                   | Description
 **HEXISTS** *key* *field*                        | Determine if a hash field exists
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Return a range of members in a sorted set, by score
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Return a range of members in a sorted set, by score, with scores ordered from high to low
-**ZADD** *key* *score* *member*                  | Add one or more members to a sorted set, or update its score if it already exists
+**ZADD** *key* *score* *member*                  | Add one member to a sorted set, or update its score if it already exists
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Remove all members in a sorted set within the given scores
-**ZREM** *key* *member*                          | Remove one memner from a sorted set
+**ZREM** *key* *member*                          | Remove one membner from a sorted set
 
 ## Tests
 
