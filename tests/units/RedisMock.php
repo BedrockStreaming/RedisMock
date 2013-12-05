@@ -330,4 +330,36 @@ class RedisMock extends test
             ->integer($redisMock->del('test'))
                 ->isEqualTo(2);
     }
+
+    public function testPipeline()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->object(
+                $redisMock->pipeline()
+                    ->set('test', 'something')
+                    ->get('test')
+                    ->incr('test')
+                    ->keys('test')
+                    ->del('test')
+                    ->sadd('test', 'test1')
+                    ->smembers('test')
+                    ->srem('test', 'test1')
+                    ->del('test')
+                    ->zadd('test', 1, 'test1')
+                    ->zrangebyscore('test', '-inf', '+inf')
+                    ->zrevrangebyscore('test', '+inf', '-inf')
+                    ->zrem('test', 'test1')
+                    ->zremrangebyscore('test', '-inf', '+inf')
+                    ->del('test')
+                    ->hset('test', 'test1', 'something')
+                    ->hget('test', 'test1')
+                    ->hexists('test', 'test1')
+                    ->hgetall('test')
+                    ->del('test')
+                    ->execute()
+            )
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock');
+    }
 }

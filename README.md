@@ -44,6 +44,8 @@ Redis function                                   | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Remove all members in a sorted set within the given scores
 **ZREM** *key* *member*                          | Remove one membner from a sorted set
 
+It also mocks PIPELINE and EXECUTE functions but without any transaction behaviors, they just make the API fluent.
+
 ## Tests
 
 ```shell
