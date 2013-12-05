@@ -8,4 +8,4 @@ before_script:
   - php composer.phar install --dev
 
 script:
-  - vendor/bin/atoum -d tests -bf tests/bootstrap.php
+  - vendor/bin/atoum
