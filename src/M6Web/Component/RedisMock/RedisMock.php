@@ -133,7 +133,7 @@ class RedisMock
         
         self::$data[$key][$field] = $value;
     
-        return self::$pipeline ? $this : $isNew;
+        return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function hget($key, $field)
@@ -150,7 +150,7 @@ class RedisMock
     {
         if (!isset(self::$data[$key]))
         {
-            return self::$pipeline ? $this : null;
+            return self::$pipeline ? $this : array();
         }
 
         return self::$pipeline ? $this : self::$data[$key];
@@ -158,7 +158,7 @@ class RedisMock
 
     public function hexists($key, $field)
     {
-        return self::$pipeline ? $this : isset(self::$data[$key][$field]);
+        return self::$pipeline ? $this : (int) isset(self::$data[$key][$field]);
     }
 
     // Sorted set

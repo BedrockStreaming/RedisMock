@@ -63,16 +63,22 @@ class RedisMock extends test
             ->array($redisMock->keys('some'))
                 ->isEmpty()
             ->array($redisMock->keys('some*'))
+                ->hasSize(2)
                 ->containsValues(['something', 'someting_else'])
             ->array($redisMock->keys('*o*'))
+                ->hasSize(3)
                 ->containsValues(['something', 'someting_else', 'others'])
             ->array($redisMock->keys('*[ra]s*'))
+                ->hasSize(1)
                 ->containsValues(['others'])
             ->array($redisMock->keys('*[rl]s*'))
+                ->hasSize(2)
                 ->containsValues(['someting_else', 'others'])
             ->array($redisMock->keys('somet?ing*'))
+                ->hasSize(1)
                 ->containsValues(['something'])
             ->array($redisMock->keys('somet*ing*'))
+                ->hasSize(2)
                 ->containsValues(['something', 'someting_else']);
     }
 
@@ -90,6 +96,7 @@ class RedisMock extends test
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(0)
             ->array($redisMock->smembers('test'))
+                ->hasSize(1)
                 ->containsValues(['test1'])
             ->integer($redisMock->srem('test', 'test1'))
                 ->isEqual(1)
@@ -98,6 +105,7 @@ class RedisMock extends test
             ->integer($redisMock->sadd('test', 'test2'))
                 ->isEqual(1)
             ->array($redisMock->smembers('test'))
+                ->hasSize(2)
                 ->containsValues(['test1', 'test2'])
             ->integer($redisMock->del('test'))
                 ->isEqual(2);
@@ -286,5 +294,40 @@ class RedisMock extends test
                 ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6);
+    }
+
+    public function testHSetHGetHexistsHGetAll()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->hget('test', 'test1'))
+                ->isNull()
+            ->array($redisMock->hgetall('test'))
+                ->isEmpty()
+            ->integer($redisMock->hexists('test', 'test1'))
+                ->isEqualTo(0)
+            ->integer($redisMock->hset('test', 'test1', 'something'))
+                ->isEqualTo(1)
+            ->string($redisMock->hget('test', 'test1'))
+                ->isEqualTo('something')
+            ->integer($redisMock->hset('test', 'test1', 'something else'))
+                ->isEqualTo(0)
+            ->string($redisMock->hget('test', 'test1'))
+                ->isEqualTo('something else')
+            ->array($redisMock->hgetall('test'))
+                ->hasSize(1)
+                ->containsValues(['something else'])
+            ->integer($redisMock->hset('test', 'test2', 'something'))
+                ->isEqualTo(1)
+            ->array($redisMock->hgetall('test'))
+                ->hasSize(2)
+                ->containsValues(['something', 'something else'])
+            ->integer($redisMock->hexists('test', 'test1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hexists('test', 'test3'))
+                ->isEqualTo(0)
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(2);
     }
 }
