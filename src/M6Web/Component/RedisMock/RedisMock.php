@@ -31,17 +31,17 @@ class RedisMock
     {
         if (!isset(self::$data[$key]) || is_array(self::$data[$key]))
         {
-            return null;
+            return self::$pipeline ? $this : null;
         }
 
-        return self::$data[$key];
+         return self::$pipeline ? $this : self::$data[$key];
     }
 
     public function set($key, $value)
     {
         self::$data[$key] = $value;
 
-        return $this;
+        return self::$pipeline ? $this : 'OK';
     }
 
     public function incr($key)
@@ -68,26 +68,28 @@ class RedisMock
     {
         if (!isset(self::$data[$key]))
         {
-            return 0;
+            return self::$pipeline ? $this : 0;
         }
 
         $deletedItems = count(self::$data[$key]);
 
         unset(self::$data[$key]);
 
-        return $deletedItems;
+        return self::$pipeline ? $this : $deletedItems;
     }
 
     public function keys($pattern)
     {
+        $pattern = preg_replace(['#\*#', '#\?#', '#(\[[^\]]+\])#'], ['.*', '.', '$1+'], $pattern);
+
         $results = [];
         foreach (self::$data as $key => $value) {
-            if (preg_match('#' . $pattern . '#', $key)) {
+            if (preg_match('#^' . $pattern . '$#', $key)) {
                 $results[] = $key;
             }
         }
 
-        return $results;
+        return self::$pipeline ? $this : $results;
     }
 
     // Sets
@@ -98,29 +100,29 @@ class RedisMock
 
         self::$data[$key][] = $value;
 
-        return $isNew;
+        return self::$pipeline ? $this : $isNew;
     }
 
     public function smembers($key)
     {
         if (!isset(self::$data[$key]))
         {
-            return array();
+            return self::$pipeline ? $this : array();
         }
 
-        return self::$data[$key];
+        return self::$pipeline ? $this : self::$data[$key];
     }
 
     public function srem($key, $value)
     {
         if (!isset(self::$data[$key]) || !in_array($value, self::$data[$key]))
         {
-            return 0;
+            return self::$pipeline ? $this : 0;
         }
 
         self::$data[$key] = array_diff(self::$data[$key], array($value));
 
-        return 1;
+        return self::$pipeline ? $this : 1;
     }
 
     // Hashes
@@ -131,32 +133,32 @@ class RedisMock
         
         self::$data[$key][$field] = $value;
     
-        return $isNew;
+        return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function hget($key, $field)
     {
         if (!isset(self::$data[$key][$field]))
         {
-            return null;
+            return self::$pipeline ? $this : null;
         }
 
-        return self::$data[$key][$field];
+        return self::$pipeline ? $this : self::$data[$key][$field];
     }
 
     public function hgetall($key)
     {
         if (!isset(self::$data[$key]))
         {
-            return null;
+            return self::$pipeline ? $this : array();
         }
 
-        return self::$data[$key];
+        return self::$pipeline ? $this : self::$data[$key];
     }
 
     public function hexists($key, $field)
     {
-        return isset(self::$data[$key][$field]);
+        return self::$pipeline ? $this : (int) isset(self::$data[$key][$field]);
     }
 
     // Sorted set
@@ -164,7 +166,7 @@ class RedisMock
     public function zrangebyscore($key, $min, $max, $options = null)
     {
         if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
-            return null;
+            return self::$pipeline ? $this : null;
         }
 
         if (!is_array($options) || !is_array($options['limit']) || count($options['limit']) != 2) {
@@ -183,7 +185,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
+            return self::$pipeline ? $this : array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -215,13 +217,13 @@ class RedisMock
             }
         }
 
-        return array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
     }
 
     public function zrevrangebyscore($key, $max, $min, $options = null)
     {
         if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
-            return null;
+            return self::$pipeline ? $this : null;
         }
 
         if (!is_array($options) || !is_array($options['limit']) || count($options['limit']) != 2) {
@@ -240,7 +242,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
+            return self::$pipeline ? $this : array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -272,43 +274,43 @@ class RedisMock
             }
         }
 
-        return array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
     }
 
     public function zadd($key, $score, $member) {
         if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
-            return null;
+            return self::$pipeline ? $this : null;
         }
 
         $isNew = !isset(self::$data[$key][$member]);
 
         self::$data[$key][$member] = (int) $score;
 
-        return (int) $isNew;
+        return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function zremrangebyscore($key, $min, $max) {
-        $results = [];
+        $remNumber = 0;
         
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
                 if ($this->zrem($key, $member)) {
-                    $results[] = $member;
+                    $remNumber++;
                 }
             }
         }
 
-        return $results;
+        return self::$pipeline ? $this : $remNumber;
     }
 
     public function zrem($key, $member) {
         if (isset(self::$data[$key]) && !is_array(self::$data[$key]) || !isset(self::$data[$key][$member])) {
-            return 0;
+            return self::$pipeline ? $this : 0;
         }
 
         unset(self::$data[$key][$member]);
 
-        return 1;
+        return self::$pipeline ? $this : 1;
     }
 
     // Mock
