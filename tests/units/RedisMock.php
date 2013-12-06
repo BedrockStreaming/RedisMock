@@ -82,17 +82,21 @@ class RedisMock extends test
                 ->containsValues(['something', 'someting_else']);
     }
 
-    public function setSAddSMembersSRem()
+    public function setSAddSMembersSIsMemberSRem()
     {
         $redisMock = new Redis();
 
         $this->assert
             ->array($redisMock->smembers('test'))
                 ->isEmpty()
+            ->integer($redisMock->sismember('test', 'test1'))
+                ->isEquelTo(0)
             ->integer($redisMock->srem('test', 'test1'))
                 ->isEqual(0)
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(1)
+            ->integer($redisMock->sismember('test', 'test1'))
+                ->isEquelTo(1)
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(0)
             ->array($redisMock->smembers('test'))
@@ -100,6 +104,8 @@ class RedisMock extends test
                 ->containsValues(['test1'])
             ->integer($redisMock->srem('test', 'test1'))
                 ->isEqual(1)
+            ->integer($redisMock->sismember('test', 'test1'))
+                ->isEquelTo(0)
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqual(1)
             ->integer($redisMock->sadd('test', 'test2'))
@@ -140,6 +146,130 @@ class RedisMock extends test
                 ->isEqualTo(3)
             ->integer($redisMock->del('test'))
                 ->isEqualTo(0);
+    }
+
+    public function testZRange()
+    {
+        $redisMock = new Redis();
+
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 1, 'test1');
+        $redisMock->zadd('test', 30, 'test5');
+        $redisMock->zadd('test', 0, 'test6');
+
+        $this->assert
+            ->array($redisMock->zrange('test', 0, 2))
+                ->isEqualTo(array(
+                    'test6',
+                    'test1',
+                    'test4',
+                ))
+            ->array($redisMock->zrange('test', 8, 2))
+                ->isEmpty()
+            ->array($redisMock->zrange('test', -1, 2))
+                ->isEmpty()
+            ->array($redisMock->zrange('test', -3, 4))
+                ->isEqualTo(array(
+                    'test3',
+                    'test2',
+                ))
+            ->array($redisMock->zrange('test', -20, 4))
+                ->isEqualTo(array(
+                    'test6',
+                    'test1',
+                    'test4',
+                    'test3',
+                    'test2',
+                ))
+            ->array($redisMock->zrange('test', -2, 20))
+                ->isEqualTo(array(
+                    'test2',
+                    'test5',
+                ))
+            ->array($redisMock->zrange('test', 1, -1))
+                ->isEqualTo(array(
+                    'test1',
+                    'test4',
+                    'test3',
+                    'test2',
+                    'test5',
+                ))
+            ->array($redisMock->zrange('test', 1, -3))
+                ->isEqualTo(array(
+                    'test1',
+                    'test4',
+                    'test3',
+                ))
+            ->array($redisMock->zrange('test', -2, -1))
+                ->isEqualTo(array(
+                    'test2',
+                    'test5',
+                ));
+
+    }
+
+    public function testZRevRange()
+    {
+        $redisMock = new Redis();
+
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 1, 'test1');
+        $redisMock->zadd('test', 30, 'test5');
+        $redisMock->zadd('test', 0, 'test6');
+
+        $this->assert
+            ->array($redisMock->zrevrange('test', 0, 2))
+                ->isEqualTo(array(
+                    'test5',
+                    'test2',
+                    'test3',
+                ))
+            ->array($redisMock->zrevrange('test', 8, 2))
+                ->isEmpty()
+            ->array($redisMock->zrevrange('test', -1, 2))
+                ->isEmpty()
+            ->array($redisMock->zrevrange('test', -3, 4))
+                ->isEqualTo(array(
+                    'test4',
+                    'test1',
+                ))
+            ->array($redisMock->zrevrange('test', -20, 4))
+                ->isEqualTo(array(
+                    'test5',
+                    'test2',
+                    'test3',
+                    'test4',
+                    'test1',
+                ))
+            ->array($redisMock->zrevrange('test', -2, 20))
+                ->isEqualTo(array(
+                    'test1',
+                    'test6',
+                ))
+            ->array($redisMock->zrevrange('test', 1, -1))
+                ->isEqualTo(array(
+                    'test2',
+                    'test3',
+                    'test4',
+                    'test1',
+                    'test6',
+                ))
+            ->array($redisMock->zrevrange('test', 1, -3))
+                ->isEqualTo(array(
+                    'test2',
+                    'test3',
+                    'test4',
+                ))
+            ->array($redisMock->zrevrange('test', -2, -1))
+                ->isEqualTo(array(
+                    'test1',
+                    'test6',
+                ));
+
     }
 
     public function testZRangeByScore()
@@ -345,10 +475,13 @@ class RedisMock extends test
                     ->del('test')
                     ->sadd('test', 'test1')
                     ->smembers('test')
+                    ->sismember('test', 'test1')
                     ->srem('test', 'test1')
                     ->del('test')
                     ->zadd('test', 1, 'test1')
+                    ->zrange('test', 0, 1)
                     ->zrangebyscore('test', '-inf', '+inf')
+                    ->zrevrange('test', 0, 1)
                     ->zrevrangebyscore('test', '+inf', '-inf')
                     ->zrem('test', 'test1')
                     ->zremrangebyscore('test', '-inf', '+inf')
