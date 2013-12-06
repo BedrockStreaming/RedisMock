@@ -32,7 +32,7 @@ Redis function                                   | Description
 **DEL** *key*                                    | Deletes a key
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **SADD** *key* *member*                          | Adds one member to a set
-**SISMEMBERS** *key* *member*                    | Determines if a member is in a set
+**SISMEMBER** *key* *member*                    | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
 **SREM** *key* *member*                          | Removes one member from a set
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
