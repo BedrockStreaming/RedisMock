@@ -94,11 +94,11 @@ class RedisMock
 
     // Sets
 
-    public function sadd($key, $value)
+    public function sadd($key, $member)
     {
         $isNew = !isset(self::$data[$key]);
 
-        self::$data[$key][] = $value;
+        self::$data[$key][] = $member;
 
         return self::$pipeline ? $this : $isNew;
     }
@@ -113,14 +113,24 @@ class RedisMock
         return self::$pipeline ? $this : self::$data[$key];
     }
 
-    public function srem($key, $value)
+    public function srem($key, $member)
     {
-        if (!isset(self::$data[$key]) || !in_array($value, self::$data[$key]))
+        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]))
         {
             return self::$pipeline ? $this : 0;
         }
 
-        self::$data[$key] = array_diff(self::$data[$key], array($value));
+        self::$data[$key] = array_diff(self::$data[$key], [$member]);
+
+        return self::$pipeline ? $this : 1;
+    }
+
+    public function sismember($key, $member)
+    {
+        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]))
+        {
+            return self::$pipeline ? $this : 0;
+        }
 
         return self::$pipeline ? $this : 1;
     }
@@ -163,6 +173,56 @@ class RedisMock
 
     // Sorted set
 
+    public function zrange($key, $start, $stop)
+    {
+        $set = $this->zrangebyscore($key, '-inf', '+inf');
+
+        if ($start < 0) {
+            if (abs($start) > count($set)) {
+                $start = 0;
+            } else {
+                $start = count($set) + $start;
+            }
+        }
+
+        if ($stop >= 0) {
+            $length = $stop - $start + 1;
+        } else {
+            if ($stop == -1) {
+                $length = NULL;
+            } else {
+                $length = $stop + 1;
+            }
+        }
+
+        return self::$pipeline ? $this : array_slice($set, $start, $length);
+    }
+
+    public function zrevrange($key, $start, $stop)
+    {
+        $set = $this->zrevrangebyscore($key, '+inf', '-inf');
+
+        if ($start < 0){
+            if (abs($start) > count($set)) {
+                $start = 0;
+            } else {
+                $start = count($set) + $start;
+            }
+        }
+
+        if ($stop >= 0) {
+            $length = $stop - $start + 1;
+        } else {
+            if ($stop == -1) {
+                $length = NULL;
+            } else {
+                $length = $stop + 1;
+            }
+        }
+
+        return self::$pipeline ? $this : array_slice($set, $start, $length);
+    }
+
     public function zrangebyscore($key, $min, $max, $options = null)
     {
         if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
@@ -173,11 +233,11 @@ class RedisMock
             $options['limit'] = [0, count(self::$data[$key])];
         }
 
-        $array = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($array) {
-            if ($array[$a] < $array[$b]) {
+        $set = self::$data[$key];
+        uksort(self::$data[$key], function($a, $b) use ($set) {
+            if ($set[$a] < $set[$b]) {
                 return -1;
-            } elseif ($array[$a] > $array[$b]) {
+            } elseif ($set[$a] > $set[$b]) {
                 return 1;
             } else {
                 return strcmp($a, $b);
@@ -230,11 +290,11 @@ class RedisMock
             $options['limit'] = [0, count(self::$data[$key])];
         }
 
-        $array = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($array) {
-            if ($array[$a] > $array[$b]) {
+        $set = self::$data[$key];
+        uksort(self::$data[$key], function($a, $b) use ($set) {
+            if ($set[$a] > $set[$b]) {
                 return -1;
-            } elseif ($array[$a] < $array[$b]) {
+            } elseif ($set[$a] < $set[$b]) {
                 return 1;
             } else {
                 return -strcmp($a, $b);

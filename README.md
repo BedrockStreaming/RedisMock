@@ -26,23 +26,26 @@ It currently mocks these Redis functions :
 
 Redis function                                   | Description
 -------------------------------------------------|------------
-**SET** *key* *value*                            | Set the string value of a key
-**GET** *key*                                    | Get the value of a key
-**INCR** *key*                                   | Increment the integer value of a key by one
-**DEL** *key*                                    | Delete a key
-**KEYS** *pattern*                               | Find all keys matching the given pattern
-**SADD** *key* *member*                          | Add one member to a set
-**SMEMBERS** *key*                               | Get all the members in a set
-**SREM** *key* *member*                          | Remove one member from a set
-**HSET** *key* *field* *value*                   | Set the string value of a hash field
-**HGET** *key* *field*                           | Get the value of a hash field
-**HGETALL** *key*                                | Get all the fields and values in a hash
-**HEXISTS** *key* *field*                        | Determine if a hash field exists
-**ZRANGEBYSCORE** *key* *min* *max* *options*    | Return a range of members in a sorted set, by score
-**ZREVRANGEBYSCORE** *key* *min* *max* *options* | Return a range of members in a sorted set, by score, with scores ordered from high to low
-**ZADD** *key* *score* *member*                  | Add one member to a sorted set, or update its score if it already exists
-**ZREMRANGEBYSCORE** *key* *min* *max*           | Remove all members in a sorted set within the given scores
-**ZREM** *key* *member*                          | Remove one membner from a sorted set
+**SET** *key* *value*                            | Sets the string value of a key
+**GET** *key*                                    | Gets the value of a key
+**INCR** *key*                                   | Increments the integer value of a key by one
+**DEL** *key*                                    | Deletes a key
+**KEYS** *pattern*                               | Finds all keys matching the given pattern
+**SADD** *key* *member*                          | Adds one member to a set
+**SISMEMBER** *key* *member*                    | Determines if a member is in a set
+**SMEMBERS** *key*                               | Gets all the members in a set
+**SREM** *key* *member*                          | Removes one member from a set
+**HEXISTS** *key* *field*                        | Determines if a hash field exists
+**HGET** *key* *field*                           | Gets the value of a hash field
+**HGETALL** *key*                                | Gets all the fields and values in a hash
+**HSET** *key* *field* *value*                   | Sets the string value of a hash field
+**ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
+**ZRANGE** *key* *start* *stop*                  | Returns the specified range of members in a sorted set
+**ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
+**ZREM** *key* *member*                          | Removes one membner from a sorted set
+**ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
+**ZREVRANGE** *key* *start* *stop*               | Returns the specified range of members in a sorted set, with scores ordered from high to low
+**ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 
 It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction behaviors, they just make the interface fluent.
 
