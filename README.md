@@ -30,6 +30,7 @@ Redis function                                   | Description
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
 **DEL** *key*                                    | Deletes a key
+**EXISTS** *key*                                 | Determines if a key exists
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **SADD** *key* *member*                          | Adds one member to a set
 **SISMEMBER** *key* *member*                    | Determines if a member is in a set
@@ -46,6 +47,7 @@ Redis function                                   | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop*               | Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
+**FLUSHDB**                                      | Flushes the database
 
 It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction behaviors, they just make the interface fluent.
 

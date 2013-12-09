@@ -64,6 +64,11 @@ class RedisMock
 
     // Keys
 
+    public function exists($key)
+    {
+        return self::$pipeline ? $this : array_key_exists($key, self::$data);
+    }
+
     public function del($key)
     {
         if (!isset(self::$data[$key]))
@@ -371,6 +376,15 @@ class RedisMock
         unset(self::$data[$key][$member]);
 
         return self::$pipeline ? $this : 1;
+    }
+
+    // Server
+
+    public function flushdb()
+    {
+        $this->reset();
+
+        return self::$pipeline ? $this : 'OK';
     }
 
     // Mock
