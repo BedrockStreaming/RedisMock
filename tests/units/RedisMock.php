@@ -10,23 +10,29 @@ use M6Web\Component\RedisMock\RedisMock as Redis;
  */
 class RedisMock extends test
 {
-    public function testSetGetDel()
+    public function testSetGetDelExists()
     {
         $redisMock = new Redis();
 
         $this->assert
+            ->boolean($redisMock->exists('test'))
+                ->isFalse()
             ->variable($redisMock->get('test'))
                 ->isNull()
             ->integer($redisMock->del('test'))
                 ->isEqualTo(0)
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
+            ->boolean($redisMock->exists('test'))
+                ->isTrue()
             ->string($redisMock->get('test'))
                 ->isEqualTo('something')
             ->integer($redisMock->del('test'))
                 ->isEqualTo(1)
             ->variable($redisMock->get('test'))
-                ->isNull();
+                ->isNull()
+            ->boolean($redisMock->exists('test'))
+                ->isFalse();
     }
 
     public function testIncr()
@@ -459,6 +465,22 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->integer($redisMock->del('test'))
                 ->isEqualTo(2);
+    }
+
+    public function testFlushDb()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->string($redisMock->set('test', 'a'))
+                ->isEqualTo('OK')
+            ->boolean($redisMock->exists('test'))
+                ->isTrue()
+            ->string($redisMock->flushdb())
+                ->isEqualTo('OK')
+            ->boolean($redisMock->exists('test'))
+                ->isFalse();
+
     }
 
     public function testPipeline()
