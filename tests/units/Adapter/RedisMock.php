@@ -10,6 +10,10 @@ use mageekguy\atoum\test;
  */
 class RedisMockAdapter extends test
 {
+    /**
+     * test the mock
+     * @return void
+     */
     public function testMock()
     {
         Base::getMock('\StdClass');
