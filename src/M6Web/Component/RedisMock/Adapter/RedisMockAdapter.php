@@ -9,16 +9,27 @@ use M6Web\Component\RedisMock;
  */
 class RedisMockAdapter
 {
-    public static function getMock($classToExtend)
+
+    public static $mockNames = array();
+
+    public static function getMock($classToExtend, $mockName = null)
     {
-        $classz = '
+        if (is_null($mockName)) {
+            $t = explode('\\', $classToExtend);
+            $mockName = end($t);
+        }
+        if (!in_array($mockName, self::$mockNames)){
+            $classz = '
             namespace M6Web\Component\RedisMock;
-            class pseudoRedisMock extends '.$classToExtend.' {
+            class '.$mockName.' extends '.$classToExtend.' {
                 static protected $data     = array();
                 static protected $pipeline = false;
                 use RedisMockTrait;
-        }';
-        // create the pseudoRedisMock class
-        eval($classz);
+            }';
+            // create the M6Web\Component\RedisMock\$mockName class
+            eval($classz);
+
+            self::$mockNames[] = $mockName;
+        }
     }
 }
