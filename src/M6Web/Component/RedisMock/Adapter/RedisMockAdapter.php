@@ -12,7 +12,6 @@ namespace M6Web\Component\RedisMock\Adapter;
  */
 class RedisMockAdapter
 {
-    
     protected $redisCommands = array(
         'append',
         'auth',
@@ -219,18 +218,18 @@ METHOD;
                 throw new \M6Web\Component\RedisMock\UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
             } elseif (method_exists('M6Web\Component\RedisMock\RedisMock', $methodName)) {
                 $methodsCode .= strtr($this->methodTemplate, array(
-                    '{{method}}' => $methodName,
+                    '{{method}}'    => $methodName,
                     '{{signature}}' => $this->getMethodSignature($method),
-                    '{{args}}' => $this->getMethodArgs($method),
+                    '{{args}}'      => $this->getMethodArgs($method),
                 ));
             }
         }
 
         return strtr($this->classTemplate, array(
             '{{namespace}}' => $namespace,
-            '{{class}}' => $newClassName,
+            '{{class}}'     => $newClassName,
             '{{baseClass}}' => $class->getName(),
-            '{{methods}}' => $methodsCode,
+            '{{methods}}'   => $methodsCode,
         ));
     }
 
