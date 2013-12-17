@@ -197,7 +197,7 @@ METHOD;
         $namespace = __NAMESPACE__;
         $class = $namespace . '\\'. $newClassName;
 
-        if (class_exists($namespace . '\\'. $newClassName)) {
+        if (class_exists($class)) {
             return new $class($redisMock);
         }
 
