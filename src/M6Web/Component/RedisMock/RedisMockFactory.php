@@ -191,22 +191,21 @@ CLASS;
 METHOD;
 
 
-    public function getAdapter($classToExtend, $RedisMock)
+    public function getAdapter($classToExtend, $redisMock)
     {
         $newClassName = sprintf('RedisMock_%s_Adapter', str_replace('\\', '_', $classToExtend));
         $namespace = __NAMESPACE__;
+        $class = $namespace . '\\'. $newClassName;
 
         if (class_exists($namespace . '\\'. $newClassName)) {
-            return $namespace . '\\'. $newClassName;
+            return new $class($redisMock);
         }
 
         $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend));
 
         eval($classCode);
 
-        $class = $namespace . '\\'. $newClassName;
-
-        return new $class($RedisMock);
+        return new $class($redisMock);
     }
 
     protected function getClassCode($namespace, $newClassName, \ReflectionClass $class)

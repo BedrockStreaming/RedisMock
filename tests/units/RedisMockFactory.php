@@ -47,6 +47,14 @@ class RedisMockFactory extends test
                 $mock->punsubscribe();
             })
                 ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException');
+
+        $mock2 = $factory->getAdapter('StdClass', new Mock());
+
+        $this->assert
+            ->object($mock2)
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter')
+            ->class(get_class($mock))
+                ->extends('StdClass');
     }
 
     /**
