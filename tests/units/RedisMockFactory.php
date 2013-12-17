@@ -1,15 +1,15 @@
 <?php
 
-namespace M6Web\Component\RedisMock\Adapter\tests\units;
+namespace M6Web\Component\RedisMock\tests\units;
 
-use M6Web\Component\RedisMock\Adapter\RedisMockAdapter as Adapter;
-use M6Web\Component\RedisMock\RedisMock;
+use M6Web\Component\RedisMock\RedisMockFactory as Factory;
+use M6Web\Component\RedisMock\RedisMock as Mock;
 use mageekguy\atoum\test;
 
 /**
- * test class for RedisMockAdapter
+ * test class for RedisMockFactory
  */
-class RedisMockAdapter extends test
+class RedisMockFactory extends test
 {
     /**
      * test the mock
@@ -17,16 +17,14 @@ class RedisMockAdapter extends test
      */
     public function testMock()
     {
-        $adapter = new Adapter();
-        $mockClass = $adapter->getAdapter('StdClass');
-        $this->assert
-            ->string($mockClass)
-                ->isEqualTo('M6Web\Component\RedisMock\Adapter\RedisMock_StdClass')
-            ->class($mockClass)
-                ->extends('StdClass');
+        $factory = new Factory();
+        $mock    = $factory->getAdapter('StdClass', new Mock());
 
-        $mock = new $mockClass(new RedisMock());
         $this->assert
+            ->object($mock)
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter')
+            ->class(get_class($mock))
+                ->extends('StdClass')
             ->string($mock->set('test', 'data'))
                 ->isEqualTo('OK')
             ->string($mock->get('test'))
@@ -57,16 +55,14 @@ class RedisMockAdapter extends test
      */
     public function testMockComplex()
     {
-        $adapter = new Adapter();
-        $mockClass = $adapter->getAdapter('M6Web\Component\RedisMock\Adapter\tests\units\RedisWithMethods');
-        $this->assert
-            ->string($mockClass)
-                ->isEqualTo('M6Web\Component\RedisMock\Adapter\RedisMock_M6Web_Component_RedisMock_Adapter_tests_units_RedisWithMethods')
-            ->class($mockClass)
-                ->extends('M6Web\Component\RedisMock\Adapter\tests\units\RedisWithMethods');
+        $factory = new Factory();
+        $mock    = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithMethods', new Mock());
 
-        $mock = new $mockClass(new RedisMock());
         $this->assert
+            ->object($mock)
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithMethods_Adapter')
+            ->class(get_class($mock))
+                ->extends('M6Web\Component\RedisMock\tests\units\RedisWithMethods')
             ->string($mock->set('test', 'data'))
                 ->isEqualTo('OK')
             ->string($mock->get('test'))
@@ -99,10 +95,10 @@ class RedisMockAdapter extends test
 
     public function testUnsupportedMock()
     {
-        $adapter = new Adapter();
+        $factory = new Factory();
         $this->assert
-            ->exception(function() use ($adapter) {
-                $adapter->getAdapter('M6Web\Component\RedisMock\Adapter\tests\units\RedisWithUnsupportedMethods');
+            ->exception(function() use ($factory) {
+                $factory->getAdapter('M6Web\Component\RedisMock\Adapter\tests\units\RedisWithUnsupportedMethods', new Mock());
             });
     }
 }

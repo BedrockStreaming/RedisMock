@@ -1,6 +1,6 @@
 <?php
 
-namespace M6Web\Component\RedisMock\Adapter;
+namespace M6Web\Component\RedisMock;
 
 /**
  * Adapter allowing to setup a Redis Mock inheriting of an arbitrary class
@@ -10,7 +10,7 @@ namespace M6Web\Component\RedisMock\Adapter;
  * 
  * @author Adrien Samson <asamson.externe@m6.fr>
  */
-class RedisMockAdapter
+class RedisMockFactory
 {
     protected $redisCommands = array(
         'append',
@@ -191,9 +191,9 @@ CLASS;
 METHOD;
 
 
-    public function getAdapter($classToExtend)
+    public function getAdapter($classToExtend, $RedisMock)
     {
-        $newClassName = 'RedisMock_' . str_replace('\\', '_', $classToExtend);
+        $newClassName = sprintf('RedisMock_%s_Adapter', str_replace('\\', '_', $classToExtend));
         $namespace = __NAMESPACE__;
 
         if (class_exists($namespace . '\\'. $newClassName)) {
@@ -204,7 +204,9 @@ METHOD;
 
         eval($classCode);
 
-        return $namespace . '\\'. $newClassName;
+        $class = $namespace . '\\'. $newClassName;
+
+        return new $class($RedisMock);
     }
 
     protected function getClassCode($namespace, $newClassName, \ReflectionClass $class)
