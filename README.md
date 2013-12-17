@@ -51,6 +51,20 @@ Redis function                                   | Description
 
 It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction behaviors, they just make the interface fluent.
 
+## Usage
+
+RedisMock library provides an adapter able to build a mocked class of your Redis library. You can use it as showed below :
+
+```php
+$adapter          = new \M6Web\Component\RedisMock\Adapter\Adapter();
+$myRedisMockClass = $adapter->getAdapter('My\Redis\Library');
+$myRedisMock      = new $mockClass(new \M6Web\Component\RedisMock\RedisMock());
+```
+
+Then `$myRedisMock` can be injected in your application in place of your Redis library object.
+
+**WARNING !** RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.
+
 ## Tests
 
 ```shell
