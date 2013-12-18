@@ -240,7 +240,7 @@ CONSTRUCTOR;
         $namespace = __NAMESPACE__;
         $class = $namespace . '\\'. $newClassName;
 
-        return [$namespace, $newClassName, $class];
+        return array($namespace, $newClassName, $class);
     }
 
     protected function getClassCode($namespace, $newClassName, \ReflectionClass $class, $orphanizeConstructor = false)

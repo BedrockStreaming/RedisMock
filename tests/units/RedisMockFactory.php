@@ -161,7 +161,7 @@ class RedisWithMethods
         throw new \Exception('Not mocked');
     }
 
-    public function zRangeByScore($key, $min, $max, array $options = [])
+    public function zRangeByScore($key, $min, $max, array $options = array())
     {
         throw new \Exception('Not mocked');
     }
