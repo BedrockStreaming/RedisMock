@@ -68,8 +68,6 @@ $factory     = new \M6Web\Component\RedisMock\RedisMockFactory();
 $myRedisMock = $factory->getAdapter('My\Redis\Library');
 ```
 
-For instance, it is easier to inject the mock using Symfony config file.
-
 **WARNING !** *RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.*
 
 ## Tests
