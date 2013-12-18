@@ -9,6 +9,7 @@ namespace M6Web\Component\RedisMock;
  * The mock can have undesired behavior if your parent class uses unsupported features.
  * 
  * @author Adrien Samson <asamson.externe@m6.fr>
+ * @author Florent Dubost <fdubost.externe@m6.fr>
  */
 class RedisMockFactory
 {
@@ -158,13 +159,24 @@ class RedisMockFactory
     );
 
     protected $classTemplate = <<<'CLASS'
+
 namespace {{namespace}};
+
 class {{class}} extends \{{baseClass}}
 {
-    protected $mock;
-    public function __construct($mock)
+    protected $clientMock;
+    public function setClientMock($clientMock)
     {
-        $this->mock = $mock;
+        $this->clientMock = $clientMock;
+    }
+
+    public function getClientMock()
+    {
+        if (!isset($this->clientMock)) {
+            $this->clientMock = new RedisMock();
+        }
+
+        return $this->clientMock;
     }
 
     public function __call($method, $args)
@@ -172,10 +184,10 @@ class {{class}} extends \{{baseClass}}
         $methodName = strtolower($method);
 
         if (!method_exists('M6Web\Component\RedisMock\RedisMock', $methodName)) {
-            throw new \M6Web\Component\RedisMock\UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
+            throw new UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
         }
 
-        return call_user_func_array(array($this->mock, $methodName), $args);
+        return call_user_func_array(array($this->getClientMock(), $methodName), $args);
     }
 {{methods}}
 }
@@ -185,38 +197,61 @@ CLASS;
 
     public function {{method}}({{signature}})
     {
-        return $this->mock->{{method}}({{args}});
+        return $this->getClientMock()->{{method}}({{args}});
     }
-
 METHOD;
 
+protected $constructorTemplate = <<<'CONSTRUCTOR'
 
-    public function getAdapter($classToExtend, $redisMock)
+    public function __construct()
     {
-        $newClassName = sprintf('RedisMock_%s_Adapter', str_replace('\\', '_', $classToExtend));
+        
+    }
+CONSTRUCTOR;
+
+
+    public function getAdapter($classToExtend)
+    {
+        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend);
+
+        if (!class_exists($class)) {
+            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), true);
+            eval($classCode);
+        }
+
+        return new $class();
+    }
+
+    public function getAdapterClass($classToExtend)
+    {
+        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, '_NativeConstructor');
+
+        if (!class_exists($class)) {
+            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend));
+            eval($classCode);
+        }
+
+        return $class;
+    }
+
+    protected function getAdapterClassName($classToExtend, $suffix = '')
+    {
+        $newClassName = sprintf('RedisMock_%s_Adapter%s', str_replace('\\', '_', $classToExtend), $suffix);
         $namespace = __NAMESPACE__;
         $class = $namespace . '\\'. $newClassName;
 
-        if (class_exists($class)) {
-            return new $class($redisMock);
-        }
-
-        $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend));
-
-        eval($classCode);
-
-        return new $class($redisMock);
+        return [$namespace, $newClassName, $class];
     }
 
-    protected function getClassCode($namespace, $newClassName, \ReflectionClass $class)
+    protected function getClassCode($namespace, $newClassName, \ReflectionClass $class, $orphanizeConstructor = false)
     {
-        $methodsCode = '';
+        $methodsCode = $orphanizeConstructor ? $this->constructorTemplate : '';
 
         foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             $methodName = strtolower($method->getName());
 
             if (!method_exists('M6Web\Component\RedisMock\RedisMock', $methodName) && in_array($methodName, $this->redisCommands)) {
-                throw new \M6Web\Component\RedisMock\UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
+                throw new UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
             } elseif (method_exists('M6Web\Component\RedisMock\RedisMock', $methodName)) {
                 $methodsCode .= strtr($this->methodTemplate, array(
                     '{{method}}'    => $methodName,
