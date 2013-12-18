@@ -291,7 +291,7 @@ CONSTRUCTOR;
             // defaultValue
             if ($parameter->isDefaultValueAvailable()) {
                 $signature .= ' = ';
-                if ($parameter->isDefaultValueConstant()) {
+                if (method_exists($parameter, 'isDefaultValueConstant') && $parameter->isDefaultValueConstant()) {
                     $signature .= $parameter->getDefaultValueConstantName();
                 } else {
                     $signature .= var_export($parameter->getDefaultValue(), true);
