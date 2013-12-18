@@ -1,6 +1,6 @@
 # Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png)](http://travis-ci.org/M6Web/RedisMock)
 
-PHP 5.4+ library providing a Redis PHP mock for your tests.  
+PHP 5.3 library providing a Redis PHP mock for your tests.  
 
 ## Installation
 
@@ -9,7 +9,7 @@ Add this line in your `composer.json` :
 ```json
 {
     "require": {
-        "m6web/redis-mock": "dev-master"
+        "m6web/redis-mock": "~1.2"
     }
 }
 ```

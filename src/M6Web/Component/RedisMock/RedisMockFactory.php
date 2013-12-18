@@ -240,7 +240,7 @@ CONSTRUCTOR;
         $namespace = __NAMESPACE__;
         $class = $namespace . '\\'. $newClassName;
 
-        return [$namespace, $newClassName, $class];
+        return array($namespace, $newClassName, $class);
     }
 
     protected function getClassCode($namespace, $newClassName, \ReflectionClass $class, $orphanizeConstructor = false)
@@ -291,7 +291,7 @@ CONSTRUCTOR;
             // defaultValue
             if ($parameter->isDefaultValueAvailable()) {
                 $signature .= ' = ';
-                if ($parameter->isDefaultValueConstant()) {
+                if (method_exists($parameter, 'isDefaultValueConstant') && $parameter->isDefaultValueConstant()) {
                     $signature .= $parameter->getDefaultValueConstantName();
                 } else {
                     $signature .= var_export($parameter->getDefaultValue(), true);
