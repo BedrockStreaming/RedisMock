@@ -248,7 +248,7 @@ class RedisMock
         return self::$pipeline ? $this : array_slice($set, $start, $length);
     }
 
-    public function zrangebyscore($key, $min, $max, array $options = [])
+    public function zrangebyscore($key, $min, $max, array $options = array())
     {
         if (!empty($options['withscores'])) {
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.');
@@ -309,7 +309,7 @@ class RedisMock
         return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
     }
 
-    public function zrevrangebyscore($key, $max, $min, array $options = [])
+    public function zrevrangebyscore($key, $max, $min, array $options = array())
     {
         if (!empty($options['withscores'])) {
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.');
@@ -354,7 +354,7 @@ class RedisMock
             }
         };
 
-        $results = [];
+        $results = array();
         foreach (self::$data[$key] as $k => $v) {
             if ($min == '-inf' && $isInfMax($v)) {
                 $results[] = $k;

@@ -37,7 +37,7 @@ class RedisMockFactory extends test
             ->integer($mock->sAdd('test', 'test2'))
                 ->isEqualTo(1)
             ->array($mock->sMembers('test'))
-                ->isEqualTo(['test1', 'test2'])
+                ->isEqualTo(array('test1', 'test2'))
             ->integer($mock->sRem('test', 'test1'))
                 ->isEqualTo(1)
             ->integer($mock->sRem('test', 'test2'))
@@ -91,12 +91,12 @@ class RedisMockFactory extends test
                     'test3',
                     'test2'
                 ))
-            ->array($mock->zRangeByScore('test', '-inf', '+inf', ['limit' => [1, 2]]))
+            ->array($mock->zRangeByScore('test', '-inf', '+inf', array('limit' => array(1, 2))))
                 ->isEqualTo(array(
                     'test3',
                     'test2'
                 ))
-            ->array($mock->zrevrangebyscore('test', '+inf', '-inf', ['limit' => [1, 2]]))
+            ->array($mock->zrevrangebyscore('test', '+inf', '-inf', array('limit' => array(1, 2))))
                 ->isEqualTo(array(
                     'test3',
                     'test1'
