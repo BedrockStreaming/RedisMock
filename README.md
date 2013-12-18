@@ -56,7 +56,7 @@ It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction
 RedisMock library provides a factory able to build a mocked class of your Redis library that can be directly injected in your application :
 
 ```php
-$factory          = new \M6Web\Component\RedisMockFactory();
+$factory          = new \M6Web\Component\RedisMock\RedisMockFactory();
 $myRedisMockClass = $factory->getAdapterClass('My\Redis\Library');
 $myRedisMock      = new $myRedisMockClass($myParameters);
 ```
@@ -64,7 +64,7 @@ $myRedisMock      = new $myRedisMockClass($myParameters);
 In a simpler way, if you don't need to instanciate the mocked class with custom parameters :
 
 ```php
-$factory     = new \M6Web\Component\RedisMockFactory();
+$factory     = new \M6Web\Component\RedisMock\RedisMockFactory();
 $myRedisMock = $factory->getAdapter('My\Redis\Library');
 ```
 
