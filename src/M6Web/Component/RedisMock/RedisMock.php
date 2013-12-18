@@ -29,8 +29,7 @@ class RedisMock
 
     public function get($key)
     {
-        if (!isset(self::$data[$key]) || is_array(self::$data[$key]))
-        {
+        if (!isset(self::$data[$key]) || is_array(self::$data[$key])) {
             return self::$pipeline ? $this : null;
         }
 
@@ -46,16 +45,11 @@ class RedisMock
 
     public function incr($key)
     {
-        if (!isset(self::$data[$key]))
-        {
+        if (!isset(self::$data[$key])) {
             self::$data[$key] = 1;
-        }
-        elseif (!is_integer(self::$data[$key]))
-        {
+        } elseif (!is_integer(self::$data[$key])) {
             return self::$pipeline ? $this : null;
-        }
-        else
-        {
+        } else {
             self::$data[$key]++;
         }
 
@@ -71,8 +65,11 @@ class RedisMock
 
     public function del($key)
     {
-        if (!isset(self::$data[$key]))
-        {
+        if (func_num_args() > 1) {
+            throw new UnsupportedException('In RedisMock, `del` command can not remove more than one key at once.');
+        }
+
+        if (!isset(self::$data[$key])) {
             return self::$pipeline ? $this : 0;
         }
 
@@ -101,17 +98,26 @@ class RedisMock
 
     public function sadd($key, $member)
     {
-        $isNew = !isset(self::$data[$key]);
+        if (func_num_args() > 2) {
+            throw new UnsupportedException('In RedisMock, `sadd` command can not set more than one member at once.');
+        }
 
-        self::$data[$key][] = $member;
+        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+            return self::$pipeline ? $this : null;
+        }
 
-        return self::$pipeline ? $this : $isNew;
+        $isNew = !isset(self::$data[$key]) || !in_array($member, self::$data[$key]);
+
+        if ($isNew) {
+            self::$data[$key][] = $member;
+        }
+
+        return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function smembers($key)
     {
-        if (!isset(self::$data[$key]))
-        {
+        if (!isset(self::$data[$key])) {
             return self::$pipeline ? $this : array();
         }
 
@@ -120,8 +126,11 @@ class RedisMock
 
     public function srem($key, $member)
     {
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]))
-        {
+        if (func_num_args() > 2) {
+            throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
+        }
+
+        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key])) {
             return self::$pipeline ? $this : 0;
         }
 
@@ -132,8 +141,7 @@ class RedisMock
 
     public function sismember($key, $member)
     {
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]))
-        {
+        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key])) {
             return self::$pipeline ? $this : 0;
         }
 
@@ -144,7 +152,11 @@ class RedisMock
 
     public function hset($key, $field, $value)
     {
-        $isNew = !isset(self::$data[$key][$field]);
+        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+            return self::$pipeline ? $this : null;
+        }
+
+        $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
         
         self::$data[$key][$field] = $value;
     
@@ -178,8 +190,12 @@ class RedisMock
 
     // Sorted set
 
-    public function zrange($key, $start, $stop)
+    public function zrange($key, $start, $stop, $withscores = false)
     {
+        if ($withscores) {
+            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrange` command.');
+        }
+
         $set = $this->zrangebyscore($key, '-inf', '+inf');
 
         if ($start < 0) {
@@ -203,8 +219,12 @@ class RedisMock
         return self::$pipeline ? $this : array_slice($set, $start, $length);
     }
 
-    public function zrevrange($key, $start, $stop)
+    public function zrevrange($key, $start, $stop, $withscores = false)
     {
+        if ($withscores) {
+            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrange` command.');
+        }
+
         $set = $this->zrevrangebyscore($key, '+inf', '-inf');
 
         if ($start < 0){
@@ -228,13 +248,17 @@ class RedisMock
         return self::$pipeline ? $this : array_slice($set, $start, $length);
     }
 
-    public function zrangebyscore($key, $min, $max, $options = null)
+    public function zrangebyscore($key, $min, $max, array $options = [])
     {
+        if (!empty($options['withscores'])) {
+            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.');
+        }
+
         if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
             return self::$pipeline ? $this : null;
         }
 
-        if (!is_array($options) || !is_array($options['limit']) || count($options['limit']) != 2) {
+        if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
             $options['limit'] = [0, count(self::$data[$key])];
         }
 
@@ -285,13 +309,17 @@ class RedisMock
         return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
     }
 
-    public function zrevrangebyscore($key, $max, $min, $options = null)
+    public function zrevrangebyscore($key, $max, $min, array $options = [])
     {
+        if (!empty($options['withscores'])) {
+            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.');
+        }
+
         if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
             return self::$pipeline ? $this : null;
         }
 
-        if (!is_array($options) || !is_array($options['limit']) || count($options['limit']) != 2) {
+        if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
             $options['limit'] = [0, count(self::$data[$key])];
         }
 
@@ -343,6 +371,10 @@ class RedisMock
     }
 
     public function zadd($key, $score, $member) {
+        if (func_num_args() > 3) {
+            throw new UnsupportedException('In RedisMock, `zadd` command can not set more than one member at once.');
+        }
+
         if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
             return self::$pipeline ? $this : null;
         }
@@ -369,6 +401,10 @@ class RedisMock
     }
 
     public function zrem($key, $member) {
+        if (func_num_args() > 2) {
+            throw new UnsupportedException('In RedisMock, `zrem` command can not remove more than one member at once.');
+        }
+
         if (isset(self::$data[$key]) && !is_array(self::$data[$key]) || !isset(self::$data[$key][$member])) {
             return self::$pipeline ? $this : 0;
         }
