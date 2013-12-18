@@ -7,18 +7,19 @@ use M6Web\Component\RedisMock\RedisMock as Mock;
 use mageekguy\atoum\test;
 
 /**
- * test class for RedisMockFactory
+ * Test class for RedisMockFactory
  */
 class RedisMockFactory extends test
 {
     /**
-     * test the mock
+     * Test the mock
+     * 
      * @return void
      */
     public function testMock()
     {
         $factory = new Factory();
-        $mock    = $factory->getAdapter('StdClass', new Mock());
+        $mock    = $factory->getAdapter('StdClass');
 
         $this->assert
             ->object($mock)
@@ -48,7 +49,7 @@ class RedisMockFactory extends test
             })
                 ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException');
 
-        $mock2 = $factory->getAdapter('StdClass', new Mock());
+        $mock2 = $factory->getAdapter('StdClass');
 
         $this->assert
             ->object($mock2)
@@ -58,13 +59,14 @@ class RedisMockFactory extends test
     }
 
     /**
-     * test the mock with a complex base class
+     * Test the mock with a complex base class
+     * 
      * @return void
      */
     public function testMockComplex()
     {
         $factory = new Factory();
-        $mock    = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithMethods', new Mock());
+        $mock    = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithMethods');
 
         $this->assert
             ->object($mock)
@@ -101,13 +103,44 @@ class RedisMockFactory extends test
                 ));
     }
 
+    /**
+     * Test the mock with a base class that implement unsupported Redis commands
+     * 
+     * @return void
+     */
     public function testUnsupportedMock()
     {
         $factory = new Factory();
         $this->assert
             ->exception(function() use ($factory) {
-                $factory->getAdapter('M6Web\Component\RedisMock\Adapter\tests\units\RedisWithUnsupportedMethods', new Mock());
-            });
+                $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods');
+            })
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException');
+    }
+
+    /**
+     * Test method getAdpaterClass
+     * 
+     * @return void
+     */
+    public function testGetAdapterClass()
+    {
+        $factory = new Factory();
+        $this->assert
+            ->string($class = $factory->getAdapterClass('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor'))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithNativeConstructor_Adapter_NativeConstructor')
+            ->class($class)
+                ->extends('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor')
+            ->when(function() use ($class) {
+                $mock = new $class();
+            })
+                ->error()
+                    ->exists()
+            ->when(function() use ($class) {
+                $mock = new $class(null);
+            })
+                ->error()
+                    ->notExists();
     }
 }
 
@@ -144,5 +177,13 @@ class RedisWithUnsupportedMethods
     public function punsubscribe($pattern = null)
     {
         throw new \Exception('Not mocked');
+    }
+}
+
+class RedisWithNativeConstructor
+{
+    public function __construct($param)
+    {
+
     }
 }
