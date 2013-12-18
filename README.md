@@ -61,12 +61,14 @@ $myRedisMockClass = $factory->getAdapterClass('My\Redis\Library');
 $myRedisMock      = new $myRedisMockClass($myParameters);
 ```
 
-In a simpler way, if you don't need to instanciate the mocked class with custom parameters :
+In a simpler way, if you don't need to instanciate the mocked class with custom parameters (e.g. to easier inject the mock using Symfony config file) :
 
 ```php
 $factory     = new \M6Web\Component\RedisMock\RedisMockFactory();
 $myRedisMock = $factory->getAdapter('My\Redis\Library');
 ```
+
+For instance, it is easier to inject the mock using Symfony config file.
 
 **WARNING !** *RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.*
 
