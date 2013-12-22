@@ -1,4 +1,4 @@
-# Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png)](http://travis-ci.org/M6Web/RedisMock)
+# Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png?branch=master)](http://travis-ci.org/M6Web/RedisMock)
 
 PHP 5.3 library providing a Redis PHP mock for your tests.  
 
