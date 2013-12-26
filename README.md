@@ -80,7 +80,7 @@ $ ./vendor/bin/atoum
 
 ## Credits
 
-Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
+Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).  
 Tested with [atoum](http://atoum.org).
 
 ## License
