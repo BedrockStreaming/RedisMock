@@ -93,6 +93,7 @@ class RedisMock
         $deletedItems = count(self::$data[$key]);
 
         unset(self::$data[$key]);
+        unset(self::$datatypes[$key]);
 
         return self::$pipeline ? $this : $deletedItems;
     }

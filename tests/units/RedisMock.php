@@ -33,6 +33,8 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->variable($redisMock->get('test'))
                 ->isNull()
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
             ->boolean($redisMock->exists('test'))
                 ->isFalse()
             ->string($redisMock->set('test1', 'something'))
@@ -69,7 +71,9 @@ class RedisMock extends test
             ->variable($redisMock->incr('test'))
                 ->isNull()
             ->integer($redisMock->del('test'))
-                ->isEqualTo(1);
+                ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none');
     }
 
     public function testKeys() {
@@ -115,6 +119,8 @@ class RedisMock extends test
                 ->isNull()
             ->integer($redisMock->del('test'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
             ->array($redisMock->smembers('test'))
                 ->isEmpty()
             ->integer($redisMock->sismember('test', 'test1'))
@@ -166,6 +172,8 @@ class RedisMock extends test
                 ->isNull()
             ->integer($redisMock->del('test'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
             ->integer($redisMock->zrem('test', 'test1'))
                 ->isEqualTo(0)
             ->integer($redisMock->zadd('test', 1, 'test1'))
@@ -511,6 +519,8 @@ class RedisMock extends test
                 ->isNull()
             ->integer($redisMock->del('test'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
             ->variable($redisMock->hget('test', 'test1'))
                 ->isNull()
             ->array($redisMock->hgetall('test'))
