@@ -23,6 +23,8 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
             ->boolean($redisMock->exists('test'))
                 ->isTrue()
             ->string($redisMock->get('test'))
@@ -56,6 +58,8 @@ class RedisMock extends test
                 ->isNull()
             ->integer($redisMock->incr('test'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
             ->integer($redisMock->incr('test'))
                 ->isEqualTo(2)
             ->integer($redisMock->incr('test'))
@@ -119,6 +123,8 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->integer($redisMock->sadd('test', 'test1'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('set')
             ->exception(function() use ($redisMock) {
                 $redisMock->sadd('test', 'test3', 'test4');
             })
@@ -164,6 +170,8 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->integer($redisMock->zadd('test', 1, 'test1'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('zset')
             ->exception(function() use ($redisMock) {
                 $redisMock->zadd('test', 2, 'test1', 30, 'test2');
             })
@@ -511,6 +519,8 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('hash')
             ->string($redisMock->hget('test', 'test1'))
                 ->isEqualTo('something')
             ->integer($redisMock->hset('test', 'test1', 'something else'))

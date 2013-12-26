@@ -10,8 +10,9 @@ namespace M6Web\Component\RedisMock;
 */
 class RedisMock
 {
-    static protected $data     = array();
-    static protected $pipeline = false;
+    static protected $data      = array();
+    static protected $datatypes = array();
+    static protected $pipeline  = false;
 
     public function reset()
     {
@@ -23,6 +24,19 @@ class RedisMock
     public function getData()
     {
         return self::$data;
+    }
+
+
+    // Type
+
+    public function type($key)
+    {
+        if (array_key_exists($key, self::$datatypes)) {
+            return self::$datatypes[$key];
+        } else {
+            // @see http://redis.io/commands/type
+            return 'none';
+        }
     }
 
     // Strings
@@ -38,7 +52,8 @@ class RedisMock
 
     public function set($key, $value)
     {
-        self::$data[$key] = $value;
+        self::$data[$key]      = $value;
+        self::$datatypes[$key] = 'string';
 
         return self::$pipeline ? $this : 'OK';
     }
@@ -52,6 +67,8 @@ class RedisMock
         } else {
             self::$data[$key]++;
         }
+
+        self::$datatypes[$key] = 'string';
 
         return self::$pipeline ? $this : self::$data[$key];
     }
@@ -111,6 +128,7 @@ class RedisMock
         if ($isNew) {
             self::$data[$key][] = $member;
         }
+        self::$datatypes[$key] = 'set';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -157,9 +175,10 @@ class RedisMock
         }
 
         $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
-        
+
         self::$data[$key][$field] = $value;
-    
+        self::$datatypes[$key]    = 'hash';
+
         return self::$pipeline ? $this : (int) $isNew;
     }
 
@@ -382,13 +401,14 @@ class RedisMock
         $isNew = !isset(self::$data[$key][$member]);
 
         self::$data[$key][$member] = (int) $score;
+        self::$datatypes[$key]     = 'zset';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function zremrangebyscore($key, $min, $max) {
         $remNumber = 0;
-        
+
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
                 if ($this->zrem($key, $member)) {
