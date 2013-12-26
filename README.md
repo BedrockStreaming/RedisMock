@@ -1,6 +1,6 @@
 # Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png?branch=master)](http://travis-ci.org/M6Web/RedisMock)
 
-PHP 5.3 library providing a Redis PHP mock for your tests.  
+PHP 5.3 library providing a Redis PHP mock for your tests.
 
 ## Installation
 
@@ -48,6 +48,7 @@ Redis function                                   | Description
 **ZREVRANGE** *key* *start* *stop*               | Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 **FLUSHDB**                                      | Flushes the database
+**TYPE**                                         | Returns the string representation of the type of the value stored at key.
 
 It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction behaviors, they just make the interface fluent.
 
@@ -79,7 +80,7 @@ $ ./vendor/bin/atoum
 
 ## Credits
 
-Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).  
+Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
 Tested with [atoum](http://atoum.org).
 
 ## License
