@@ -10,9 +10,10 @@ namespace M6Web\Component\RedisMock;
 */
 class RedisMock
 {
-    protected $data      = array();
-    protected $dataTypes = array();
-    protected $pipeline  = false;
+    protected $data          = array();
+    protected $dataTypes     = array();
+    protected $pipeline      = false;
+    protected $savedPipeline = false;
 
     public function reset()
     {
@@ -26,15 +27,24 @@ class RedisMock
         return $this->data;
     }
 
-    // Type
-
-    public function type($key)
+    protected function stopPipeline()
     {
-        if (array_key_exists($key, $this->dataTypes)) {
-            return $this->dataTypes[$key];
-        } else {
-            return 'none';
+        $this->savedPipeline = $this->pipeline;
+        $this->pipeline      = false;
+    }
+
+    protected function restorePipeline()
+    {
+        $this->pipeline = $this->savedPipeline;
+    }
+
+    protected function returnPipedInfo($info)
+    {
+        if (!$this->pipeline) {
+            return $info;
         }
+
+        return $this;
     }
 
     // Strings
@@ -42,10 +52,10 @@ class RedisMock
     public function get($key)
     {
         if (!isset($this->data[$key]) || is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
-         return $this->pipeline ? $this : $this->data[$key];
+         return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function set($key, $value)
@@ -53,7 +63,7 @@ class RedisMock
         $this->data[$key]      = $value;
         $this->dataTypes[$key] = 'string';
 
-        return $this->pipeline ? $this : 'OK';
+        return $this->returnPipedInfo('OK');
     }
 
     public function incr($key)
@@ -61,21 +71,30 @@ class RedisMock
         if (!isset($this->data[$key])) {
             $this->data[$key] = 1;
         } elseif (!is_integer($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         } else {
             $this->data[$key]++;
         }
 
         $this->dataTypes[$key] = 'string';
 
-        return $this->pipeline ? $this : $this->data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     // Keys
 
+    public function type($key)
+    {
+        if (array_key_exists($key, $this->dataTypes)) {
+            return $this->returnPipedInfo($this->dataTypes[$key]);
+        } else {
+            return $this->returnPipedInfo('none');
+        }
+    }
+
     public function exists($key)
     {
-        return $this->pipeline ? $this : array_key_exists($key, $this->data);
+        return $this->returnPipedInfo(array_key_exists($key, $this->data));
     }
 
     public function del($key)
@@ -85,7 +104,7 @@ class RedisMock
         }
 
         if (!isset($this->data[$key])) {
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
 
         $deletedItems = count($this->data[$key]);
@@ -93,7 +112,7 @@ class RedisMock
         unset($this->data[$key]);
         unset($this->dataTypes[$key]);
 
-        return $this->pipeline ? $this : $deletedItems;
+        return $this->returnPipedInfo($deletedItems);
     }
 
     public function keys($pattern)
@@ -107,7 +126,7 @@ class RedisMock
             }
         }
 
-        return $this->pipeline ? $this : $results;
+        return $this->returnPipedInfo($results);
     }
 
     // Sets
@@ -119,7 +138,7 @@ class RedisMock
         }
 
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
         $isNew = !isset($this->data[$key]) || !in_array($member, $this->data[$key]);
@@ -129,16 +148,16 @@ class RedisMock
         }
         $this->dataTypes[$key] = 'set';
 
-        return $this->pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function smembers($key)
     {
         if (!isset($this->data[$key])) {
-            return $this->pipeline ? $this : array();
+            return $this->returnPipedInfo(array());
         }
 
-        return $this->pipeline ? $this : $this->data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function srem($key, $member)
@@ -148,7 +167,7 @@ class RedisMock
         }
 
         if (!isset($this->data[$key]) || !in_array($member, $this->data[$key])) {
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
 
         $this->data[$key] = array_diff($this->data[$key], array($member));
@@ -157,16 +176,16 @@ class RedisMock
             unset($this->dataTypes[$key]);
         }
 
-        return $this->pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     public function sismember($key, $member)
     {
         if (!isset($this->data[$key]) || !in_array($member, $this->data[$key])) {
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
 
-        return $this->pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     // Hashes
@@ -174,7 +193,7 @@ class RedisMock
     public function hset($key, $field, $value)
     {
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
         $isNew = !isset($this->data[$key]) || !isset($this->data[$key][$field]);
@@ -182,32 +201,32 @@ class RedisMock
         $this->data[$key][$field] = $value;
         $this->dataTypes[$key]    = 'hash';
 
-        return $this->pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function hget($key, $field)
     {
         if (!isset($this->data[$key][$field]))
         {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
-        return $this->pipeline ? $this : $this->data[$key][$field];
+        return $this->returnPipedInfo($this->data[$key][$field]);
     }
 
     public function hgetall($key)
     {
         if (!isset($this->data[$key]))
         {
-            return $this->pipeline ? $this : array();
+            return $this->returnPipedInfo(array());
         }
 
-        return $this->pipeline ? $this : $this->data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function hexists($key, $field)
     {
-        return $this->pipeline ? $this : (int) isset($this->data[$key][$field]);
+        return $this->returnPipedInfo((int) isset($this->data[$key][$field]));
     }
 
     // Sorted set
@@ -218,7 +237,9 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrange` command.');
         }
 
+        $this->stopPipeline();
         $set = $this->zrangebyscore($key, '-inf', '+inf');
+        $this->restorePipeline();
 
         if ($start < 0) {
             if (abs($start) > count($set)) {
@@ -238,7 +259,7 @@ class RedisMock
             }
         }
 
-        return $this->pipeline ? $this : array_slice($set, $start, $length);
+        return $this->returnPipedInfo(array_slice($set, $start, $length));
     }
 
     public function zrevrange($key, $start, $stop, $withscores = false)
@@ -247,7 +268,9 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrange` command.');
         }
 
+        $this->stopPipeline();
         $set = $this->zrevrangebyscore($key, '+inf', '-inf');
+        $this->restorePipeline();
 
         if ($start < 0){
             if (abs($start) > count($set)) {
@@ -267,7 +290,7 @@ class RedisMock
             }
         }
 
-        return $this->pipeline ? $this : array_slice($set, $start, $length);
+        return $this->returnPipedInfo(array_slice($set, $start, $length));
     }
 
     public function zrangebyscore($key, $min, $max, array $options = array())
@@ -277,7 +300,7 @@ class RedisMock
         }
 
         if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
         if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
@@ -296,7 +319,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return $this->pipeline ? $this : array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true));
+            return $this->returnPipedInfo(array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true)));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -328,7 +351,7 @@ class RedisMock
             }
         }
 
-        return $this->pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
     }
 
     public function zrevrangebyscore($key, $max, $min, array $options = array())
@@ -338,7 +361,7 @@ class RedisMock
         }
 
         if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
         if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
@@ -357,7 +380,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return $this->pipeline ? $this : array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true));
+            return $this->returnPipedInfo(array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true)));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -389,7 +412,7 @@ class RedisMock
             }
         }
 
-        return $this->pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
     }
 
     public function zadd($key, $score, $member) {
@@ -398,7 +421,7 @@ class RedisMock
         }
 
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
-            return $this->pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
         $isNew = !isset($this->data[$key][$member]);
@@ -406,11 +429,13 @@ class RedisMock
         $this->data[$key][$member] = (int) $score;
         $this->dataTypes[$key]     = 'zset';
 
-        return $this->pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function zremrangebyscore($key, $min, $max) {
         $remNumber = 0;
+
+        $this->stopPipeline();
 
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
@@ -420,8 +445,9 @@ class RedisMock
             }
         }
 
+        $this->restorePipeline();
 
-        return $this->pipeline ? $this : $remNumber;
+        return $this->returnPipedInfo($remNumber);
     }
 
     public function zrem($key, $member) {
@@ -430,7 +456,7 @@ class RedisMock
         }
 
         if (isset($this->data[$key]) && !is_array($this->data[$key]) || !isset($this->data[$key][$member])) {
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
 
         unset($this->data[$key][$member]);
@@ -439,7 +465,7 @@ class RedisMock
             unset($this->dataTypes[$key]);
         }
 
-        return $this->pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     // Server
@@ -448,7 +474,7 @@ class RedisMock
     {
         $this->reset();
 
-        return $this->pipeline ? $this : 'OK';
+        return $this->returnPipedInfo('OK');
     }
 
     // Client pipeline
