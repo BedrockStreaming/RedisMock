@@ -294,20 +294,20 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
         }
 
-        if (!array_key_exists($key, self::$data)) {
-            return self::$pipeline ? $this : 0;
+        if (!array_key_exists($key, $this->data)) {
+            return $this->returnPipedInfo(0);
         }
 
-        if (array_key_exists($field, self::$data[$key])) {
-            unset(self::$data[$key][$field]);
-            if (0 === count(self::$data[$key])) {
-                unset(self::$dataTypes[$key]);
+        if (array_key_exists($field, $this->data[$key])) {
+            unset($this->data[$key][$field]);
+            if (0 === count($this->data[$key])) {
+                unset($this->dataTypes[$key]);
             }
 
-            return self::$pipeline ? $this : 1;
+            return $this->returnPipedInfo(1);
         } else {
 
-            return self::$pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
     }
 
