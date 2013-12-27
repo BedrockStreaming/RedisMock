@@ -572,7 +572,6 @@ class RedisMock extends test
                 ->isEqualTo('OK')
             ->boolean($redisMock->exists('test'))
                 ->isFalse();
-
     }
 
     public function testPipeline()
@@ -605,6 +604,7 @@ class RedisMock extends test
                     ->hexists('test', 'test1')
                     ->hgetall('test')
                     ->del('test')
+                    ->type('test')
                     ->execute()
             )
                 ->isInstanceOf('M6Web\Component\RedisMock\RedisMock');

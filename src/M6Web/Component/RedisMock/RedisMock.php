@@ -10,74 +10,91 @@ namespace M6Web\Component\RedisMock;
 */
 class RedisMock
 {
-    static protected $data      = array();
-    static protected $dataTypes = array();
-    static protected $pipeline  = false;
+    protected $data          = array();
+    protected $dataTypes     = array();
+    protected $pipeline      = false;
+    protected $savedPipeline = false;
 
     public function reset()
     {
-        self::$data = array();
+        $this->data = array();
 
         return $this;
     }
 
     public function getData()
     {
-        return self::$data;
+        return $this->data;
     }
 
-
-    // Type
-
-    public function type($key)
+    protected function stopPipeline()
     {
-        if (array_key_exists($key, self::$dataTypes)) {
-            return self::$dataTypes[$key];
-        } else {
-            // @see http://redis.io/commands/type
-            return 'none';
+        $this->savedPipeline = $this->pipeline;
+        $this->pipeline      = false;
+    }
+
+    protected function restorePipeline()
+    {
+        $this->pipeline = $this->savedPipeline;
+    }
+
+    protected function returnPipedInfo($info)
+    {
+        if (!$this->pipeline) {
+            return $info;
         }
+
+        return $this;
     }
 
     // Strings
 
     public function get($key)
     {
-        if (!isset(self::$data[$key]) || is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (!isset($this->data[$key]) || is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
-         return self::$pipeline ? $this : self::$data[$key];
+         return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function set($key, $value)
     {
-        self::$data[$key]      = $value;
-        self::$dataTypes[$key] = 'string';
+        $this->data[$key]      = $value;
+        $this->dataTypes[$key] = 'string';
 
-        return self::$pipeline ? $this : 'OK';
+        return $this->returnPipedInfo('OK');
     }
 
     public function incr($key)
     {
-        if (!isset(self::$data[$key])) {
-            self::$data[$key] = 1;
-        } elseif (!is_integer(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (!isset($this->data[$key])) {
+            $this->data[$key] = 1;
+        } elseif (!is_integer($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         } else {
-            self::$data[$key]++;
+            $this->data[$key]++;
         }
 
-        self::$dataTypes[$key] = 'string';
+        $this->dataTypes[$key] = 'string';
 
-        return self::$pipeline ? $this : self::$data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     // Keys
 
+    public function type($key)
+    {
+        if (array_key_exists($key, $this->dataTypes)) {
+            return $this->returnPipedInfo($this->dataTypes[$key]);
+        } else {
+            return $this->returnPipedInfo('none');
+        }
+    }
+
     public function exists($key)
     {
-        return self::$pipeline ? $this : array_key_exists($key, self::$data);
+        return $this->returnPipedInfo(array_key_exists($key, $this->data));
     }
 
     public function del($key)
@@ -86,16 +103,16 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `del` command can not remove more than one key at once.');
         }
 
-        if (!isset(self::$data[$key])) {
-            return self::$pipeline ? $this : 0;
+        if (!isset($this->data[$key])) {
+            return $this->returnPipedInfo(0);
         }
 
-        $deletedItems = count(self::$data[$key]);
+        $deletedItems = count($this->data[$key]);
 
-        unset(self::$data[$key]);
-        unset(self::$dataTypes[$key]);
+        unset($this->data[$key]);
+        unset($this->dataTypes[$key]);
 
-        return self::$pipeline ? $this : $deletedItems;
+        return $this->returnPipedInfo($deletedItems);
     }
 
     public function keys($pattern)
@@ -103,13 +120,13 @@ class RedisMock
         $pattern = preg_replace(array('#\*#', '#\?#', '#(\[[^\]]+\])#'), array('.*', '.', '$1+'), $pattern);
 
         $results = array();
-        foreach (self::$data as $key => $value) {
+        foreach ($this->data as $key => $value) {
             if (preg_match('#^' . $pattern . '$#', $key)) {
                 $results[] = $key;
             }
         }
 
-        return self::$pipeline ? $this : $results;
+        return $this->returnPipedInfo($results);
     }
 
     // Sets
@@ -120,27 +137,27 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `sadd` command can not set more than one member at once.');
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key]) || !in_array($member, self::$data[$key]);
+        $isNew = !isset($this->data[$key]) || !in_array($member, $this->data[$key]);
 
         if ($isNew) {
-            self::$data[$key][] = $member;
+            $this->data[$key][] = $member;
         }
-        self::$dataTypes[$key] = 'set';
+        $this->dataTypes[$key] = 'set';
 
-        return self::$pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function smembers($key)
     {
-        if (!isset(self::$data[$key])) {
-            return self::$pipeline ? $this : array();
+        if (!isset($this->data[$key])) {
+            return $this->returnPipedInfo(array());
         }
 
-        return self::$pipeline ? $this : self::$data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function srem($key, $member)
@@ -149,67 +166,67 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
         }
 
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key])) {
-            return self::$pipeline ? $this : 0;
+        if (!isset($this->data[$key]) || !in_array($member, $this->data[$key])) {
+            return $this->returnPipedInfo(0);
         }
 
-        self::$data[$key] = array_diff(self::$data[$key], array($member));
+        $this->data[$key] = array_diff($this->data[$key], array($member));
 
-        if (0 === count(self::$data[$key])) {
-            unset(self::$dataTypes[$key]);
+        if (0 === count($this->data[$key])) {
+            unset($this->dataTypes[$key]);
         }
 
-        return self::$pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     public function sismember($key, $member)
     {
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key])) {
-            return self::$pipeline ? $this : 0;
+        if (!isset($this->data[$key]) || !in_array($member, $this->data[$key])) {
+            return $this->returnPipedInfo(0);
         }
 
-        return self::$pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     // Hashes
 
     public function hset($key, $field, $value)
     {
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
+        $isNew = !isset($this->data[$key]) || !isset($this->data[$key][$field]);
 
-        self::$data[$key][$field] = $value;
-        self::$dataTypes[$key]    = 'hash';
+        $this->data[$key][$field] = $value;
+        $this->dataTypes[$key]    = 'hash';
 
-        return self::$pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function hget($key, $field)
     {
-        if (!isset(self::$data[$key][$field]))
+        if (!isset($this->data[$key][$field]))
         {
-            return self::$pipeline ? $this : null;
+            return $this->returnPipedInfo(null);
         }
 
-        return self::$pipeline ? $this : self::$data[$key][$field];
+        return $this->returnPipedInfo($this->data[$key][$field]);
     }
 
     public function hgetall($key)
     {
-        if (!isset(self::$data[$key]))
+        if (!isset($this->data[$key]))
         {
-            return self::$pipeline ? $this : array();
+            return $this->returnPipedInfo(array());
         }
 
-        return self::$pipeline ? $this : self::$data[$key];
+        return $this->returnPipedInfo($this->data[$key]);
     }
 
     public function hexists($key, $field)
     {
-        return self::$pipeline ? $this : (int) isset(self::$data[$key][$field]);
+        return $this->returnPipedInfo((int) isset($this->data[$key][$field]));
     }
 
     // Sorted set
@@ -220,7 +237,9 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrange` command.');
         }
 
+        $this->stopPipeline();
         $set = $this->zrangebyscore($key, '-inf', '+inf');
+        $this->restorePipeline();
 
         if ($start < 0) {
             if (abs($start) > count($set)) {
@@ -240,7 +259,7 @@ class RedisMock
             }
         }
 
-        return self::$pipeline ? $this : array_slice($set, $start, $length);
+        return $this->returnPipedInfo(array_slice($set, $start, $length));
     }
 
     public function zrevrange($key, $start, $stop, $withscores = false)
@@ -249,7 +268,9 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrange` command.');
         }
 
+        $this->stopPipeline();
         $set = $this->zrevrangebyscore($key, '+inf', '-inf');
+        $this->restorePipeline();
 
         if ($start < 0){
             if (abs($start) > count($set)) {
@@ -269,7 +290,7 @@ class RedisMock
             }
         }
 
-        return self::$pipeline ? $this : array_slice($set, $start, $length);
+        return $this->returnPipedInfo(array_slice($set, $start, $length));
     }
 
     public function zrangebyscore($key, $min, $max, array $options = array())
@@ -278,16 +299,16 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.');
         }
 
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
         if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
-            $options['limit'] = array(0, count(self::$data[$key]));
+            $options['limit'] = array(0, count($this->data[$key]));
         }
 
-        $set = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($set) {
+        $set = $this->data[$key];
+        uksort($this->data[$key], function($a, $b) use ($set) {
             if ($set[$a] < $set[$b]) {
                 return -1;
             } elseif ($set[$a] > $set[$b]) {
@@ -298,7 +319,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return self::$pipeline ? $this : array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
+            return $this->returnPipedInfo(array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true)));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -318,7 +339,7 @@ class RedisMock
         };
 
         $results = array();
-        foreach (self::$data[$key] as $k => $v) {
+        foreach ($this->data[$key] as $k => $v) {
             if ($min == '-inf' && $isInfMax($v)) {
                 $results[] = $k;
             } elseif ($max == '+inf' && $isSupMin($v)) {
@@ -330,7 +351,7 @@ class RedisMock
             }
         }
 
-        return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
     }
 
     public function zrevrangebyscore($key, $max, $min, array $options = array())
@@ -339,16 +360,16 @@ class RedisMock
             throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.');
         }
 
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
         if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
-            $options['limit'] = array(0, count(self::$data[$key]));
+            $options['limit'] = array(0, count($this->data[$key]));
         }
 
-        $set = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($set) {
+        $set = $this->data[$key];
+        uksort($this->data[$key], function($a, $b) use ($set) {
             if ($set[$a] > $set[$b]) {
                 return -1;
             } elseif ($set[$a] < $set[$b]) {
@@ -359,7 +380,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return self::$pipeline ? $this : array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true));
+            return $this->returnPipedInfo(array_keys(array_slice($this->data[$key], $options['limit'][0], $options['limit'][1], true)));
         }
 
         $isInfMax = function($v) use ($max) {
@@ -379,7 +400,7 @@ class RedisMock
         };
 
         $results = array();
-        foreach (self::$data[$key] as $k => $v) {
+        foreach ($this->data[$key] as $k => $v) {
             if ($min == '-inf' && $isInfMax($v)) {
                 $results[] = $k;
             } elseif ($max == '+inf' && $isSupMin($v)) {
@@ -391,7 +412,7 @@ class RedisMock
             }
         }
 
-        return self::$pipeline ? $this : array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true));
+        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
     }
 
     public function zadd($key, $score, $member) {
@@ -399,20 +420,22 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `zadd` command can not set more than one member at once.');
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
-            return self::$pipeline ? $this : null;
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key][$member]);
+        $isNew = !isset($this->data[$key][$member]);
 
-        self::$data[$key][$member] = (int) $score;
-        self::$dataTypes[$key]     = 'zset';
+        $this->data[$key][$member] = (int) $score;
+        $this->dataTypes[$key]     = 'zset';
 
-        return self::$pipeline ? $this : (int) $isNew;
+        return $this->returnPipedInfo((int) $isNew);
     }
 
     public function zremrangebyscore($key, $min, $max) {
         $remNumber = 0;
+
+        $this->stopPipeline();
 
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
@@ -422,8 +445,9 @@ class RedisMock
             }
         }
 
+        $this->restorePipeline();
 
-        return self::$pipeline ? $this : $remNumber;
+        return $this->returnPipedInfo($remNumber);
     }
 
     public function zrem($key, $member) {
@@ -431,16 +455,17 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `zrem` command can not remove more than one member at once.');
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key]) || !isset(self::$data[$key][$member])) {
-            return self::$pipeline ? $this : 0;
+        if (isset($this->data[$key]) && !is_array($this->data[$key]) || !isset($this->data[$key][$member])) {
+            return $this->returnPipedInfo(0);
         }
 
-        unset(self::$data[$key][$member]);
-        if (0 === count(self::$data[$key])) {
-            unset(self::$dataTypes[$key]);
+        unset($this->data[$key][$member]);
+
+        if (0 === count($this->data[$key])) {
+            unset($this->dataTypes[$key]);
         }
 
-        return self::$pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
     }
 
     // Server
@@ -449,20 +474,21 @@ class RedisMock
     {
         $this->reset();
 
-        return self::$pipeline ? $this : 'OK';
+        return $this->returnPipedInfo('OK');
     }
 
-    // Mock
+    // Client pipeline
+
     public function pipeline()
     {
-        self::$pipeline = true;
+        $this->pipeline = true;
 
         return $this;
     }
 
     public function execute()
     {
-        self::$pipeline = false;
+        $this->pipeline = false;
 
         return $this;
     }
