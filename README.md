@@ -73,6 +73,7 @@ $myRedisMock = $factory->getAdapter('My\Redis\Library');
 ## Tests
 
 ```shell
+$ curl -sS https://getcomposer.org/installer | php
 $ php composer.phar install
 $ ./vendor/bin/atoum
 ```
