@@ -11,7 +11,7 @@ namespace M6Web\Component\RedisMock;
 class RedisMock
 {
     static protected $data      = array();
-    static protected $datatypes = array();
+    static protected $dataTypes = array();
     static protected $pipeline  = false;
 
     public function reset()
@@ -31,8 +31,8 @@ class RedisMock
 
     public function type($key)
     {
-        if (array_key_exists($key, self::$datatypes)) {
-            return self::$datatypes[$key];
+        if (array_key_exists($key, self::$dataTypes)) {
+            return self::$dataTypes[$key];
         } else {
             // @see http://redis.io/commands/type
             return 'none';
@@ -53,7 +53,7 @@ class RedisMock
     public function set($key, $value)
     {
         self::$data[$key]      = $value;
-        self::$datatypes[$key] = 'string';
+        self::$dataTypes[$key] = 'string';
 
         return self::$pipeline ? $this : 'OK';
     }
@@ -68,7 +68,7 @@ class RedisMock
             self::$data[$key]++;
         }
 
-        self::$datatypes[$key] = 'string';
+        self::$dataTypes[$key] = 'string';
 
         return self::$pipeline ? $this : self::$data[$key];
     }
@@ -93,7 +93,7 @@ class RedisMock
         $deletedItems = count(self::$data[$key]);
 
         unset(self::$data[$key]);
-        unset(self::$datatypes[$key]);
+        unset(self::$dataTypes[$key]);
 
         return self::$pipeline ? $this : $deletedItems;
     }
@@ -129,7 +129,7 @@ class RedisMock
         if ($isNew) {
             self::$data[$key][] = $member;
         }
-        self::$datatypes[$key] = 'set';
+        self::$dataTypes[$key] = 'set';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -178,7 +178,7 @@ class RedisMock
         $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
 
         self::$data[$key][$field] = $value;
-        self::$datatypes[$key]    = 'hash';
+        self::$dataTypes[$key]    = 'hash';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -402,7 +402,7 @@ class RedisMock
         $isNew = !isset(self::$data[$key][$member]);
 
         self::$data[$key][$member] = (int) $score;
-        self::$datatypes[$key]     = 'zset';
+        self::$dataTypes[$key]     = 'zset';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
