@@ -51,6 +51,19 @@ class RedisMock extends test
                 ->isEqualTo(1);
     }
 
+    public function testTtl()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->string($redisMock->set('test', 'something', 1))
+                ->isEqualTo('OK');
+        sleep(2); // epic !
+        $this->assert
+            ->boolean($redisMock->exists('test'))
+                ->isFalse();
+    }
+
     public function testIncr()
     {
         $redisMock = new Redis();

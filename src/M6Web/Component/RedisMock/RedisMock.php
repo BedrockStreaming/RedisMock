@@ -12,6 +12,7 @@ class RedisMock
 {
     static protected $data      = array();
     static protected $dataTypes = array();
+    static protected $dataTtl   = array();
     static protected $pipeline  = false;
 
     public function reset()
@@ -47,13 +48,20 @@ class RedisMock
             return self::$pipeline ? $this : null;
         }
 
-         return self::$pipeline ? $this : self::$data[$key];
+        if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+            return self::$pipeline ? $this : null;
+        }
+
+        return self::$pipeline ? $this : self::$data[$key];
     }
 
-    public function set($key, $value)
+    public function set($key, $value, $ttl = null)
     {
         self::$data[$key]      = $value;
         self::$dataTypes[$key] = 'string';
+        if (!is_null($ttl)) {
+            self::$dataTtl[$key] = time() + $ttl;
+        }
 
         return self::$pipeline ? $this : 'OK';
     }
@@ -77,6 +85,9 @@ class RedisMock
 
     public function exists($key)
     {
+        if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+            return self::$pipeline ? $this : false;
+        }
         return self::$pipeline ? $this : array_key_exists($key, self::$data);
     }
 
@@ -93,7 +104,12 @@ class RedisMock
         $deletedItems = count(self::$data[$key]);
 
         unset(self::$data[$key]);
-        unset(self::$dataTypes[$key]);
+        if (array_key_exists($key, self::$dataTypes)) {
+            unset(self::$dataTypes[$key]);
+        }
+        if (array_key_exists($key, self::$dataTtl)) {
+            unset(self::$dataTtl[$key]);
+        }
 
         return self::$pipeline ? $this : $deletedItems;
     }
