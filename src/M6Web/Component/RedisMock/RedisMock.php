@@ -155,6 +155,10 @@ class RedisMock
 
         self::$data[$key] = array_diff(self::$data[$key], array($member));
 
+        if (0 === count(self::$data[$key])) {
+            unset(self::$dataTypes[$key]);
+        }
+
         return self::$pipeline ? $this : 1;
     }
 
@@ -418,6 +422,7 @@ class RedisMock
             }
         }
 
+
         return self::$pipeline ? $this : $remNumber;
     }
 
@@ -431,6 +436,9 @@ class RedisMock
         }
 
         unset(self::$data[$key][$member]);
+        if (0 === count(self::$data[$key])) {
+            unset(self::$dataTypes[$key]);
+        }
 
         return self::$pipeline ? $this : 1;
     }
