@@ -288,6 +288,29 @@ class RedisMock
         return $this->returnPipedInfo($this->data[$key][$field]);
     }
 
+    public function hdel($key, $field)
+    {
+        if (func_num_args() > 2) {
+            throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
+        }
+
+        if (!array_key_exists($key, self::$data)) {
+            return self::$pipeline ? $this : 0;
+        }
+
+        if (array_key_exists($field, self::$data[$key])) {
+            unset(self::$data[$key][$field]);
+            if (0 === count(self::$data[$key])) {
+                unset(self::$dataTypes[$key]);
+            }
+
+            return self::$pipeline ? $this : 1;
+        } else {
+
+            return self::$pipeline ? $this : 0;
+        }
+    }
+
     public function hgetall($key)
     {
         if (!isset($this->data[$key]))

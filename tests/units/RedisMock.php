@@ -614,7 +614,26 @@ class RedisMock extends test
             ->integer($redisMock->hexists('test', 'test3'))
                 ->isEqualTo(0)
             ->integer($redisMock->del('test'))
-                ->isEqualTo(2);
+                ->isEqualTo(2)
+
+            ->integer($redisMock->hset('test', 'test1', 'something'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hset('test', 'test2', 'something else'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hdel('test', 'test2'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hdel('test', 'test3'))
+                ->isEqualTo(0)
+            ->integer($redisMock->hdel('raoul', 'test2'))
+                ->isEqualTo(0)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('hash')
+            ->integer($redisMock->hdel('test', 'test1'))
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
+            ->exception(function () use ($redisMock) {
+                $redisMock->hdel('test', 'test1', 'test2');
+            })->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException');
     }
 
     public function testFlushDb()
