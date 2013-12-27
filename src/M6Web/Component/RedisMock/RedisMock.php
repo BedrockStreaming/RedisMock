@@ -94,35 +94,35 @@ class RedisMock
     {
         if (!array_key_exists($key, $this->data))
         {
-            return $this->pipeline ? $this : -2;
+            return $this->returnPipedInfo(-2);
         }
         if (!array_key_exists($key, $this->dataTtl))
         {
-            return $this->pipeline ? $this : -1;
+            return $this->returnPipedInfo(-1);
         }
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
             $this->del($key);
 
-            return $this->pipeline ? $this : -1;
+            return $this->returnPipedInfo(-1);
         }
 
-        return $this->pipeline ? $this : ($this->dataTtl[$key] - time());
+        return $this->returnPipedInfo($this->dataTtl[$key] - time());
     }
 
     public function expire($key, $ttl)
     {
         if (!array_key_exists($key, $this->data) || (array_key_exists($key, $this->dataTypes) && 'string' !== $this->dataTypes[$key]))
         {
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
             $this->del($key);
 
-            return $this->pipeline ? $this : 0;
+            return $this->returnPipedInfo(0);
         }
         $this->dataTtl[$key] = time() + $ttl;
 
-        return $this->pipeline ? $this : 1;
+        return $this->returnPipedInfo(1);
 
     }
 
