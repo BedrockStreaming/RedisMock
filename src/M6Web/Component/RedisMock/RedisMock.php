@@ -10,8 +10,9 @@ namespace M6Web\Component\RedisMock;
 */
 class RedisMock
 {
-    static protected $data     = array();
-    static protected $pipeline = false;
+    static protected $data      = array();
+    static protected $dataTypes = array();
+    static protected $pipeline  = false;
 
     public function reset()
     {
@@ -23,6 +24,19 @@ class RedisMock
     public function getData()
     {
         return self::$data;
+    }
+
+
+    // Type
+
+    public function type($key)
+    {
+        if (array_key_exists($key, self::$dataTypes)) {
+            return self::$dataTypes[$key];
+        } else {
+            // @see http://redis.io/commands/type
+            return 'none';
+        }
     }
 
     // Strings
@@ -38,7 +52,8 @@ class RedisMock
 
     public function set($key, $value)
     {
-        self::$data[$key] = $value;
+        self::$data[$key]      = $value;
+        self::$dataTypes[$key] = 'string';
 
         return self::$pipeline ? $this : 'OK';
     }
@@ -52,6 +67,8 @@ class RedisMock
         } else {
             self::$data[$key]++;
         }
+
+        self::$dataTypes[$key] = 'string';
 
         return self::$pipeline ? $this : self::$data[$key];
     }
@@ -76,6 +93,7 @@ class RedisMock
         $deletedItems = count(self::$data[$key]);
 
         unset(self::$data[$key]);
+        unset(self::$dataTypes[$key]);
 
         return self::$pipeline ? $this : $deletedItems;
     }
@@ -111,6 +129,7 @@ class RedisMock
         if ($isNew) {
             self::$data[$key][] = $member;
         }
+        self::$dataTypes[$key] = 'set';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -136,6 +155,10 @@ class RedisMock
 
         self::$data[$key] = array_diff(self::$data[$key], array($member));
 
+        if (0 === count(self::$data[$key])) {
+            unset(self::$dataTypes[$key]);
+        }
+
         return self::$pipeline ? $this : 1;
     }
 
@@ -157,9 +180,10 @@ class RedisMock
         }
 
         $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
-        
+
         self::$data[$key][$field] = $value;
-    
+        self::$dataTypes[$key]    = 'hash';
+
         return self::$pipeline ? $this : (int) $isNew;
     }
 
@@ -382,13 +406,14 @@ class RedisMock
         $isNew = !isset(self::$data[$key][$member]);
 
         self::$data[$key][$member] = (int) $score;
+        self::$dataTypes[$key]     = 'zset';
 
         return self::$pipeline ? $this : (int) $isNew;
     }
 
     public function zremrangebyscore($key, $min, $max) {
         $remNumber = 0;
-        
+
         if ($toRem = $this->zrangebyscore($key, $min, $max)) {
             foreach ($toRem as $member) {
                 if ($this->zrem($key, $member)) {
@@ -396,6 +421,7 @@ class RedisMock
                 }
             }
         }
+
 
         return self::$pipeline ? $this : $remNumber;
     }
@@ -410,6 +436,9 @@ class RedisMock
         }
 
         unset(self::$data[$key][$member]);
+        if (0 === count(self::$data[$key])) {
+            unset(self::$dataTypes[$key]);
+        }
 
         return self::$pipeline ? $this : 1;
     }
