@@ -27,6 +27,16 @@ class RedisMock
         return self::$data;
     }
 
+    public function getDataTtl()
+    {
+        return self::$dataTtl;
+    }
+
+    public function getDataTypes()
+    {
+        return self::$dataTypes;
+    }
+
 
     // Type
 
@@ -49,6 +59,11 @@ class RedisMock
         }
 
         if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+            // clean datas
+            unset(self::$dataTtl[$key]);
+            unset(self::$dataType[$key]);
+            unset(self::$data[$key]);
+
             return self::$pipeline ? $this : null;
         }
 
@@ -64,6 +79,42 @@ class RedisMock
         }
 
         return self::$pipeline ? $this : 'OK';
+    }
+
+    public function ttl($key)
+    {
+        if (!array_key_exists($key, self::$data))
+        {
+            return self::$pipeline ? $this : -2;
+        }
+        if (!array_key_exists($key, self::$dataTtl))
+        {
+            return self::$pipeline ? $this : -1;
+        }
+        if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+            $this->del($key);
+
+            return self::$pipeline ? $this : -1;
+        }
+
+        return self::$pipeline ? $this : (self::$dataTtl[$key] - time());
+    }
+
+    public function expire($key, $ttl)
+    {
+        if (!array_key_exists($key, self::$data) || (array_key_exists($key, self::$dataTypes) && 'string' !== self::$dataTypes[$key]))
+        {
+            return self::$pipeline ? $this : 0;
+        }
+        if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+            $this->del($key);
+
+            return self::$pipeline ? $this : 0;
+        }
+        self::$dataTtl[$key] = time() + $ttl;
+
+        return self::$pipeline ? $this : 1;
+
     }
 
     public function incr($key)
@@ -146,6 +197,10 @@ class RedisMock
             self::$data[$key][] = $member;
         }
         self::$dataTypes[$key] = 'set';
+        if (array_key_exists($key, self::$dataTtl))
+        {
+            unset($dataTtl[$key]);
+        }
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -199,6 +254,10 @@ class RedisMock
 
         self::$data[$key][$field] = $value;
         self::$dataTypes[$key]    = 'hash';
+        if (array_key_exists($key, self::$dataTtl))
+        {
+            unset($dataTtl[$key]);
+        }
 
         return self::$pipeline ? $this : (int) $isNew;
     }
@@ -423,6 +482,10 @@ class RedisMock
 
         self::$data[$key][$member] = (int) $score;
         self::$dataTypes[$key]     = 'zset';
+        if (array_key_exists($key, self::$dataTtl))
+        {
+            unset($dataTtl[$key]);
+        }
 
         return self::$pipeline ? $this : (int) $isNew;
     }

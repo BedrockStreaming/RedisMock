@@ -61,7 +61,52 @@ class RedisMock extends test
         sleep(2); // epic !
         $this->assert
             ->boolean($redisMock->exists('test'))
-                ->isFalse();
+                ->isFalse()
+            ->integer($redisMock->ttl('test'))
+                ->isEqualTo(-1);
+
+        $this->assert
+            ->string($redisMock->set('test', 'something', 10))
+                ->isEqualTo('OK')
+            ->integer($redisMock->ttl('test'))
+                ->isEqualTo(10)
+            ->integer($redisMock->ttl('raoul'))
+                ->isEqualTo(-2)
+            ->variable($redisMock->set('test2', 'something'))
+            ->integer($redisMock->ttl('test2'))
+                ->isEqualTo(-1);
+
+        $this->assert
+            ->variable($redisMock->del('test'))
+            ->integer($redisMock->sadd('test', 'one'))
+                ->isEqualTo(1)
+            ->integer($redisMock->ttl('test'))
+                ->isEqualTo(-1);
+    }
+
+    public function testExpire()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->integer($redisMock->sadd('test', 'one'))
+            ->integer($redisMock->expire('test', 2))
+                ->isEqualTo(0)
+            ->variable($redisMock->del('test'));
+
+        $this->assert
+            ->string($redisMock->set('test', 'something', 10))
+                ->isEqualTo('OK')
+            ->integer($redisMock->ttl('test'))
+                ->isEqualTo(10)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1)
+            ->integer($redisMock->ttl('test'))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->expire('test', 10))
+                ->isEqualTo(0);
     }
 
     public function testIncr()
