@@ -70,7 +70,7 @@ class RedisMock
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
             // clean datas
             unset($this->dataTtl[$key]);
-            unset($this->dataType[$key]);
+            unset($this->dataTypes[$key]);
             unset($this->data[$key]);
 
             return $this->returnPipedInfo(null);
