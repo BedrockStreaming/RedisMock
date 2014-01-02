@@ -73,7 +73,6 @@ class RedisMock
             $this->del($key);
             $this->restorePipeline();
 
-
             return $this->returnPipedInfo(null);
         }
 
@@ -119,7 +118,9 @@ class RedisMock
             return $this->returnPipedInfo(0);
         }
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
+            $this->stopPipeline();
             $this->del($key);
+            $this->restorePipeline();
 
             return $this->returnPipedInfo(0);
         }
@@ -158,6 +159,9 @@ class RedisMock
     public function exists($key)
     {
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
+            $this->stopPipeline();
+            $this->del($key);
+            $this->restorePipeline();
             return $this->returnPipedInfo(false);
         }
         return $this->returnPipedInfo(array_key_exists($key, $this->data));
