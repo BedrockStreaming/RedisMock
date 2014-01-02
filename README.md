@@ -30,9 +30,9 @@ Redis function                                   | Description
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
 **DEL** *key*                                    | Deletes a key
-**TTL** *key*                                    | Get the time to live for a key
+**TTL** *key*                                    | Gets the time to live for a key
 **EXISTS** *key*                                 | Determines if a key exists
-**EXPIRE** *key* *seconds*                       | Set a key's time to live in seconds
+**EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **SADD** *key* *member*                          | Adds one member to a set
