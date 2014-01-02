@@ -63,7 +63,7 @@ class RedisMock extends test
             ->boolean($redisMock->exists('test'))
                 ->isFalse()
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(-1);
+                ->isEqualTo(-2);
 
         $this->assert
             ->string($redisMock->set('test', 'something', 10))
