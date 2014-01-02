@@ -69,9 +69,10 @@ class RedisMock
 
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
             // clean datas
-            unset($this->dataTtl[$key]);
-            unset($this->dataTypes[$key]);
-            unset($this->data[$key]);
+            $this->stopPipeline();
+            $this->del($key);
+            $this->restorePipeline();
+
 
             return $this->returnPipedInfo(null);
         }
@@ -101,7 +102,9 @@ class RedisMock
             return $this->returnPipedInfo(-1);
         }
         if (array_key_exists($key, $this->dataTtl) and (time() > $this->dataTtl[$key])) {
+            $this->stopPipeline();
             $this->del($key);
+            $this->restorePipeline();
 
             return $this->returnPipedInfo(-1);
         }
