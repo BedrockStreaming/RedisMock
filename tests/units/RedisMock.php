@@ -82,6 +82,19 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->integer($redisMock->ttl('test'))
                 ->isEqualTo(-1);
+
+        $redisMock->flushdb();
+        $redisMock->set('test1', 'raoul');
+        $redisMock->set('test2', 'raoul');
+
+        $this->assert
+            ->array($redisMock->keys('*'))
+            ->hasSize(2);
+        $redisMock->expire('test2', 1);
+        sleep(2);
+        $this->assert
+            ->array($redisMock->keys('*'))
+            ->hasSize(1);
     }
 
     public function testExpire()
@@ -91,7 +104,7 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->sadd('test', 'one'))
             ->integer($redisMock->expire('test', 2))
-                ->isEqualTo(0)
+                ->isEqualTo(1)
             ->variable($redisMock->del('test'));
 
         $this->assert
