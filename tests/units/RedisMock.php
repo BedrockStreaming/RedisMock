@@ -51,6 +51,21 @@ class RedisMock extends test
                 ->isEqualTo(1);
     }
 
+    public function testTypeTtl()
+    {
+        // types are tested on other methods
+
+        $redisMock = new Redis();
+
+        $redisMock->hset('test', 'foo', 'bar');
+        $redisMock->expire('test', 1);
+        sleep(2);
+
+        $this->assert
+            ->string($redisMock->type('test'))
+            ->isEqualTo('none');
+    }
+
     public function testTtl()
     {
         $redisMock = new Redis();
