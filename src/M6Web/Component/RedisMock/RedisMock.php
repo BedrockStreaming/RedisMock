@@ -10,7 +10,6 @@ namespace M6Web\Component\RedisMock;
 */
 class RedisMock
 {
-
     protected $data          = array();
     protected $dataTypes     = array();
     protected $dataTtl       = array();
