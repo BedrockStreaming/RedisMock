@@ -186,7 +186,7 @@ class RedisMock extends test
             ->array($redisMock->keys('*'))
                 ->hasSize(3)
                 ->containsValues(array('something', 'someting_else', 'others'))
-             ->integer($redisMock->expire('others', 1))
+            ->integer($redisMock->expire('others', 1))
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
@@ -513,7 +513,7 @@ class RedisMock extends test
                 ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
-             ->integer($redisMock->zadd('test', 1, 'test1'))
+            ->integer($redisMock->zadd('test', 1, 'test1'))
                 ->isEqualTo(1)
             ->array($redisMock->zrevrange('test', 0, 1))
                 ->hasSize(1)

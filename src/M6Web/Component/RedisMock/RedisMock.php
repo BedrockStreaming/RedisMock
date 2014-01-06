@@ -181,9 +181,10 @@ class RedisMock
         if ($isNew) {
             $this->data[$key][] = $member;
         }
+        
         $this->dataTypes[$key] = 'set';
-        if (array_key_exists($key, $this->dataTtl))
-        {
+
+        if (array_key_exists($key, $this->dataTtl)) {
             unset($this->dataTtl[$key]);
         }
 
