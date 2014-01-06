@@ -716,7 +716,7 @@ class RedisMock extends test
                 ->isEmpty();;
     }
 
-    public function testHSetHGetHExistsHGetAll()
+    public function testHSetHGetHDelHExistsHGetAll()
     {
         $redisMock = new Redis();
 
@@ -757,6 +757,8 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->integer($redisMock->hexists('test', 'test3'))
                 ->isEqualTo(0)
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(2)
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->hset('test', 'test2', 'something else'))
@@ -770,15 +772,14 @@ class RedisMock extends test
             ->string($redisMock->type('test'))
                 ->isEqualTo('hash')
             ->integer($redisMock->hdel('test', 'test1'))
+                ->isEqualTo(1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('none')
             ->exception(function () use ($redisMock) {
                 $redisMock->hdel('test', 'test1', 'test2');
             })
                 ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
-            ->integer($redisMock->del('test'))
-                ->isEqualTo(2)
-             ->integer($redisMock->hset('test', 'test1', 'something'))
+            ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->expire('test', 1))
                 ->isEqualTo(1);
@@ -813,7 +814,15 @@ class RedisMock extends test
         sleep(2);
         $this->assert
             ->array($redisMock->hgetall('test'))
-                ->isEmpty();
+                ->isEmpty()
+            ->integer($redisMock->hset('test', 'test1', 'something'))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->hdel('test', 'test1'))
+                ->isEqualTo(0);
     }
 
     public function testFlushDb()
