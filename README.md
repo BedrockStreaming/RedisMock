@@ -22,9 +22,9 @@ $ composer update m6web/redis-mock
 
 ## Functions
 
-It currently mocks these Redis functions :
+It currently mocks these Redis commands :
 
-Redis function                                   | Description
+Redis command                                    | Description
 -------------------------------------------------|------------
 **SET** *key* *value*                            | Sets the string value of a key
 **GET** *key*                                    | Gets the value of a key
@@ -36,7 +36,7 @@ Redis function                                   | Description
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **SADD** *key* *member*                          | Adds one member to a set
-**SISMEMBER** *key* *member*                    | Determines if a member is in a set
+**SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
 **SREM** *key* *member*                          | Removes one member from a set
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
@@ -52,7 +52,8 @@ Redis function                                   | Description
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 **FLUSHDB**                                      | Flushes the database
 
-It also mocks **PIPELINE** and **EXECUTE** functions but without any transaction behaviors, they just make the interface fluent.
+It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.  
+**PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.
 
 ## Usage
 

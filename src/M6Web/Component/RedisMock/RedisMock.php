@@ -16,6 +16,7 @@ class RedisMock
     protected $dataTtl       = array();
     protected $pipeline      = false;
     protected $savedPipeline = false;
+    protected $pipedInfo     = array();
 
     public function reset()
     {
@@ -55,6 +56,8 @@ class RedisMock
         if (!$this->pipeline) {
             return $info;
         }
+
+        $this->pipedInfo[] = $info;
 
         return $this;
     }
@@ -592,6 +595,33 @@ class RedisMock
         $this->reset();
 
         return $this->returnPipedInfo('OK');
+    }
+
+    // Transactions
+
+    public function multi()
+    {
+        $this->pipeline  = true;
+        $this->pipedInfo = array();
+
+        return $this;
+    }
+
+    public function discard()
+    {
+        $this->pipeline  = false;
+        $this->pipedInfo = array();
+
+        return 'OK';
+    }
+
+    public function exec()
+    {
+        $pipedInfo = $this->pipedInfo;
+
+        $this->discard();
+
+        return $pipedInfo;
     }
 
     // Client pipeline

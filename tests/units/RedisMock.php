@@ -695,4 +695,59 @@ class RedisMock extends test
             )
                 ->isInstanceOf('M6Web\Component\RedisMock\RedisMock');
     }
+
+    public function testTransactions()
+    {
+        $redisMock = new Redis();
+
+        $redisMock->set('test', 'something');
+
+        $this->assert
+            // Discard test
+            ->string(
+                $redisMock
+                    ->multi()
+                    ->set('test2', '*¨LPLR$`ù^')
+                    ->get('test2')
+                    ->discard()
+            )
+                ->isEqualTo('OK')
+            // Multi results test
+            ->array(
+                $redisMock
+                    ->multi()
+                    ->set('test3', 'AZERTY*%£')
+                    ->incr('test4')
+                    ->incr('test4')
+                    ->set('test5', 'todelete')
+                    ->del('test5')
+                    ->get('test3')
+                    ->exec()
+            )
+                ->isEqualTo(array(
+                    'OK',
+                    1,
+                    2,
+                    'OK',
+                    1,
+                    'AZERTY*%£',
+                ))
+            // Exec reset test
+            ->array(
+                $redisMock
+                    ->multi()
+                    ->incr('test4')
+                    ->exec()
+            )
+                ->isEqualTo(array(
+                    3,
+                ));
+
+        // Exec results reset by Discard
+        $redisMock->discard();
+
+        $this->assert
+            ->array($redisMock->exec())
+                ->isEmpty();
+    }
 }
