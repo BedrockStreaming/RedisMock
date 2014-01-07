@@ -39,6 +39,7 @@ Redis command                                    | Description
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
 **SREM** *key* *member*                          | Removes one member from a set
+**HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HGET** *key* *field*                           | Gets the value of a hash field
 **HGETALL** *key*                                | Gets all the fields and values in a hash
