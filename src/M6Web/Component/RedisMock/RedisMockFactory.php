@@ -162,7 +162,7 @@ class RedisMockFactory
 
 namespace {{namespace}};
 
-class {{class}} extends \{{baseClass}}
+class {{class}} extends \{{baseClass}} {{baseInterfaces}}
 {
     protected $clientMock;
     public function setClientMock($clientMock)
@@ -261,11 +261,16 @@ CONSTRUCTOR;
             }
         }
 
+        $baseInterfaces = '';
+        if ($interfacesList = implode(', ', array_map(function ($v) { return '\\'.$v; }, array_keys($class->getInterfaces())))) {
+            $baseInterfaces = 'implements '.$interfacesList;
+        }
         return strtr($this->classTemplate, array(
-            '{{namespace}}' => $namespace,
-            '{{class}}'     => $newClassName,
-            '{{baseClass}}' => $class->getName(),
-            '{{methods}}'   => $methodsCode,
+            '{{namespace}}'      => $namespace,
+            '{{class}}'          => $newClassName,
+            '{{baseClass}}'      => $class->getName(),
+            '{{baseInterfaces}}' => $baseInterfaces,
+            '{{methods}}'        => $methodsCode,
         ));
     }
 
