@@ -142,6 +142,26 @@ class RedisMockFactory extends test
                 ->error()
                     ->notExists();
     }
+
+    public function testMockInterface()
+    {
+        $factory = new Factory();
+        $mock    = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithAnInterface');
+
+        $this->assert
+            ->object($mock)
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithAnInterface_Adapter')
+            ->class(get_class($mock))
+                ->extends('M6Web\Component\RedisMock\tests\units\RedisWithAnInterface')
+                ->hasInterface('M6Web\Component\RedisMock\tests\units\AnInterface');
+
+        $mock    = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithTwoInterfaces');
+
+        $this->assert
+            ->class(get_class($mock))
+                ->hasInterface('M6Web\Component\RedisMock\tests\units\AnInterface')
+                ->hasInterface('M6Web\Component\RedisMock\tests\units\AnotherInterface');
+    }
 }
 
 class RedisWithMethods
@@ -186,4 +206,31 @@ class RedisWithNativeConstructor
     {
 
     }
+}
+
+class RedisWithAnInterface implements AnInterface
+{
+
+    public function get($key) {
+
+        return 'raoul';
+    }
+}
+
+class RedisWithTwoInterfaces implements AnInterface, AnotherInterface
+{
+
+    public function get($key) {
+
+        return 'raoul ^';
+    }
+}
+
+interface AnInterface {
+
+    public function get($key);
+}
+
+interface AnotherInterface {
+
 }
