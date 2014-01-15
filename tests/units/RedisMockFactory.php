@@ -115,7 +115,16 @@ class RedisMockFactory extends test
             ->exception(function() use ($factory) {
                 $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods');
             })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException');
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+
+            ->object($mock = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods', true))
+                ->isInstanceOf('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods')
+            ->exception(function() use ($mock) {
+                    $mock->punsubscribe('raoul');
+                })
+            ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->variable($mock->set('foo', 'bar'));
+
     }
 
     /**
