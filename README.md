@@ -32,6 +32,7 @@ Redis command                                    | Description
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **TTL** *key*                                    | Gets the time to live for a key
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
+**DBSIZE**                                       | Returns the number of keys in the selected database
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
 **SET** *key* *value*                            | Sets the string value of a key

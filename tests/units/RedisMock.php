@@ -932,4 +932,28 @@ class RedisMock extends test
             ->array($redisMock->exec())
                 ->isEmpty();
     }
+
+    public function testDbsize()
+    {
+        $redisMock = new Redis();
+
+        $redisMock->set('test', 'something');
+
+        $this->assert
+            ->integer($redisMock->dbsize())
+            ->isEqualTo(1);
+
+        $redisMock->set('test2', 'raoul');
+
+        $this->assert
+            ->integer($redisMock->dbsize())
+            ->isEqualTo(2);
+
+        $redisMock->expire('test2', 1);
+        sleep(2);
+
+        $this->assert
+            ->integer($redisMock->dbsize())
+            ->isEqualTo(1);
+    }
 }
