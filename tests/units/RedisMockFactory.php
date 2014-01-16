@@ -124,7 +124,6 @@ class RedisMockFactory extends test
                 })
             ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
             ->variable($mock->set('foo', 'bar'));
-
     }
 
     /**
