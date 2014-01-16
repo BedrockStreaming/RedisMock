@@ -209,15 +209,13 @@ METHOD;
     }
 METHODEXCEPTION;
 
-
-protected $constructorTemplate = <<<'CONSTRUCTOR'
+    protected $constructorTemplate = <<<'CONSTRUCTOR'
 
     public function __construct()
     {
         
     }
 CONSTRUCTOR;
-
 
     public function getAdapter($classToExtend, $failOnlyAtRuntime = false)
     {
