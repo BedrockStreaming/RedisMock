@@ -955,5 +955,11 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->dbsize())
             ->isEqualTo(1);
+
+        $redisMock->flushdb();
+
+        $this->assert
+            ->integer($redisMock->dbsize())
+            ->isEqualTo(0);
     }
 }
