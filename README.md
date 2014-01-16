@@ -75,6 +75,8 @@ $myRedisMock = $factory->getAdapter('My\Redis\Library');
 
 **WARNING !** *RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.*
 
+*Note : the factory will throw an exception by default if your parent class implements unsupported commands. If you want even so partially use the mock, you can specify the second parameter when you build it `$factory->getAdapterClass('My\Redis\Library', true)`. The exception will then thrown only when the command is called.*
+
 ## Tests
 
 ```shell
