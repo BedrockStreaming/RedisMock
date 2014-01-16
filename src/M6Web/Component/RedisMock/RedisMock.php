@@ -567,6 +567,14 @@ class RedisMock
 
     // Server
 
+    public function dbsize()
+    {
+        foreach ($this->getData() as $key => $value) {
+            $this->deleteOnTtlExpired($key);
+        }
+        return $this->returnPipedInfo(count($this->getData()));
+    }
+
     public function flushdb()
     {
         $this->reset();

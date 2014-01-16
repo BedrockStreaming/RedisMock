@@ -51,6 +51,7 @@ Redis command                                    | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop*               | Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
+**DBSIZE**                                       | Returns the number of keys in the selected database
 **FLUSHDB**                                      | Flushes the database
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.  
