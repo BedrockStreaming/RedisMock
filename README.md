@@ -43,7 +43,12 @@ Redis command                                    | Description
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HGET** *key* *field*                           | Gets the value of a hash field
 **HGETALL** *key*                                | Gets all the fields and values in a hash
+**HMSET** *key* *array<field, value>*            | Sets each value in the corresponding field
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
+**LPUSH** *key* *value*                          | Pushs values at the head of a list
+**LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
+**LTRIM** *key* *start* *stop*                   | Removes the values of the `key` list which are outside the range `start`...`stop`
+**RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
 **ZRANGE** *key* *start* *stop*                  | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score

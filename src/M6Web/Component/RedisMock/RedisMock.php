@@ -228,6 +228,114 @@ class RedisMock
         return $this->returnPipedInfo(1);
     }
 
+    // Lists
+
+    public function lrem($key, $count, $value)
+    {
+        if (!isset($this->data[$key]) || !in_array($value, $this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(0);
+        }
+
+        $arr      = $this->data[$key];
+        $reversed = false;
+
+        if ($count < 0) {
+            $arr      = array_reverse($arr);
+            $count    = abs($count);
+            $reversed = true;
+        } else if ($count == 0) {
+            $count = count($arr);
+        }
+
+        $arr = array_filter($arr, function ($curValue) use (&$count, $value) {
+            if ($count && ($curValue == $value)) {
+                $count--;
+                return false;
+            }
+
+            return true;
+        });
+
+        $deletedItems = count($this->data[$key]) - count($arr);
+
+        if ($reversed) {
+            $arr = array_reverse($arr);
+        }
+
+        $this->data[$key] = array_values($arr);
+
+        return $this->returnPipedInfo($deletedItems);
+    }
+
+    public function lpush($key, $value)
+    {
+        if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+            $this->data[$key] = array();
+        }
+
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        } 
+
+        array_unshift($this->data[$key], $value);
+
+        return $this->returnPipedInfo(count($this->data[$key]));
+    }
+
+    public function rpush($key, $value)
+    {
+        if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+            $this->data[$key] = array();
+        }
+
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        array_push($this->data[$key], $value);
+
+        return $this->returnPipedInfo(count($this->data[$key]));
+    }
+
+    public function ltrim($key, $start, $stop)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        } elseif (!isset($this->data[$key])) {
+            return $this->returnPipedInfo('OK');
+        }
+
+        if ($start < 0) {
+            if (abs($start) > count($this->data[$key])) {
+                $start = 0;
+            } else {
+                $start = count($this->data[$key]) + $start;
+            }
+        }
+
+        if ($stop >= 0) {
+            $length = $stop - $start + 1;
+        } else {
+            if ($stop == -1) {
+                $length = NULL;
+            } else {
+                $length = $stop + 1;
+            }
+        }
+
+        $this->data[$key] = array_slice($this->data[$key], $start, $length);
+
+        if (!count($this->data[$key])) {
+            $this->stopPipeline();
+            $this->del($key);
+            $this->restorePipeline();
+        }
+
+        return $this->returnPipedInfo('OK');
+    }
+
     // Hashes
 
     public function hset($key, $field, $value)
@@ -248,6 +356,24 @@ class RedisMock
 
         return $this->returnPipedInfo((int) $isNew);
     }
+
+    public function hmset($key, $pairs)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        $this->stopPipeline();
+        foreach ($pairs as $field => $value) {
+            $this->hset($key, $field, $value);
+        }
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo('OK');
+    }
+
 
     public function hget($key, $field)
     {
