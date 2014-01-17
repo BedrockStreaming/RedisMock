@@ -823,10 +823,10 @@ class RedisMock extends test
                 ->isEqualTo(0);
         sleep(2);
         $this->assert
-            ->string($redisMock->hmset('test', ['test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing']))
+            ->string($redisMock->hmset('test', array('test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing')))
                 ->isEqualTo('OK')
             ->array($redisMock->hgetall('test'))
-                ->isEqualTo(['test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing']);
+                ->isEqualTo(array('test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing'));
     }
 
     public function testFlushDb()
