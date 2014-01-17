@@ -232,8 +232,6 @@ class RedisMock
 
     public function lrem($key, $count, $value)
     {
-        $this->deleteOnTtlExpired($key);
-
         if (!isset($this->data[$key]) || !in_array($value, $this->data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
@@ -271,15 +269,13 @@ class RedisMock
 
     public function lpush($key, $value)
     {
-        $this->deleteOnTtlExpired($key);
+        if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+            $this->data[$key] = array();
+        }
 
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
             return $this->returnPipedInfo(null);
-        }
-
-        if (!isset($this->data[$key])) {
-            $this->data[$key] = array();
-        }
+        } 
 
         array_unshift($this->data[$key], $value);
 
@@ -288,14 +284,12 @@ class RedisMock
 
     public function rpush($key, $value)
     {
-        $this->deleteOnTtlExpired($key);
+        if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+            $this->data[$key] = array();
+        }
 
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
             return $this->returnPipedInfo(null);
-        }
-
-        if (!isset($this->data[$key])) {
-            $this->data[$key] = array();
         }
 
         array_push($this->data[$key], $value);
