@@ -288,7 +288,7 @@ class RedisMock
             $this->hset($key, $field, $value);
         }
 
-        return $this;
+        return $this->returnPipedInfo('OK');
     }
 
     public function lpush($key)
@@ -329,7 +329,7 @@ class RedisMock
     {
         $this->data[$key] = array_slice($this->data[$key], $start, ( $stop > 0 ? $stop - $start : $stop));
 
-        return $this->returnPipedInfo(1);
+        return $this->returnPipedInfo('OK');
     }
 
     public function hget($key, $field)

@@ -716,7 +716,7 @@ class RedisMock extends test
                 ->isEmpty();;
     }
 
-    public function testHSetHGetHDelHExistsHGetAll()
+    public function testHSetHMSetHGetHDelHExistsHGetAll()
     {
         $redisMock = new Redis();
 
@@ -813,8 +813,6 @@ class RedisMock extends test
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
-            ->array($redisMock->hgetall('test'))
-                ->isEmpty()
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->expire('test', 1))
@@ -823,6 +821,12 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->hdel('test', 'test1'))
                 ->isEqualTo(0);
+        sleep(2);
+        $this->assert
+            ->string($redisMock->hmset('test', ['test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing']))
+                ->isEqualTo('OK')
+            ->array($redisMock->hgetall('test'))
+                ->isEqualTo(['test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing']);
     }
 
     public function testFlushDb()
@@ -1006,15 +1010,15 @@ class RedisMock extends test
                         ->isEqualTo(1)
                 ->array($redisMock->getData()['test'])
                     ->isEqualTo(array('something', 'blabla', 'something', 'raoul'))
-                ->integer($redisMock->ltrim('test', 0, -1))
-                    ->isIdenticalTo(1)
+                ->string($redisMock->ltrim('test', 0, -1))
+                    ->isIdenticalTo('OK')
                 ->array($redisMock->getData())
                     ->size
                         ->isEqualTo(1)
                 ->array($redisMock->getData()['test'])
                     ->isEqualTo(array('something', 'blabla', 'something'))
-                ->integer($redisMock->ltrim('test', 1, 2))
-                    ->isIdenticalTo(1)
+                ->string($redisMock->ltrim('test', 1, 2))
+                    ->isIdenticalTo('OK')
                 ->array($redisMock->getData())
                     ->size
                         ->isEqualTo(1)
