@@ -775,6 +775,20 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('none')
+            ->string($redisMock->hmset('test', array(
+                'test1'  => 'somthing',
+                'blabla' => 'anything',
+                'raoul'  => 'nothing',
+            )))
+                ->isEqualTo('OK')
+            ->array($redisMock->hgetall('test'))
+                ->isEqualTo(array(
+                    'test1'  => 'somthing',
+                    'blabla' => 'anything',
+                    'raoul'  => 'nothing',
+                ))
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(3)
             ->exception(function () use ($redisMock) {
                 $redisMock->hdel('test', 'test1', 'test2');
             })
@@ -813,6 +827,8 @@ class RedisMock extends test
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
+            ->array($redisMock->hgetall('test'))
+                ->isEmpty()
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->expire('test', 1))
@@ -820,13 +836,154 @@ class RedisMock extends test
         sleep(2);
         $this->assert
             ->integer($redisMock->hdel('test', 'test1'))
-                ->isEqualTo(0);
-        sleep(2);
-        $this->assert
-            ->string($redisMock->hmset('test', array('test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing')))
+                ->isEqualTo(0)
+            ->string($redisMock->hmset('test', array(
+                'test1'  => 'somthing',
+                'blabla' => 'anything',
+                'raoul'  => 'nothing',
+            )))
                 ->isEqualTo('OK')
             ->array($redisMock->hgetall('test'))
-                ->isEqualTo(array('test1'  => 'somthing','blabla' => 'anything','raoul'  => 'nothing'));
+                ->isEqualTo(array(
+                    'test1'  => 'somthing',
+                    'blabla' => 'anything',
+                    'raoul'  => 'nothing',
+                ))
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->array($redisMock->hgetall('test'))
+                ->isEmpty();
+    }
+
+    public function testLPushRPushLRemLTrim()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->array($redisMock->getData())
+                ->isEmpty()
+            ->integer($redisMock->rpush('test', 'blabla'))
+                ->isIdenticalTo(1)
+            ->integer($redisMock->rpush('test', 'something'))
+                ->isIdenticalTo(2)
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(3)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('blabla', 'something', 'raoul')))
+            ->integer($redisMock->lpush('test', 'raoul'))
+                ->isIdenticalTo(4)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'blabla', 'something', 'raoul')))
+            ->integer($redisMock->lrem('test', 2, 'blabla'))
+                ->isIdenticalTo(1)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
+            ->integer($redisMock->lrem('test', 1, 'raoul'))
+                ->isIdenticalTo(1)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('something', 'raoul')))
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(3)
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(4)
+            ->integer($redisMock->lpush('test', 'raoul'))
+                ->isIdenticalTo(5)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something', 'raoul', 'raoul', 'raoul')))
+            ->integer($redisMock->lrem('test', -2, 'raoul'))
+                ->isIdenticalTo(2)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(4)
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(5)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something', 'raoul', 'raoul', 'raoul')))
+            ->integer($redisMock->lrem('test', 0, 'raoul'))
+                ->isIdenticalTo(4)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('something')))
+            ->integer($redisMock->rpush('test', 'blabla'))
+                ->isIdenticalTo(2)
+            ->integer($redisMock->rpush('test', 'something'))
+                ->isIdenticalTo(3)
+            ->integer($redisMock->rpush('test', 'raoul'))
+                ->isIdenticalTo(4)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('something', 'blabla', 'something', 'raoul')))
+            ->string($redisMock->ltrim('test', 0, -1))
+                ->isIdenticalTo('OK')
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('something', 'blabla', 'something', 'raoul')))
+            ->string($redisMock->ltrim('test', 1, -1))
+                ->isIdenticalTo('OK')
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('blabla', 'something', 'raoul')))
+            ->string($redisMock->ltrim('test', -2, 2))
+                ->isIdenticalTo('OK')
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('something', 'raoul')))
+            ->string($redisMock->ltrim('test', 0, 2))
+                ->isIdenticalTo('OK')
+            ->integer($redisMock->lpush('test', 'raoul'))
+                ->isIdenticalTo(3)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
+            ->string($redisMock->ltrim('test', -3, -2))
+                ->isIdenticalTo('OK')
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul', 'something')))
+            ->string($redisMock->ltrim('test', -1, 0))
+                ->isIdenticalTo('OK')
+            ->boolean($redisMock->exists('test'))
+                ->isIdenticalTo(false)
+            ->integer($redisMock->lpush('test', 'raoul'))
+                ->isIdenticalTo(1)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('raoul')))
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(1)
+            ->integer($redisMock->rpush('test', 'test1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->rpush('test', 'test1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->lpush('test', 'test1'))
+                ->isEqualTo(2)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->lpush('test', 'test1'))
+                ->isEqualTo(1)
+            ->string($redisMock->ltrim('test', 0, -1))
+                ->isEqualTo('OK')
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->string($redisMock->ltrim('test', 0, -1))
+                ->isEqualTo('OK')
+            ->array($redisMock->getData())
+                ->isEmpty()
+            ->integer($redisMock->rpush('test', 'test1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->rpush('test', 'test1'))
+                ->isEqualTo(2)
+            ->integer($redisMock->lrem('test', 1 , 'test1'))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->lrem('test', 1 , 'test1'))
+                ->isEqualTo(0);
     }
 
     public function testFlushDb()
@@ -871,9 +1028,14 @@ class RedisMock extends test
                     ->del('test')
                     ->hset('test', 'test1', 'something')
                     ->hget('test', 'test1')
+                    ->hmset('test', array('test1' => 'something'))
                     ->hexists('test', 'test1')
                     ->hgetall('test')
                     ->del('test')
+                    ->lpush('test', 'test1')
+                    ->ltrim('test', 0, -1)
+                    ->lrem('test', 1, 'test1')
+                    ->rpush('test', 'test1')
                     ->type('test')
                     ->ttl('test')
                     ->expire('test', 1)
@@ -965,44 +1127,5 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->dbsize())
             ->isEqualTo(0);
-    }
-
-    public function testPushRemTrim()
-    {
-        $redisMock = new Redis();
-
-        $this
-            ->assert
-                ->array($redisMock->getData())
-                    ->isEmpty()
-                ->integer($redisMock->rpush('test', 'blabla', 'something', 'raoul'))
-                    ->isIdenticalTo(3)
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('blabla', 'something', 'raoul')))
-                ->integer($redisMock->lpush('test', 'raoul'))
-                    ->isIdenticalTo(4)
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('raoul', 'blabla', 'something', 'raoul')))
-                ->integer($redisMock->lrem('test', 2, 'blabla'))
-                    ->isIdenticalTo(1)
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
-                ->integer($redisMock->lrem('test', 2, 'raoul'))
-                    ->isIdenticalTo(2)
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('something')))
-                ->integer($redisMock->rpush('test', 'blabla', 'something', 'raoul'))
-                    ->isIdenticalTo(4)
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('something', 'blabla', 'something', 'raoul')))
-                ->string($redisMock->ltrim('test', 0, -1))
-                    ->isIdenticalTo('OK')
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('something', 'blabla', 'something')))
-                ->string($redisMock->ltrim('test', 1, 2))
-                    ->isIdenticalTo('OK')
-                ->array($redisMock->getData())
-                    ->isEqualTo(array('test' => array('blabla')));
-        ;
     }
 }
