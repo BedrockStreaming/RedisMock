@@ -221,6 +221,10 @@ class RedisMock
 
     public function lrem($key, $count, $value)
     {
+        if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
         $arr      = $this->data[$key];
         $reversed = false;
 
@@ -293,7 +297,11 @@ class RedisMock
 
     public function lpush($key)
     {
-        if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+        if (!isset($this->data[$key])) {
+            $this->data[$key] = array();
+        }
+
+        if (!is_array($this->data[$key])) {
             return $this->returnPipedInfo(null);
         }
 
@@ -327,6 +335,10 @@ class RedisMock
 
     public function ltrim($key, $start, $stop)
     {
+        if (!is_array($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
         $this->data[$key] = array_slice($this->data[$key], $start, ( $stop > 0 ? $stop - $start : $stop));
 
         return $this->returnPipedInfo('OK');
