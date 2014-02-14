@@ -23,6 +23,8 @@ class RedisMock extends test
                 ->isEqualTo(0)
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
+            ->string($redisMock->setex('test', 10, 'something'))
+                ->isEqualTo('OK')
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
             ->boolean($redisMock->exists('test'))
@@ -51,6 +53,8 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->string($redisMock->set('test', 'something', 1))
                 ->isEqualTo('OK')
+            ->string($redisMock->setex('test2', 1, 'something'))
+                ->isEqualTo('OK')
             ->integer($redisMock->ttl('test'))
                 ->isEqualTo(1)
             ->string($redisMock->get('test'))
@@ -58,6 +62,8 @@ class RedisMock extends test
         sleep(2);
         $this->assert
             ->variable($redisMock->get('test'))
+                ->isNull()
+            ->variable($redisMock->get('test2'))
                 ->isNull()
             ->string($redisMock->set('test', 'something', 1))
                 ->isEqualTo('OK')
