@@ -35,6 +35,7 @@ Redis command                                    | Description
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
 **SET** *key* *value*                            | Sets the string value of a key
+**SETEX** *key* *seconds* *value*                | Set the value and expiration of a key
 **SADD** *key* *member*                          | Adds one member to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
@@ -81,7 +82,7 @@ $myRedisMock = $factory->getAdapter('My\Redis\Library');
 
 **WARNING !** *RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.*
 
-*Note : the factory will throw an exception by default if your parent class implements unsupported commands. If you want even so partially use the mock, you can specify the second parameter when you build it `$factory->getAdapterClass('My\Redis\Library', true)`. The exception will then thrown only when the command is called.*
+*Note : the factory will throw an exception by default if your parent class implements unsupported commands. If you want even so partially use the mock, you can specify the second parameter when you build it `$factory->getAdapter('My\Redis\Library', true)`. The exception will then thrown only when the command is called.*
 
 ## Tests
 
