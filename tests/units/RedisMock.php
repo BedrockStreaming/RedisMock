@@ -60,14 +60,14 @@ class RedisMock extends test
                 ->isEqualTo('OK')
             ->string($redisMock->set('test2', 'something else'))
                 ->isEqualTo('OK')
-            ->exception(function() use ($redisMock) {
-                $redisMock->del('test1', 'test2');
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
-            ->integer($redisMock->del('test1'))
-                ->isEqualTo(1)
-            ->integer($redisMock->del('test2'))
-                ->isEqualTo(1)
+            ->integer($redisMock->del('test1', 'test2'))
+                ->isEqualTo(2)
+            ->string($redisMock->set('test1', 'something'))
+                ->isEqualTo('OK')
+            ->string($redisMock->set('test2', 'something else'))
+                ->isEqualTo('OK')
+            ->integer($redisMock->del(array('test1', 'test2')))
+                ->isEqualTo(2)
 
             ->string($redisMock->set('test3', 'something', 1))
                 ->isEqualTo('OK')

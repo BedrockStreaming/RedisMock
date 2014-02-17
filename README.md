@@ -26,7 +26,7 @@ It currently mocks these Redis commands :
 
 Redis command                                    | Description
 -------------------------------------------------|------------
-**DEL** *key*                                    | Deletes a key
+**DEL** *key* *[key ...]*                        | Deletes one or more keys
 **EXISTS** *key*                                 | Determines if a key exists
 **EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
 **KEYS** *pattern*                               | Finds all keys matching the given pattern

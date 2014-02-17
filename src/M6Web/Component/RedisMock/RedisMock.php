@@ -134,23 +134,25 @@ class RedisMock
 
     public function del($key)
     {
-        if (func_num_args() > 1) {
-            throw new UnsupportedException('In RedisMock, `del` command can not remove more than one key at once.');
+        if ( is_array($key) ) {
+            $keys = $key;
+        } else {
+            $keys = func_get_args();
         }
 
-        if (!isset($this->data[$key])) {
-            return $this->returnPipedInfo(0);
+        $deletedKeyCount = 0;
+        foreach ( $keys as $k ) {
+            if ( isset($this->data[$k]) ) {
+                $deletedKeyCount += count($this->data[$k]);
+                unset($this->data[$k]);
+                unset($this->dataTypes[$k]);
+                if (array_key_exists($k, $this->dataTtl)) {
+                    unset($this->dataTtl[$k]);
+                }
+            }
         }
 
-        $deletedItems = count($this->data[$key]);
-
-        unset($this->data[$key]);
-        unset($this->dataTypes[$key]);
-        if (array_key_exists($key, $this->dataTtl)) {
-            unset($this->dataTtl[$key]);
-        }
-
-        return $this->returnPipedInfo($deletedItems);
+        return $this->returnPipedInfo($deletedKeyCount);
     }
 
     public function keys($pattern)
