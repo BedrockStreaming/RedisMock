@@ -131,8 +131,7 @@ class RedisMock
     {
         if ( is_array($key) ) {
             $keys = $key;
-        }
-        else {
+        } else {
             $keys = func_get_args();
         }
 
@@ -148,7 +147,6 @@ class RedisMock
             }
         }
         return $this->returnPipedInfo($deletedKeyCount);
-
     }
 
     public function keys($pattern)
@@ -184,7 +182,7 @@ class RedisMock
         if ($isNew) {
             $this->data[$key][] = $member;
         }
-        
+
         $this->dataTypes[$key] = 'set';
 
         if (array_key_exists($key, $this->dataTtl)) {
@@ -278,7 +276,7 @@ class RedisMock
 
         if (isset($this->data[$key]) && !is_array($this->data[$key])) {
             return $this->returnPipedInfo(null);
-        } 
+        }
 
         array_unshift($this->data[$key], $value);
 
