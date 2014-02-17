@@ -146,6 +146,7 @@ class RedisMock
                 }
             }
         }
+
         return $this->returnPipedInfo($deletedKeyCount);
     }
 
