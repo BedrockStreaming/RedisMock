@@ -1,6 +1,6 @@
 # Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png?branch=master)](http://travis-ci.org/M6Web/RedisMock)
 
-PHP 5.3 library providing a Redis PHP mock for your tests.  
+PHP 5.3 library providing a Redis PHP mock for your tests.
 
 ## Installation
 
@@ -35,7 +35,7 @@ Redis command                                    | Description
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
 **SET** *key* *value*                            | Sets the string value of a key
-**SETEX** *key* *seconds* *value*                | Set the value and expiration of a key
+**SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SADD** *key* *member*                          | Adds one member to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
@@ -60,7 +60,7 @@ Redis command                                    | Description
 **DBSIZE**                                       | Returns the number of keys in the selected database
 **FLUSHDB**                                      | Flushes the database
 
-It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.  
+It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
 **PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.
 
 ## Usage
@@ -94,7 +94,7 @@ $ ./vendor/bin/atoum
 
 ## Credits
 
-Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).  
+Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
 Tested with [atoum](http://atoum.org).
 
 ## License
