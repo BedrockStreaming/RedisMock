@@ -62,6 +62,11 @@ class RedisMock
         return $this->returnPipedInfo('OK');
     }
 
+    public function setex($key, $seconds, $value)
+    {
+        return $this->set($key, $value, $seconds);
+    }
+
     public function ttl($key)
     {
         if (!array_key_exists($key, $this->data) || $this->deleteOnTtlExpired($key)) {

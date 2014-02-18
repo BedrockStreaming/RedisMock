@@ -21,6 +21,7 @@ class RedisMock extends test
                 ->isNull()
             ->integer($redisMock->del('test'))
                 ->isEqualTo(0)
+
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
             ->string($redisMock->type('test'))
@@ -37,6 +38,24 @@ class RedisMock extends test
                 ->isEqualTo('none')
             ->boolean($redisMock->exists('test'))
                 ->isFalse()
+
+            ->string($redisMock->setex('test1', 5, 'something'))
+                ->isEqualTo('OK')
+            ->string($redisMock->type('test1'))
+                ->isEqualTo('string')
+            ->boolean($redisMock->exists('test1'))
+                ->isTrue()
+            ->string($redisMock->get('test1'))
+                ->isEqualTo('something')
+            ->integer($redisMock->del('test1'))
+                ->isEqualTo(1)
+            ->variable($redisMock->get('test1'))
+                ->isNull()
+            ->string($redisMock->type('test1'))
+                ->isEqualTo('none')
+            ->boolean($redisMock->exists('test1'))
+                ->isFalse()
+
             ->string($redisMock->set('test1', 'something'))
                 ->isEqualTo('OK')
             ->string($redisMock->set('test2', 'something else'))
@@ -49,16 +68,26 @@ class RedisMock extends test
                 ->isEqualTo('OK')
             ->integer($redisMock->del(array('test1', 'test2')))
                 ->isEqualTo(2)
-            ->string($redisMock->set('test', 'something', 1))
+
+            ->string($redisMock->set('test3', 'something', 1))
                 ->isEqualTo('OK')
-            ->integer($redisMock->ttl('test'))
+            ->string($redisMock->setex('test4', 2, 'something else'))
+                ->isEqualTo('OK')
+            ->integer($redisMock->ttl('test3'))
                 ->isEqualTo(1)
-            ->string($redisMock->get('test'))
-                ->isEqualTo('something');
-        sleep(2);
+            ->integer($redisMock->ttl('test4'))
+                ->isEqualTo(2)
+            ->string($redisMock->get('test3'))
+                ->isEqualTo('something')
+            ->string($redisMock->get('test4'))
+                ->isEqualTo('something else');
+        sleep(3);
         $this->assert
-            ->variable($redisMock->get('test'))
+            ->variable($redisMock->get('test3'))
                 ->isNull()
+            ->variable($redisMock->get('test4'))
+                ->isNull()
+
             ->string($redisMock->set('test', 'something', 1))
                 ->isEqualTo('OK')
             ->string($redisMock->type('test'))
