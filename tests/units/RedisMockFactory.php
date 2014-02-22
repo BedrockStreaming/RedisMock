@@ -11,6 +11,31 @@ use mageekguy\atoum\test;
  */
 class RedisMockFactory extends test
 {
+
+    /**
+     * Test the getter
+     *
+     * @return void
+     */
+    public function testGetMock()
+    {
+        $factory = new Factory();
+        $mock    = $factory->getMock('StdClass', true);
+
+        $this->assert
+            ->object($mock)
+            ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter')
+            ->class(get_class($mock))
+            ->extends('StdClass');
+
+        $class    = $factory->getMock('StdClass', false);
+        $this->assert
+            ->string($class = $factory->getMock('StdClass', false))
+            ->isEqualTo('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter_NativeConstructor')
+            ->class($class)
+            ->extends('StdClass');
+    }
+
     /**
      * Test the mock
      * 

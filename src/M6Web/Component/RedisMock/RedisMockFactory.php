@@ -217,6 +217,29 @@ METHODEXCEPTION;
     }
 CONSTRUCTOR;
 
+    /**
+     * GetMock
+     *
+     * @api
+     * @param $classToExtend
+     * @param bool $getObject
+     * @param array $params
+     *
+     * @return mixed
+     */
+    public function getMock($classToExtend, $getObject = true, $params = [])
+    {
+        $orphanizeConstructor = array_key_exists('orphanizeConstructor', $params) ? $params['orphanizeConstructor'] : false;
+        $failOnlyAtRuntime = array_key_exists('failOnlyAtRuntime', $params) ? $params['failOnlyAtRuntime'] : false;
+        if ($getObject) {
+
+            return $this->getAdapter($classToExtend, $failOnlyAtRuntime, $orphanizeConstructor);
+        } else {
+
+            return $this->getAdapterClass($classToExtend, $failOnlyAtRuntime, $orphanizeConstructor);
+        }
+
+    }
 
     public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true)
     {
