@@ -156,7 +156,7 @@ class RedisMockFactory extends test
      *
      * @return void
      */
-    public function testPredis()
+    public function testFailOnlyAtRuntime()
     {
         $factory = new Factory();
         $mock    = $factory->getAdapter('Predis\Client', true);
