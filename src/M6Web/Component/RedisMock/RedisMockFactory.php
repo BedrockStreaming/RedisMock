@@ -227,7 +227,7 @@ CONSTRUCTOR;
      *
      * @return mixed
      */
-    public function getMock($classToExtend, $getObject = true, $params = [])
+    public function getMock($classToExtend, $getObject = true, $params = array())
     {
         $orphanizeConstructor = array_key_exists('orphanizeConstructor', $params) ? $params['orphanizeConstructor'] : false;
         $failOnlyAtRuntime = array_key_exists('failOnlyAtRuntime', $params) ? $params['failOnlyAtRuntime'] : false;
