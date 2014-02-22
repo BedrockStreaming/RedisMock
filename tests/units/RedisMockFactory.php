@@ -150,6 +150,21 @@ class RedisMockFactory extends test
                 ->error()
                     ->notExists();
     }
+
+    /**
+     * mock a concrete Predis Client
+     *
+     * @return void
+     */
+    public function testFailOnlyAtRuntime()
+    {
+        $factory = new Factory();
+        $mock    = $factory->getAdapter('Predis\Client', true);
+
+        $this->assert
+            ->object($mock)
+            ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter');
+    }
 }
 
 class RedisWithMethods
