@@ -55,7 +55,7 @@ class RedisMockFactory extends test
         $this->assert
             ->object($mock2)
                 ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter')
-            ->class(get_class($mock))
+            ->class(get_class($mock2))
                 ->extends('StdClass');
     }
 
@@ -105,29 +105,6 @@ class RedisMockFactory extends test
     }
 
     /**
-     * Test the mock with a base class that implement unsupported Redis commands
-     * 
-     * @return void
-     */
-    public function testUnsupportedMock()
-    {
-        $factory = new Factory();
-        $this->assert
-            ->exception(function() use ($factory) {
-                $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods');
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
-
-            ->object($mock = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods', true))
-                ->isInstanceOf('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods')
-            ->exception(function() use ($mock) {
-                    $mock->punsubscribe('raoul');
-                })
-            ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
-            ->variable($mock->set('foo', 'bar'));
-    }
-
-    /**
      * Test method getAdpaterClass
      * 
      * @return void
@@ -135,6 +112,38 @@ class RedisMockFactory extends test
     public function testGetAdapterClass()
     {
         $factory = new Factory();
+        $this->assert
+            ->string($class = $factory->getAdapterClass('StdClass'))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_StdClass_Adapter_NativeConstructor')
+            ->class($class)
+                ->extends('StdClass')
+            ->object($mock = new $class())
+            ->string($mock->set('test', 'data'))
+                ->isEqualTo('OK');
+    }
+
+    /**
+     * Build mock by using 'orphanizeConstruct' parameter
+     * 
+     * @return void
+     */
+    public function testOrphanizeConstruct() {
+        $factory = new Factory();
+        $this->assert
+            ->when(function() use ($factory) {
+               $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor', false, false);
+            })
+                ->error()
+                    ->exists();
+
+        $mock = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor');
+
+        $this->assert
+            ->object($mock)
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithNativeConstructor_Adapter')
+            ->class(get_class($mock))
+                ->extends('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor');
+
         $this->assert
             ->string($class = $factory->getAdapterClass('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor'))
                 ->isEqualTo('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithNativeConstructor_Adapter_NativeConstructor')
@@ -149,22 +158,73 @@ class RedisMockFactory extends test
                 $mock = new $class(null);
             })
                 ->error()
+                    ->notExists()
+            ->string($class2 = $factory->getAdapterClass('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor', false, true))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithNativeConstructor_Adapter')
+            ->class($class2)
+                ->extends('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor')
+            ->when(function() use ($class2) {
+                $mock = new $class2();
+            })
+                ->error()
                     ->notExists();
     }
 
     /**
-     * mock a concrete Predis Client
+     * Test the mock with a base class that implement unsupported Redis commands
+     * 
+     * @return void
+     */
+    public function testUnsupportedMock()
+    {
+        $factory = new Factory();
+        $this->assert
+            ->exception(function() use ($factory) {
+                $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods');
+            })
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->object($mock = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods', true))
+                ->isInstanceOf('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods')
+            ->exception(function() use ($mock) {
+                    $mock->punsubscribe('raoul');
+                })
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->variable($mock->set('foo', 'bar'));
+
+        $this->assert
+            ->exception(function() use ($factory) {
+                $factory->getAdapterClass('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods');
+            })
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->string($class = $factory->getAdapterClass('M6Web\Component\RedisMock\tests\units\RedisWithUnsupportedMethods', true))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithUnsupportedMethods_Adapter_NativeConstructor');
+
+        $mock2 = new $class();
+
+        $this->assert
+            ->exception(function() use ($mock2) {
+                    $mock2->punsubscribe('raoul');
+                })
+                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->variable($mock2->set('foo', 'bar'));
+    }
+
+    /**
+     * Mock a concrete Predis Client
      *
      * @return void
      */
-    public function testFailOnlyAtRuntime()
+    public function testFailOnlyAtRuntimeWithPredis()
     {
         $factory = new Factory();
-        $mock    = $factory->getAdapter('Predis\Client', true);
 
         $this->assert
-            ->object($mock)
-            ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter');
+            ->object($factory->getAdapter('Predis\Client', true))
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter');
+
+        $this->assert
+            ->string($factory->getAdapterClass('Predis\Client', true))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter_NativeConstructor');
     }
 }
 
