@@ -15,7 +15,7 @@
             $redisMock = new Redis();
 
             $this->assert->boolean($redisMock->exists('test'))->isFalse()->variable($redisMock->get('test'))->isNull(
-              )->integer($redisMock->del('test'))->isEqualTo(0)
+            )->integer($redisMock->del('test'))->isEqualTo(0)
 
               ->string($redisMock->set('test', 'something'))->isEqualTo('OK')->string(
                 $redisMock->type('test')
@@ -60,8 +60,8 @@
               )->isEqualTo('string');
             sleep(2);
             $this->assert->string($redisMock->type('test'))->isEqualTo('none')->string(
-                $redisMock->set('test', 'something', 1)
-              )->isEqualTo('OK')->boolean($redisMock->exists('test'))->isTrue();
+              $redisMock->set('test', 'something', 1)
+            )->isEqualTo('OK')->boolean($redisMock->exists('test'))->isTrue();
             sleep(2);
             $this->assert->boolean($redisMock->exists('test'))->isFalse();
         }
@@ -71,8 +71,8 @@
             $redisMock = new Redis();
 
             $this->assert->integer($redisMock->expire('test', 2))->isEqualTo(0)->integer(
-                $redisMock->ttl('test')
-              )->isEqualTo(-2)->integer($redisMock->sadd('test', 'one'))->integer($redisMock->ttl('test'))->isEqualTo(
+              $redisMock->ttl('test')
+            )->isEqualTo(-2)->integer($redisMock->sadd('test', 'one'))->integer($redisMock->ttl('test'))->isEqualTo(
                 -1
               )->integer($redisMock->expire('test', 2))->isEqualTo(1)->integer($redisMock->ttl('test'))->isEqualTo(2);
             sleep(1);
@@ -82,8 +82,8 @@
 
 
             $this->assert->string($redisMock->set('test', 'something', 10))->isEqualTo('OK')->integer(
-                $redisMock->ttl('test')
-              )->isEqualTo(10)->integer($redisMock->expire('test', 1))->isEqualTo(1)->integer(
+              $redisMock->ttl('test')
+            )->isEqualTo(10)->integer($redisMock->expire('test', 1))->isEqualTo(1)->integer(
                 $redisMock->ttl('test')
               )->isEqualTo(1);
             sleep(2);
@@ -95,8 +95,8 @@
             $redisMock = new Redis();
 
             $this->assert->variable($redisMock->get('test'))->isNull()->integer($redisMock->incr('test'))->isEqualTo(
-                1
-              )->integer($redisMock->get('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
+              1
+            )->integer($redisMock->get('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
                 'string'
               )->integer($redisMock->incr('test'))->isEqualTo(2)->integer($redisMock->incr('test'))->isEqualTo(
                 3
@@ -114,8 +114,8 @@
             $redisMock = new Redis();
 
             $this->assert->string($redisMock->set('something', 'a'))->isEqualTo('OK')->string(
-                $redisMock->set('someting_else', 'b')
-              )->isEqualTo('OK')->string($redisMock->set('others', 'c'))->isEqualTo('OK')->array(
+              $redisMock->set('someting_else', 'b')
+            )->isEqualTo('OK')->string($redisMock->set('others', 'c'))->isEqualTo('OK')->array(
                 $redisMock->keys('some')
               )->isEmpty()->array($redisMock->keys('some*'))->hasSize(2)->containsValues(
                 array('something', 'someting_else')
@@ -134,8 +134,8 @@
               )->isEqualTo(1);
             sleep(2);
             $this->assert->array($redisMock->keys('*'))->hasSize(2)->containsValues(
-                array('something', 'someting_else')
-              );
+              array('something', 'someting_else')
+            );
         }
 
         public function testSCard()
@@ -158,8 +158,8 @@
             $redisMock = new Redis();
 
             $this->assert->string($redisMock->set('test', 'something'))->isEqualTo('OK')->variable(
-                $redisMock->sadd('test', 'test1')
-              )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
+              $redisMock->sadd('test', 'test1')
+            )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
                 'none'
               )->array($redisMock->smembers('test'))->isEmpty()->integer(
                 $redisMock->sismember('test', 'test1')
@@ -194,18 +194,18 @@
               )->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->sadd('test', 'test1'))->isEqualTo(1)->array(
-                $redisMock->smembers('test')
-              )->hasSize(1)->containsValues(array('test1'))->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->smembers('test')
+            )->hasSize(1)->containsValues(array('test1'))->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->array($redisMock->smembers('test'))->isEmpty()->integer(
-                $redisMock->sadd('test', 'test1')
-              )->isEqualTo(1)->integer($redisMock->sismember('test', 'test1'))->isEqualTo(1)->integer(
+              $redisMock->sadd('test', 'test1')
+            )->isEqualTo(1)->integer($redisMock->sismember('test', 'test1'))->isEqualTo(1)->integer(
                 $redisMock->expire('test', 1)
               )->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->sismember('test', 'test1'))->isEqualTo(0)->integer(
-                $redisMock->sadd('test', 'test1')
-              )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->sadd('test', 'test1')
+            )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->srem('test', 'test1'))->isEqualTo(0);
         }
@@ -215,8 +215,8 @@
             $redisMock = new Redis();
 
             $this->assert->string($redisMock->set('test', 'something'))->isEqualTo('OK')->variable(
-                $redisMock->zadd('test', 1, 'test1')
-              )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
+              $redisMock->zadd('test', 1, 'test1')
+            )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
                 'none'
               )->integer($redisMock->zrem('test', 'test1'))->isEqualTo(0)->integer(
                 $redisMock->zadd('test', 1, 'test1')
@@ -245,12 +245,12 @@
               )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->zadd('test', 1, 'test1'))->isEqualTo(1)->integer(
-                $redisMock->expire('test', 1)
-              )->isEqualTo(1);
+              $redisMock->expire('test', 1)
+            )->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->zrem('test', 'test1'))->isEqualTo(0)->integer(
-                $redisMock->zadd('test', 1, 'test1')
-              )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->zadd('test', 1, 'test1')
+            )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->zremrangebyscore('test', '0', '2'))->isEqualTo(0);
         }
@@ -267,7 +267,26 @@
 
             $this->assert->integer($redisMock->zcard('test'))->isEqualTo(6);
 
-            $this->assert->integer($redisMock->zcard('nothere'))->isEqualTo(0);
+            $this->assert->variable($redisMock->zcard('nothere'))->isNull();
+        }
+
+        public function testZRank()
+        {
+            $redisMock = new Redis();
+            $redisMock->zadd('test', 0, 'test6');
+            $redisMock->zadd('test', 1, 'test4');
+            $redisMock->zadd('test', 2, 'test3');
+            $redisMock->zadd('test', 4, 'test1');
+            $redisMock->zadd('test', 15, 'test2');
+            $redisMock->zadd('test', 30, 'test5');
+
+
+            $this->assert->variable($redisMock->zrank('test', 'test6'))->isEqualTo(0);
+            $this->assert->variable($redisMock->zrank('test', 'test4'))->isEqualTo(1);
+            $this->assert->variable($redisMock->zrank('test', 'test3'))->isEqualTo(2);
+            $this->assert->variable($redisMock->zrank('test', 'test1'))->isEqualTo(3);
+            $this->assert->variable($redisMock->zrank('test', 'test2'))->isEqualTo(4);
+            $this->assert->variable($redisMock->zrank('test', 'test5'))->isEqualTo(5);
         }
 
         public function testZRange()
@@ -284,12 +303,12 @@
             $redisMock->zadd('test', 0, 'test6');
 
             $this->assert->array($redisMock->zrange('test', 0, 2))->isEqualTo(
-                array(
-                     'test6',
-                     'test1',
-                     'test4',
-                )
-              )->array($redisMock->zrange('test', 8, 2))->isEmpty()->array($redisMock->zrange('test', -1, 2))->isEmpty(
+              array(
+                   'test6',
+                   'test1',
+                   'test4',
+              )
+            )->array($redisMock->zrange('test', 8, 2))->isEmpty()->array($redisMock->zrange('test', -1, 2))->isEmpty(
               )->array($redisMock->zrange('test', -3, 4))->isEqualTo(
                 array(
                      'test3',
@@ -355,12 +374,12 @@
             $redisMock->zadd('test', 0, 'test6');
 
             $this->assert->array($redisMock->zrevrange('test', 0, 2))->isEqualTo(
-                array(
-                     'test5',
-                     'test2',
-                     'test3',
-                )
-              )->array($redisMock->zrevrange('test', 8, 2))->isEmpty()->array(
+              array(
+                   'test5',
+                   'test2',
+                   'test3',
+              )
+            )->array($redisMock->zrevrange('test', 8, 2))->isEmpty()->array(
                 $redisMock->zrevrange('test', -1, 2)
               )->isEmpty()->array($redisMock->zrevrange('test', -3, 4))->isEqualTo(
                 array(
@@ -427,15 +446,15 @@
             $redisMock->zadd('test', 0, 'test6');
 
             $this->assert->array($redisMock->zrangebyscore('test', '-inf', '+inf'))->isEqualTo(
-                array(
-                     'test6',
-                     'test1',
-                     'test4',
-                     'test3',
-                     'test2',
-                     'test5',
-                )
-              )->array($redisMock->zrangebyscore('test', '-inf', '15'))->isEqualTo(
+              array(
+                   'test6',
+                   'test1',
+                   'test4',
+                   'test3',
+                   'test2',
+                   'test5',
+              )
+            )->array($redisMock->zrangebyscore('test', '-inf', '15'))->isEqualTo(
                 array(
                      'test6',
                      'test1',
@@ -519,15 +538,15 @@
             $redisMock->zadd('test', 0, 'test6');
 
             $this->assert->array($redisMock->zrevrangebyscore('test', '+inf', '-inf'))->isEqualTo(
-                array(
-                     'test5',
-                     'test2',
-                     'test3',
-                     'test4',
-                     'test1',
-                     'test6',
-                )
-              )->array($redisMock->zrevrangebyscore('test', '15', '-inf'))->isEqualTo(
+              array(
+                   'test5',
+                   'test2',
+                   'test3',
+                   'test4',
+                   'test1',
+                   'test6',
+              )
+            )->array($redisMock->zrevrangebyscore('test', '15', '-inf'))->isEqualTo(
                 array(
                      'test2',
                      'test3',
@@ -602,8 +621,8 @@
             $redisMock = new Redis();
 
             $this->assert->string($redisMock->set('test', 'something'))->isEqualTo('OK')->variable(
-                $redisMock->hset('test', 'test1', 'something')
-              )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
+              $redisMock->hset('test', 'test1', 'something')
+            )->isNull()->integer($redisMock->del('test'))->isEqualTo(1)->string($redisMock->type('test'))->isEqualTo(
                 'none'
               )->variable($redisMock->hget('test', 'test1'))->isNull()->array($redisMock->hgetall('test'))->isEmpty(
               )->integer($redisMock->hexists('test', 'test1'))->isEqualTo(0)->integer(
@@ -652,35 +671,35 @@
               )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->hset('test', 'test1', 'something'))->isEqualTo(1)->string(
-                $redisMock->hget('test', 'test1')
-              )->isEqualTo('something')->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->hget('test', 'test1')
+            )->isEqualTo('something')->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->variable($redisMock->hget('test', 'test1'))->isNull()->integer(
-                $redisMock->hset('test', 'test1', 'something')
-              )->isEqualTo(1)->integer($redisMock->hexists('test', 'test1'))->isEqualTo(1)->integer(
+              $redisMock->hset('test', 'test1', 'something')
+            )->isEqualTo(1)->integer($redisMock->hexists('test', 'test1'))->isEqualTo(1)->integer(
                 $redisMock->expire('test', 1)
               )->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->hexists('test', 'test1'))->isEqualTo(0)->integer(
-                $redisMock->hset('test', 'test1', 'something')
-              )->isEqualTo(1)->array($redisMock->hgetall('test'))->hasSize(1)->integer(
+              $redisMock->hset('test', 'test1', 'something')
+            )->isEqualTo(1)->array($redisMock->hgetall('test'))->hasSize(1)->integer(
                 $redisMock->expire('test', 1)
               )->isEqualTo(1);
             sleep(2);
             $this->assert->array($redisMock->hgetall('test'))->isEmpty()->integer(
-                $redisMock->hset('test', 'test1', 'something')
-              )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->hset('test', 'test1', 'something')
+            )->isEqualTo(1)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->hdel('test', 'test1'))->isEqualTo(0)->string(
-                $redisMock->hmset(
-                  'test',
-                  array(
-                       'test1'  => 'somthing',
-                       'blabla' => 'anything',
-                       'raoul'  => 'nothing',
-                  )
+              $redisMock->hmset(
+                'test',
+                array(
+                     'test1'  => 'somthing',
+                     'blabla' => 'anything',
+                     'raoul'  => 'nothing',
                 )
-              )->isEqualTo('OK')->array($redisMock->hgetall('test'))->isEqualTo(
+              )
+            )->isEqualTo('OK')->array($redisMock->hgetall('test'))->isEqualTo(
                 array(
                      'test1'  => 'somthing',
                      'blabla' => 'anything',
@@ -696,8 +715,8 @@
             $redisMock = new Redis();
 
             $this->assert->array($redisMock->getData())->isEmpty()->integer(
-                $redisMock->rpush('test', 'blabla')
-              )->isIdenticalTo(1)->integer($redisMock->rpush('test', 'something'))->isIdenticalTo(2)->integer(
+              $redisMock->rpush('test', 'blabla')
+            )->isIdenticalTo(1)->integer($redisMock->rpush('test', 'something'))->isIdenticalTo(2)->integer(
                 $redisMock->rpush('test', 'raoul')
               )->isIdenticalTo(3)->array($redisMock->getData())->isEqualTo(
                 array('test' => array('blabla', 'something', 'raoul'))
@@ -752,16 +771,16 @@
               )->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->rpush('test', 'test1'))->isEqualTo(1)->integer(
-                $redisMock->lpush('test', 'test1')
-              )->isEqualTo(2)->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->lpush('test', 'test1')
+            )->isEqualTo(2)->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->integer($redisMock->lpush('test', 'test1'))->isEqualTo(1)->string(
-                $redisMock->ltrim('test', 0, -1)
-              )->isEqualTo('OK')->integer($redisMock->expire('test', 1))->isEqualTo(1);
+              $redisMock->ltrim('test', 0, -1)
+            )->isEqualTo('OK')->integer($redisMock->expire('test', 1))->isEqualTo(1);
             sleep(2);
             $this->assert->string($redisMock->ltrim('test', 0, -1))->isEqualTo('OK')->array(
-                $redisMock->getData()
-              )->isEmpty()->integer($redisMock->rpush('test', 'test1'))->isEqualTo(1)->integer(
+              $redisMock->getData()
+            )->isEmpty()->integer($redisMock->rpush('test', 'test1'))->isEqualTo(1)->integer(
                 $redisMock->rpush('test', 'test1')
               )->isEqualTo(2)->integer($redisMock->lrem('test', 1, 'test1'))->isEqualTo(1)->integer(
                 $redisMock->expire('test', 1)
@@ -775,9 +794,8 @@
             $redisMock = new Redis();
 
             $this->assert->string($redisMock->set('test', 'a'))->isEqualTo('OK')->boolean(
-                $redisMock->exists('test')
-              )->isTrue()->string($redisMock->flushdb())->isEqualTo('OK')->boolean($redisMock->exists('test'))->isFalse(
-              );
+              $redisMock->exists('test')
+            )->isTrue()->string($redisMock->flushdb())->isEqualTo('OK')->boolean($redisMock->exists('test'))->isFalse();
         }
 
         public function testPipeline()
@@ -785,30 +803,30 @@
             $redisMock = new Redis();
 
             $this->assert->object(
-                $redisMock->pipeline()->set('test', 'something')->get('test')->incr('test')->keys('test')->del(
-                    'test'
-                  )->sadd('test', 'test1')->smembers('test')->sismember('test', 'test1')->srem('test', 'test1')->del(
-                    'test'
-                  )->zadd('test', 1, 'test1')->zrange('test', 0, 1)->zrangebyscore('test', '-inf', '+inf')->zrevrange(
-                    'test',
-                    0,
-                    1
-                  )->zrevrangebyscore('test', '+inf', '-inf')->zrem('test', 'test1')->zremrangebyscore(
-                    'test',
-                    '-inf',
-                    '+inf'
-                  )->del('test')->hset('test', 'test1', 'something')->hget('test', 'test1')->hmset(
-                    'test',
-                    array('test1' => 'something')
-                  )->hexists('test', 'test1')->hgetall('test')->del('test')->lpush('test', 'test1')->ltrim(
-                    'test',
-                    0,
-                    -1
-                  )->lrem('test', 1, 'test1')->rpush('test', 'test1')->type('test')->ttl('test')->expire(
-                    'test',
-                    1
-                  )->execute()
-              )->isInstanceOf('M6Web\Component\RedisMock\RedisMock');
+              $redisMock->pipeline()->set('test', 'something')->get('test')->incr('test')->keys('test')->del(
+                'test'
+              )->sadd('test', 'test1')->smembers('test')->sismember('test', 'test1')->srem('test', 'test1')->del(
+                  'test'
+                )->zadd('test', 1, 'test1')->zrange('test', 0, 1)->zrangebyscore('test', '-inf', '+inf')->zrevrange(
+                  'test',
+                  0,
+                  1
+                )->zrevrangebyscore('test', '+inf', '-inf')->zrem('test', 'test1')->zremrangebyscore(
+                  'test',
+                  '-inf',
+                  '+inf'
+                )->del('test')->hset('test', 'test1', 'something')->hget('test', 'test1')->hmset(
+                  'test',
+                  array('test1' => 'something')
+                )->hexists('test', 'test1')->hgetall('test')->del('test')->lpush('test', 'test1')->ltrim(
+                  'test',
+                  0,
+                  -1
+                )->lrem('test', 1, 'test1')->rpush('test', 'test1')->type('test')->ttl('test')->expire(
+                  'test',
+                  1
+                )->execute()
+            )->isInstanceOf('M6Web\Component\RedisMock\RedisMock');
         }
 
         public function testTransactions()
@@ -817,15 +835,15 @@
 
             $redisMock->set('test', 'something');
 
-            $this->assert// Discard test
+            $this->assert // Discard test
               ->string(
                 $redisMock->multi()->set('test2', '*¨LPLR$`ù^')->get('test2')->discard()
               )->isEqualTo('OK')// Multi results test
               ->array(
                 $redisMock->multi()->set('test3', 'AZERTY*%£')->incr('test4')->incr('test4')->set(
-                    'test5',
-                    'todelete'
-                  )->del('test5')->get('test3')->exec()
+                  'test5',
+                  'todelete'
+                )->del('test5')->get('test3')->exec()
               )->isEqualTo(
                 array(
                      'OK',

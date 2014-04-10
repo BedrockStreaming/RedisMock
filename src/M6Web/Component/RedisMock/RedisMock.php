@@ -451,9 +451,31 @@
         public function zcard($key)
         {
             if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
-                return 0;
+                return $this->returnPipedInfo(null);
             }
-            return count($this->data[$key]);
+            return $this->returnPipedInfo(count($this->data[$key]));
+        }
+
+        public function zrank($key, $member)
+        {
+            if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+                return $this->returnPipedInfo(null);
+            }
+
+            if (isset($this->data[$key])) {
+
+                $set = $this->data[$key];
+
+                $counter = 0;
+                foreach ($set as $element => $rank) {
+
+                    if ($element == $member) {
+                        return $this->returnPipedInfo($counter);
+                    }
+                    $counter++;
+                }
+            }
+            return $this->returnPipedInfo(null);
         }
 
         public function zrange($key, $start, $stop, $withscores = false)
