@@ -182,6 +182,41 @@ class RedisMock extends test
                 ->isEqualTo(1);
     }
 
+    public function testIncrby()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->get('test'))
+                ->isNull()
+            ->integer($redisMock->incrby('test', 5))
+                ->isEqualTo(5)
+            ->integer($redisMock->get('test'))
+                ->isEqualTo(5)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
+            ->integer($redisMock->incrby('test', 1))
+                ->isEqualTo(6)
+            ->integer($redisMock->incrby('test', 2))
+                ->isEqualTo(8)
+            ->string($redisMock->set('test', 'something'))
+                ->isEqualTo('OK')
+            ->variable($redisMock->incrby('test', 4))
+                ->isNull()
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
+            ->integer($redisMock->incrby('test', 2))
+                ->isEqualTo(2)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->incrby('test', 3))
+                ->isEqualTo(3);
+    }
+
     public function testKeys() {
         $redisMock = new Redis();
 

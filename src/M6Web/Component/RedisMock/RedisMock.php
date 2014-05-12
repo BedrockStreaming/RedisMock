@@ -93,14 +93,19 @@ class RedisMock
 
     public function incr($key)
     {
+        return $this->incrby($key, 1);
+    }
+
+    public function incrby($key, $increment)
+    {
         $this->deleteOnTtlExpired($key);
 
         if (!isset($this->data[$key])) {
-            $this->data[$key] = 1;
+            $this->data[$key] = (int) $increment;
         } elseif (!is_integer($this->data[$key])) {
             return $this->returnPipedInfo(null);
         } else {
-            $this->data[$key]++;
+            $this->data[$key] += (int) $increment;
         }
 
         $this->dataTypes[$key] = 'string';
