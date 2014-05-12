@@ -34,6 +34,9 @@ Redis command                                    | Description
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **GET** *key*                                    | Gets the value of a key
 **INCR** *key*                                   | Increments the integer value of a key by one
+**INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
+**DECR** *key*                                   | Decrements the integer value of a key by one
+**DECRBY** *key* *decrement*                     | Decrements the integer value of a key by `decrement` value
 **SET** *key* *value*                            | Sets the string value of a key
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SADD** *key* *member*                          | Adds one member to a set
@@ -60,7 +63,7 @@ Redis command                                    | Description
 **DBSIZE**                                       | Returns the number of keys in the selected database
 **FLUSHDB**                                      | Flushes the database
 
-It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.  
+It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
 **PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.
 
 ## Usage
@@ -94,7 +97,7 @@ $ ./vendor/bin/atoum
 
 ## Credits
 
-Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).  
+Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
 Tested with [atoum](http://atoum.org).
 
 ## License
