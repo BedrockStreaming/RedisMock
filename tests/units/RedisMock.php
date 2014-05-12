@@ -217,6 +217,76 @@ class RedisMock extends test
                 ->isEqualTo(3);
     }
 
+    public function testDecr()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->get('test'))
+                ->isNull()
+            ->integer($redisMock->decr('test'))
+                ->isEqualTo(-1)
+            ->integer($redisMock->get('test'))
+                ->isEqualTo(-1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
+            ->integer($redisMock->decr('test'))
+                ->isEqualTo(-2)
+            ->integer($redisMock->decr('test'))
+                ->isEqualTo(-3)
+            ->string($redisMock->set('test', 'something'))
+                ->isEqualTo('OK')
+            ->variable($redisMock->decr('test'))
+                ->isNull()
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
+            ->integer($redisMock->decr('test'))
+                ->isEqualTo(-1)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->decr('test'))
+                ->isEqualTo(-1);
+    }
+
+    public function testDecrby()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->get('test'))
+                ->isNull()
+            ->integer($redisMock->decrby('test', 5))
+                ->isEqualTo(-5)
+            ->integer($redisMock->get('test'))
+                ->isEqualTo(-5)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
+            ->integer($redisMock->decrby('test', 1))
+                ->isEqualTo(-6)
+            ->integer($redisMock->decrby('test', 2))
+                ->isEqualTo(-8)
+            ->string($redisMock->set('test', 'something'))
+                ->isEqualTo('OK')
+            ->variable($redisMock->decrby('test', 4))
+                ->isNull()
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
+            ->integer($redisMock->decrby('test', 2))
+                ->isEqualTo(-2)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->decrby('test', 3))
+                ->isEqualTo(-3);
+    }
+
     public function testKeys() {
         $redisMock = new Redis();
 

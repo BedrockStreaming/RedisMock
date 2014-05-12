@@ -113,6 +113,28 @@ class RedisMock
         return $this->returnPipedInfo($this->data[$key]);
     }
 
+    public function decr($key)
+    {
+        return $this->decrby($key, 1);
+    }
+
+    public function decrby($key, $decrement)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (!isset($this->data[$key])) {
+            $this->data[$key] = 0;
+        } elseif (!is_integer($this->data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        $this->data[$key] -= (int) $decrement;
+
+        $this->dataTypes[$key] = 'string';
+
+        return $this->returnPipedInfo($this->data[$key]);
+    }
+
     // Keys
 
     public function type($key)
