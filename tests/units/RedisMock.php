@@ -1292,5 +1292,17 @@ class RedisMock extends test
             ->variable($redisMock->lpop($key))
                 ->isNull()
         ;
+
+        $redisMock->lpush($key, 'foo');
+        $redisMock->rpush($key, 'bar');
+        $redisMock->expire($key, 1);
+        sleep(2);
+
+        $this->assert
+            ->variable($redisMock->rpop($key))
+                ->isNull()
+            ->variable($redisMock->lpop($key))
+                ->isNull()
+        ;
     }
 }
