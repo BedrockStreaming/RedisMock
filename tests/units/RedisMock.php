@@ -1293,15 +1293,20 @@ class RedisMock extends test
                 ->isNull()
         ;
 
-        $redisMock->lpush($key, 'foo');
-        $redisMock->rpush($key, 'bar');
-        $redisMock->expire($key, 1);
+        $lKey = uniqid();
+        $rKey = uniqid();
+
+        $redisMock->lpush($lKey, uniqid());
+        $redisMock->rpush($rKey, uniqid());
+
+        $redisMock->expire($lKey, 1);
+        $redisMock->expire($rKey, 1);
         sleep(2);
 
         $this->assert
-            ->variable($redisMock->rpop($key))
+            ->variable($redisMock->rpop($rKey))
                 ->isNull()
-            ->variable($redisMock->lpop($key))
+            ->variable($redisMock->lpop($lKey))
                 ->isNull()
         ;
     }
