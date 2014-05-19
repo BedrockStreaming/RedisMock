@@ -1271,6 +1271,10 @@ class RedisMock extends test
         $key       = uniqid();
 
         $this->assert
+            ->variable($redisMock->rpop($key))
+                ->isNull()
+            ->variable($redisMock->lpop($key))
+                ->isNull()
             ->integer($redisMock->lpush($key, 'foo'))
                 ->isIdenticalTo(1)
             ->integer($redisMock->lpush($key, 'bar'))
@@ -1283,6 +1287,10 @@ class RedisMock extends test
                 ->isIdenticalTo('redis')
             ->string($redisMock->rpop($key))
                 ->isIdenticalTo('foo')
+            ->variable($redisMock->rpop($key))
+                ->isNull()
+            ->variable($redisMock->lpop($key))
+                ->isNull()
         ;
     }
 }
