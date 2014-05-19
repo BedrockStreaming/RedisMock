@@ -1172,6 +1172,8 @@ class RedisMock extends test
                     ->rpush('test', 'test1')
                     ->type('test')
                     ->ttl('test')
+                    ->lpop('test')
+                    ->rpop('test')
                     ->expire('test', 1)
                     ->execute()
             )
