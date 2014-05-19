@@ -1262,4 +1262,25 @@ class RedisMock extends test
             ->integer($redisMock->dbsize())
             ->isEqualTo(0);
     }
+
+    public function testLpopRpop()
+    {
+        $redisMock = new Redis();
+        $key       = uniqid();
+
+        $this->assert
+            ->integer($redisMock->lpush($key, 'foo'))
+                ->isIdenticalTo(1)
+            ->integer($redisMock->lpush($key, 'bar'))
+                ->isIdenticalTo(2)
+            ->string($redisMock->lpop($key))
+                ->isIdenticalTo('bar')
+            ->integer($redisMock->rpush($key, 'redis'))
+                ->isIdenticalTo(2)
+            ->string($redisMock->rpop($key))
+                ->isIdenticalTo('redis')
+            ->string($redisMock->rpop($key))
+                ->isIdenticalTo('foo')
+        ;
+    }
 }

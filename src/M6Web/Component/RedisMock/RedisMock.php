@@ -331,6 +331,24 @@ class RedisMock
         return $this->returnPipedInfo(count($this->data[$key]));
     }
 
+    public function lpop($key)
+    {
+        if (!isset($this->data[$key]) || !is_array($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo(array_shift($this->data[$key]));
+    }
+
+    public function rpop($key)
+    {
+        if (!isset($this->data[$key]) || !is_array($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo(array_pop($this->data[$key]));
+    }
+
     public function ltrim($key, $start, $stop)
     {
         $this->deleteOnTtlExpired($key);
