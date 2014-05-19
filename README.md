@@ -66,7 +66,7 @@ Redis command                                    | Description
 **FLUSHDB**                                      | Flushes the database
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
-**PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.
+**PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.  
 
 ## Usage
 
@@ -100,7 +100,7 @@ $ ./vendor/bin/atoum
 ## Credits
 
 Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
-Tested with [atoum](http://atoum.org).
+Tested with [atoum](http://atoum.org).  
 
 ## License
 
