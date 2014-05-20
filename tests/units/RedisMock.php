@@ -1172,6 +1172,8 @@ class RedisMock extends test
                     ->rpush('test', 'test1')
                     ->type('test')
                     ->ttl('test')
+                    ->lpop('test')
+                    ->rpop('test')
                     ->expire('test', 1)
                     ->execute()
             )
@@ -1261,5 +1263,51 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->dbsize())
             ->isEqualTo(0);
+    }
+
+    public function testLpopRpop()
+    {
+        $redisMock = new Redis();
+        $key       = uniqid();
+
+        $this->assert
+            ->variable($redisMock->rpop($key))
+                ->isNull()
+            ->variable($redisMock->lpop($key))
+                ->isNull()
+            ->integer($redisMock->lpush($key, 'foo'))
+                ->isIdenticalTo(1)
+            ->integer($redisMock->lpush($key, 'bar'))
+                ->isIdenticalTo(2)
+            ->string($redisMock->lpop($key))
+                ->isIdenticalTo('bar')
+            ->integer($redisMock->rpush($key, 'redis'))
+                ->isIdenticalTo(2)
+            ->string($redisMock->rpop($key))
+                ->isIdenticalTo('redis')
+            ->string($redisMock->rpop($key))
+                ->isIdenticalTo('foo')
+            ->variable($redisMock->rpop($key))
+                ->isNull()
+            ->variable($redisMock->lpop($key))
+                ->isNull()
+        ;
+
+        $lKey = uniqid();
+        $rKey = uniqid();
+
+        $redisMock->lpush($lKey, uniqid());
+        $redisMock->rpush($rKey, uniqid());
+
+        $redisMock->expire($lKey, 1);
+        $redisMock->expire($rKey, 1);
+        sleep(2);
+
+        $this->assert
+            ->variable($redisMock->rpop($rKey))
+                ->isNull()
+            ->variable($redisMock->lpop($lKey))
+                ->isNull()
+        ;
     }
 }
