@@ -1167,6 +1167,7 @@ class RedisMock extends test
                     ->hgetall('test')
                     ->del('test')
                     ->lpush('test', 'test1')
+                    ->lrange('test', 0, -1)
                     ->ltrim('test', 0, -1)
                     ->lrem('test', 1, 'test1')
                     ->rpush('test', 'test1')
@@ -1308,6 +1309,41 @@ class RedisMock extends test
                 ->isNull()
             ->variable($redisMock->lpop($lKey))
                 ->isNull()
+        ;
+    }
+
+    public function testLrange()
+    {
+        $redisMock = new Redis();
+        $key       = uniqid();
+
+        $this
+            ->array($redisMock->lrange($key, 1, 1))
+                ->isEmpty()
+        ;
+
+        $redisMock->lpush($key, 'foo');
+        $redisMock->lpush($key, 'bar');
+        $redisMock->lpush($key, 'other');
+        $redisMock->lpush($key, 'none');
+
+        $this
+            ->array($redisMock->lrange($key, 1, 2))
+                ->isEqualTo(array('other', 'bar'))
+            ->array($redisMock->lrange($key, 1, 100))
+                ->isEqualTo(array('other', 'bar', 'foo'))
+            ->array($redisMock->lrange($key, -100, 100))
+                ->isEqualTo(array('none', 'other', 'bar', 'foo'))
+        ;
+
+        var_dump($redisMock->lrange($key, -1, 1));
+
+        $redisMock->expire($key, 1);
+        sleep(2);
+
+        $this
+            ->array($redisMock->lrange($key, 1, 1))
+                ->isEmpty()
         ;
     }
 }
