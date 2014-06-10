@@ -53,7 +53,7 @@ Redis command                                    | Description
 **LPOP** *key*                                   | Pops values at the head of a list
 **LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
 **LTRIM** *key* *start* *stop*                   | Removes the values of the `key` list which are outside the range `start`...`stop`
-**LRANGE** *key* *start* *stop*                  | Get a range of elements from a list
+**LRANGE** *key* *start* *stop*                  | Gets a range of elements from a list
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
