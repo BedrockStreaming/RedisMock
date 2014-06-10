@@ -1336,8 +1336,6 @@ class RedisMock extends test
                 ->isEqualTo(array('none', 'other', 'bar', 'foo'))
         ;
 
-        var_dump($redisMock->lrange($key, -1, 1));
-
         $redisMock->expire($key, 1);
         sleep(2);
 
