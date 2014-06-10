@@ -388,6 +388,37 @@ class RedisMock
         return $this->returnPipedInfo('OK');
     }
 
+    public function lrange($key, $start, $stop)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (!isset($this->data[$key]) || !is_array($this->data[$key])) {
+            return $this->returnPipedInfo(array());
+        }
+
+        if ($start < 0) {
+            if (abs($start) > count($this->data[$key])) {
+                $start = 0;
+            } else {
+                $start = count($this->data[$key]) + $start;
+            }
+        }
+
+        if ($stop >= 0) {
+            $length = $stop - $start + 1;
+        } else {
+            if ($stop == -1) {
+                $length = NULL;
+            } else {
+                $length = $stop + 1;
+            }
+        }
+
+        $data = array_slice($this->data[$key], $start, $length);
+
+        return $this->returnPipedInfo($data);
+    }
+
     // Hashes
 
     public function hset($key, $field, $value)
