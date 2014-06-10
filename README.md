@@ -39,6 +39,7 @@ Redis command                                    | Description
 **DECRBY** *key* *decrement*                     | Decrements the integer value of a key by `decrement` value
 **SET** *key* *value*                            | Sets the string value of a key
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
+**SETNX** *key* *value*                          | Sets key to hold value if key does not exist
 **SADD** *key* *member*                          | Adds one member to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
