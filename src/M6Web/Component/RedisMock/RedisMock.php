@@ -67,6 +67,15 @@ class RedisMock
         return $this->set($key, $value, $seconds);
     }
 
+    public function setnx($key, $value)
+    {
+        if (!$this->get($key)) {
+            $this->set($key, $value);
+            return $this->returnPipedInfo(1);
+        }
+        return $this->returnPipedInfo(0);
+    }
+
     public function ttl($key)
     {
         if (!array_key_exists($key, $this->data) || $this->deleteOnTtlExpired($key)) {

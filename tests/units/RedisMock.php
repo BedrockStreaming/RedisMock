@@ -104,6 +104,31 @@ class RedisMock extends test
         $this->assert
             ->boolean($redisMock->exists('test'))
                 ->isFalse();
+
+        //setnx
+        $this->assert
+            ->integer($redisMock->setnx('test-setnx', 'lala'))
+                ->isEqualTo(1)
+            ->integer($redisMock->setnx('test-setnx', 'lala2'))
+                ->isEqualTo(0)
+            ->integer($redisMock->del('test-setnx'))
+                ->isEqualTo(1)
+            ->integer($redisMock->setnx('test-setnx', 'lala'))
+                ->isEqualTo(1)
+            ->string($redisMock->type('test-setnx'))
+            ->isEqualTo('string');
+
+        //setnx with expire
+        $this->assert
+            ->integer($redisMock->setnx("test-setnx-expire", "lala"))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire("test-setnx-expire", 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->setnx("test-setnx-expire", "lala"))
+                ->isEqualTo(1);
+
     }
 
     public function testExpireTtl()
@@ -1176,6 +1201,7 @@ class RedisMock extends test
                     ->lpop('test')
                     ->rpop('test')
                     ->expire('test', 1)
+                    ->setnx("test123", "somethingelse")
                     ->execute()
             )
                 ->isInstanceOf('M6Web\Component\RedisMock\RedisMock');
