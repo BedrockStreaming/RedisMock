@@ -584,10 +584,12 @@ class RedisMock extends test
                     'test2',
                     'test5',
                 ))
-            ->exception(function() use ($redisMock) {
-                $redisMock->zrange('test', 1, -3, true);
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->array($redisMock->zrange('test', 1, -3, true))
+                ->isEqualTo(array(
+                    'test1' => 1,
+                    'test4' => 1,
+                    'test3' => 2,
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
             ->integer($redisMock->zadd('test', 1, 'test1'))
@@ -666,10 +668,12 @@ class RedisMock extends test
                     'test1',
                     'test6',
                 ))
-            ->exception(function() use ($redisMock) {
-                $redisMock->zrevrange('test', -2, -1, true);
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->array($redisMock->zrevrange('test', 1, -3, true))
+                ->isEqualTo(array(
+                    'test2' => 15,
+                    'test3' => 2,
+                    'test4' => 1,
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
             ->integer($redisMock->zadd('test', 1, 'test1'))
@@ -762,10 +766,12 @@ class RedisMock extends test
                     'test4',
                     'test3',
                 ))
-            ->exception(function() use ($redisMock) {
-                $redisMock->zrangebyscore('test', '-inf', '15', array('limit' => array(1, 3), 'withscores' => true));
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->array($redisMock->zrangebyscore('test', '-inf', '15', array('limit' => array(1, 3), 'withscores' => true)))
+                ->isEqualTo(array(
+                    'test1' => 1,
+                    'test4' => 1,
+                    'test3' => 2,
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
             ->integer($redisMock->zadd('test', 1, 'test1'))
@@ -857,10 +863,12 @@ class RedisMock extends test
                     'test4',
                     'test1',
                 ))
-            ->exception(function() use ($redisMock) {
-                $redisMock->zrevrangebyscore('test', '15', '-inf', array('limit' => array(1, 3), 'withscores' => true));
-            })
-                ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->array($redisMock->zrevrangebyscore('test', '15', '-inf', array('limit' => array(1, 3), 'withscores' => true)))
+                ->isEqualTo(array(
+                    'test3' => 2,
+                    'test4' => 1,
+                    'test1' => 1,
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
             ->integer($redisMock->zadd('test', 1, 'test1'))
@@ -946,6 +954,11 @@ class RedisMock extends test
                     'blabla' => 'anything',
                     'raoul'  => 'nothing',
                 ))
+            ->array($redisMock->hmget('test', array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'raoul'  => 'nothing',
+                    'test1'  => 'somthing',
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(3)
             ->exception(function () use ($redisMock) {
@@ -1007,6 +1020,11 @@ class RedisMock extends test
                     'test1'  => 'somthing',
                     'blabla' => 'anything',
                     'raoul'  => 'nothing',
+                ))
+            ->array($redisMock->hmget('test', array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'raoul'  => 'nothing',
+                    'test1'  => 'somthing',
                 ))
             ->integer($redisMock->expire('test', 1))
                 ->isEqualTo(1);
@@ -1188,6 +1206,7 @@ class RedisMock extends test
                     ->hset('test', 'test1', 'something')
                     ->hget('test', 'test1')
                     ->hmset('test', array('test1' => 'something'))
+                    ->hmget('test', array('test1'))
                     ->hexists('test', 'test1')
                     ->hgetall('test')
                     ->del('test')
