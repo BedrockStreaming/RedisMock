@@ -481,8 +481,9 @@ class RedisMock
         foreach ($fields as $field) {
             if (!isset($this->data[$key][$field]) || $this->deleteOnTtlExpired($key)) {
                 $result[$field] = null;
+            } else {
+                $result[$field] = $this->data[$key][$field];
             }
-            $result[$field] = $this->data[$key][$field];
         }
 
         return $this->returnPipedInfo($result);

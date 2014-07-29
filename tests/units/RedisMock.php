@@ -959,6 +959,16 @@ class RedisMock extends test
                     'raoul'  => 'nothing',
                     'test1'  => 'somthing',
                 ))
+            ->array($redisMock->hmget('test', array('raoul', 'oogabooga')))
+                ->isEqualTo(array(
+                    'raoul'  => 'nothing',
+                    'oogabooga'  => null,
+                ))
+            ->array($redisMock->hmget('oogabooga', array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'raoul'  => null,
+                    'test1'  => null,
+                ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(3)
             ->exception(function () use ($redisMock) {
@@ -1021,14 +1031,15 @@ class RedisMock extends test
                     'blabla' => 'anything',
                     'raoul'  => 'nothing',
                 ))
-            ->array($redisMock->hmget('test', array('raoul', 'test1')))
-                ->isEqualTo(array(
-                    'raoul'  => 'nothing',
-                    'test1'  => 'somthing',
-                ))
             ->integer($redisMock->expire('test', 1))
                 ->isEqualTo(1);
         sleep(2);
+        $this->assert
+            ->array($redisMock->hmget('test', array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'raoul'  => null,
+                    'test1'  => null,
+                ));
         $this->assert
             ->array($redisMock->hgetall('test'))
                 ->isEmpty();
