@@ -1039,8 +1039,7 @@ class RedisMock extends test
                 ->isEqualTo(array(
                     'raoul'  => null,
                     'test1'  => null,
-                ));
-        $this->assert
+                ))
             ->array($redisMock->hgetall('test'))
                 ->isEmpty();
     }
