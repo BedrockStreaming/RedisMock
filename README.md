@@ -9,7 +9,7 @@ Add this line in your `composer.json` :
 ```json
 {
     "require": {
-        "m6web/redis-mock": "~1.2"
+        "m6web/redis-mock": "~2.0"
     }
 }
 ```
