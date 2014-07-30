@@ -1035,13 +1035,26 @@ class RedisMock extends test
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
+            ->array($redisMock->hgetall('test'))
+                ->isEmpty()
+            ->string($redisMock->hmset('test', array(
+                'test1' => 'somthing',
+                'raoul' => 'nothing',
+            )))
             ->array($redisMock->hmget('test', array('raoul', 'test1')))
                 ->isEqualTo(array(
-                    'raoul'  => null,
-                    'test1'  => null,
+                    'raoul' => 'nothing',
+                    'test1' => 'somthing',
                 ))
-            ->array($redisMock->hgetall('test'))
-                ->isEmpty();
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->array($redisMock->hmget('test', array('raoul', 'test1')))
+            ->isEqualTo(array(
+                'raoul' => null,
+                'test1' => null,
+            ));
     }
 
     public function testLPushRPushLRemLTrim()
