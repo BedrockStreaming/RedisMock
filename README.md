@@ -87,7 +87,7 @@ $factory     = new \M6Web\Component\RedisMock\RedisMockFactory();
 $myRedisMock = $factory->getAdapter('My\Redis\Library');
 ```
 
-**WARNING !** 
+**WARNING !** :
 
     * *RedisMock doesn't implement all Redis features and commands. The mock can have undesired behavior if your parent class uses unsupported features.*
     * *Storage is static and therefore shared by all instances.
