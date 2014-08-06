@@ -476,6 +476,19 @@ class RedisMock
         return $this->returnPipedInfo(self::$data[$key][$field]);
     }
 
+    public function hmget($key, $fields)
+    {
+        foreach ($fields as $field) {
+            if (!isset(self::$data[$key][$field]) || $this->deleteOnTtlExpired($key)) {
+                $result[$field] = null;
+            } else {
+                $result[$field] = self::$data[$key][$field];
+            }
+        }
+
+        return $this->returnPipedInfo($result);
+    }
+
     public function hdel($key, $field)
     {
         if (func_num_args() > 2) {
@@ -522,16 +535,12 @@ class RedisMock
 
     public function zrange($key, $start, $stop, $withscores = false)
     {
-        if ($withscores) {
-            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrange` command.');
-        }
-
         if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
         $this->stopPipeline();
-        $set = $this->zrangebyscore($key, '-inf', '+inf');
+        $set = $this->zrangebyscore($key, '-inf', '+inf', array('withscores' => $withscores));
         $this->restorePipeline();
 
         if ($start < 0) {
@@ -557,16 +566,12 @@ class RedisMock
 
     public function zrevrange($key, $start, $stop, $withscores = false)
     {
-        if ($withscores) {
-            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrange` command.');
-        }
-
         if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
         $this->stopPipeline();
-        $set = $this->zrevrangebyscore($key, '+inf', '-inf');
+        $set = $this->zrevrangebyscore($key, '+inf', '-inf', array('withscores' => $withscores));
         $this->restorePipeline();
 
         if ($start < 0){
@@ -590,12 +595,8 @@ class RedisMock
         return $this->returnPipedInfo(array_slice($set, $start, $length));
     }
 
-    public function zrangebyscore($key, $min, $max, array $options = array())
+    protected function zrangebyscoreHelper($key, $min, $max, array $options = array(), $rev = false)
     {
-        if (!empty($options['withscores'])) {
-            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.');
-        }
-
         if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
@@ -609,18 +610,23 @@ class RedisMock
         }
 
         $set = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($set) {
-            if ($set[$a] < $set[$b]) {
-                return -1;
-            } elseif ($set[$a] > $set[$b]) {
-                return 1;
+        uksort(self::$data[$key], function($a, $b) use ($set, $rev) {
+            if ($set[$a] > $set[$b]) {
+                return $rev ? -1 : 1;
+            } elseif ($set[$a] < $set[$b]) {
+                return $rev ? 1 : -1;
             } else {
-                return strcmp($a, $b);
+                return $rev ? -strcmp($a, $b) : strcmp($a, $b);
             }
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            return $this->returnPipedInfo(array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true)));
+            $slice = array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true);
+            if (isset($options['withscores']) && $options['withscores']) {
+                return $this->returnPipedInfo($slice);
+            } else {
+                return $this->returnPipedInfo(array_keys($slice));
+            }
         }
 
         $isInfMax = function($v) use ($max) {
@@ -642,83 +648,36 @@ class RedisMock
         $results = array();
         foreach (self::$data[$key] as $k => $v) {
             if ($min == '-inf' && $isInfMax($v)) {
-                $results[] = $k;
+                $results[$k] = $v;
             } elseif ($max == '+inf' && $isSupMin($v)) {
-                $results[] = $k;
+                $results[$k] = $v;
             } elseif ($isSupMin($v) && $isInfMax($v)) {
-                $results[] = $k;
+                $results[$k] = $v;
             } else {
                 continue;
             }
         }
 
-        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
+        $slice = array_slice($results, $options['limit'][0], $options['limit'][1], true);
+        if (isset($options['withscores']) && $options['withscores']) {
+            return $this->returnPipedInfo($slice);
+        } else {
+            return $this->returnPipedInfo(array_keys($slice));
+        }
+    }
+
+
+
+    public function zrangebyscore($key, $min, $max, array $options = array())
+    {
+        return $this->zrangebyscoreHelper($key, $min, $max, $options, false);
     }
 
     public function zrevrangebyscore($key, $max, $min, array $options = array())
     {
-        if (!empty($options['withscores'])) {
-            throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.');
-        }
-
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
-            return $this->returnPipedInfo(array());
-        }
-
-        if (!is_array(self::$data[$key])) {
-            return $this->returnPipedInfo(null);
-        }
-
-        if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
-            $options['limit'] = array(0, count(self::$data[$key]));
-        }
-
-        $set = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($set) {
-            if ($set[$a] > $set[$b]) {
-                return -1;
-            } elseif ($set[$a] < $set[$b]) {
-                return 1;
-            } else {
-                return -strcmp($a, $b);
-            }
-        });
-
-        if ($min == '-inf' && $max == '+inf') {
-            return $this->returnPipedInfo(array_keys(array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true)));
-        }
-
-        $isInfMax = function($v) use ($max) {
-            if (strpos($max, '(') !== false) {
-                return $v < (int) substr($max, 1);
-            } else {
-                return $v <= (int) $max;
-            }
-        };
-
-        $isSupMin = function($v) use ($min) {
-            if (strpos($min, '(') !== false) {
-                return $v > (int) substr($min, 1);
-            } else {
-                return $v >= (int) $min;
-            }
-        };
-
-        $results = array();
-        foreach (self::$data[$key] as $k => $v) {
-            if ($min == '-inf' && $isInfMax($v)) {
-                $results[] = $k;
-            } elseif ($max == '+inf' && $isSupMin($v)) {
-                $results[] = $k;
-            } elseif ($isSupMin($v) && $isInfMax($v)) {
-                $results[] = $k;
-            } else {
-                continue;
-            }
-        }
-
-        return $this->returnPipedInfo(array_values(array_slice($results, $options['limit'][0], $options['limit'][1], true)));
+        return $this->zrangebyscoreHelper($key, $min, $max, $options, true);
     }
+
 
     public function zadd($key, $score, $member) {
         if (func_num_args() > 3) {

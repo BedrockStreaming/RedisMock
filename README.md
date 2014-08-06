@@ -46,6 +46,7 @@ Redis command                                    | Description
 **SREM** *key* *member*                          | Removes one member from a set
 **HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
+**HMGET** *key *array<field>*                    | Gets the values of multiple hash fields
 **HGET** *key* *field*                           | Gets the value of a hash field
 **HGETALL** *key*                                | Gets all the fields and values in a hash
 **HMSET** *key* *array<field, value>*            | Sets each value in the corresponding field
@@ -58,11 +59,11 @@ Redis command                                    | Description
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
-**ZRANGE** *key* *start* *stop*                  | Returns the specified range of members in a sorted set
+**ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
 **ZREM** *key* *member*                          | Removes one membner from a sorted set
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
-**ZREVRANGE** *key* *start* *stop*               | Returns the specified range of members in a sorted set, with scores ordered from high to low
+**ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 **DBSIZE**                                       | Returns the number of keys in the selected database
 **FLUSHDB**                                      | Flushes the database
