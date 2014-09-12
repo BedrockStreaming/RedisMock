@@ -710,6 +710,37 @@
             $this->assert->array($redisMock->hgetall('test'))->isEmpty();
         }
 
+        public function testLLenLPushLIndexLPop(){
+            $redisMock = new Redis();
+
+            $test_list = 'test_list';
+            $redisMock->lpush($test_list, 'test1');
+            $this->assert->integer($redisMock->llen($test_list))->isIdenticalTo(1);
+            $redisMock->lpush($test_list, 'test2');
+            $redisMock->lpush($test_list, 'test3');
+            $redisMock->lpush($test_list, 'test4');
+            $redisMock->lpush($test_list, 'test5');
+            $this->assert->integer($redisMock->llen($test_list))->isIdenticalTo(5);
+            $this->assert->string($redisMock->lindex($test_list, 0))->isIdenticalTo('test5');
+            $this->assert->string($redisMock->lindex($test_list, 1))->isIdenticalTo('test4');
+            $this->assert->string($redisMock->lindex($test_list, 2))->isIdenticalTo('test3');
+            $this->assert->string($redisMock->lindex($test_list, 3))->isIdenticalTo('test2');
+            $this->assert->string($redisMock->lindex($test_list, 4))->isIdenticalTo('test1');
+            $this->assert->string($redisMock->lindex($test_list, -1))->isIdenticalTo('test1');
+            $this->assert->string($redisMock->lindex($test_list, -2))->isIdenticalTo('test2');
+            $this->assert->string($redisMock->lindex($test_list, -3))->isIdenticalTo('test3');
+            $this->assert->string($redisMock->lindex($test_list, -4))->isIdenticalTo('test4');
+            $this->assert->string($redisMock->lindex($test_list, -5))->isIdenticalTo('test5');
+
+            $this->assert->variable($redisMock->lindex($test_list, 7))->isNull();
+            $this->assert->variable($redisMock->lindex($test_list, -7))->isNull();
+
+            $redisMock->lpop($test_list);
+            $this->assert->integer($redisMock->llen($test_list))->isIdenticalTo(4);
+            $this->assert->string($redisMock->lindex($test_list, 0))->isIdenticalTo('test4');
+
+        }
+
         public function testLPushRPushLRemLTrim()
         {
             $redisMock = new Redis();

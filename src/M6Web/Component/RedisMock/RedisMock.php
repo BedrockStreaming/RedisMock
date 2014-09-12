@@ -182,7 +182,9 @@
         public function sadd($key, $member)
         {
             if (func_num_args() > 2) {
-                throw new UnsupportedException('In RedisMock, `sadd` command can not set more than one member at once.');
+                throw new UnsupportedException(
+                  'In RedisMock, `sadd` command can not set more than one member at once.'
+                );
             }
 
             $this->deleteOnTtlExpired($key);
@@ -218,7 +220,9 @@
         public function srem($key, $member)
         {
             if (func_num_args() > 2) {
-                throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
+                throw new UnsupportedException(
+                  'In RedisMock, `srem` command can not remove more than one member at once.'
+                );
             }
 
             if (!isset($this->data[$key]) || !in_array($member, $this->data[$key]) || $this->deleteOnTtlExpired($key)) {
@@ -244,6 +248,71 @@
         }
 
         // Lists
+
+        public function lindex($key, $index)
+        {
+            if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+                return $this->returnPipedInfo(0);
+            }
+
+            $list = $this->data[$key];
+            if (is_numeric($index)) {
+                if ($index >= 0) {
+                    if (isset($list[$index])) {
+                        return $this->returnPipedInfo($list[$index]);
+                    }
+                    return $this->returnPipedInfo(null);
+                } else {
+                    $rev_list = array_reverse($list);
+                    $n_index = (abs($index)) - 1;
+                    if (isset($rev_list[$n_index])) {
+                        return $this->returnPipedInfo($rev_list[$n_index]);
+                    }
+                    return $this->returnPipedInfo(null);
+                }
+            }
+
+            return $this->returnPipedInfo(null);
+        }
+
+        /*
+        public function linsert($key, $pivot = 'BEFORE', $value)
+        {
+
+        }
+        */
+
+        public function llen($key)
+        {
+            if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+                return $this->returnPipedInfo(0);
+            }
+            return $this->returnPipedInfo(count($this->data[$key]));
+        }
+
+        public function lpop($key)
+        {
+            if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
+                return $this->returnPipedInfo(null);
+            }
+            $list = array_shift($this->data[$key]);
+            return $this->returnPipedInfo($list);
+        }
+
+        public function lpush($key, $value)
+        {
+            if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+                $this->data[$key] = array();
+            }
+
+            if (isset($this->data[$key]) && !is_array($this->data[$key])) {
+                return $this->returnPipedInfo(null);
+            }
+
+            array_unshift($this->data[$key], $value);
+
+            return $this->returnPipedInfo(count($this->data[$key]));
+        }
 
         public function lrem($key, $count, $value)
         {
@@ -287,20 +356,19 @@
             return $this->returnPipedInfo($deletedItems);
         }
 
-        public function lpush($key, $value)
+        /*
+        public function lpushx()
         {
-            if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
-                $this->data[$key] = array();
-            }
-
-            if (isset($this->data[$key]) && !is_array($this->data[$key])) {
-                return $this->returnPipedInfo(null);
-            }
-
-            array_unshift($this->data[$key], $value);
-
-            return $this->returnPipedInfo(count($this->data[$key]));
         }
+        */
+
+        /*
+        public function lrange($key, $start, $stop)
+        {
+
+        }
+        */
+
 
         public function rpush($key, $value)
         {
@@ -407,7 +475,9 @@
         public function hdel($key, $field)
         {
             if (func_num_args() > 2) {
-                throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
+                throw new UnsupportedException(
+                  'In RedisMock, `hdel` command can not delete more than one entry at once.'
+                );
             }
 
             if (isset($this->data[$key]) && !is_array($this->data[$key])) {
@@ -481,7 +551,9 @@
         public function zrange($key, $start, $stop, $withscores = false)
         {
             if ($withscores) {
-                throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrange` command.');
+                throw new UnsupportedException(
+                  'Parameter `withscores` is not supported by RedisMock for `zrange` command.'
+                );
             }
 
             if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
@@ -516,7 +588,9 @@
         public function zrevrange($key, $start, $stop, $withscores = false)
         {
             if ($withscores) {
-                throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrange` command.');
+                throw new UnsupportedException(
+                  'Parameter `withscores` is not supported by RedisMock for `zrevrange` command.'
+                );
             }
 
             if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
@@ -551,7 +625,9 @@
         public function zrangebyscore($key, $min, $max, array $options = array())
         {
             if (!empty($options['withscores'])) {
-                throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.');
+                throw new UnsupportedException(
+                  'Parameter `withscores` is not supported by RedisMock for `zrangebyscore` command.'
+                );
             }
 
             if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
@@ -623,7 +699,9 @@
         public function zrevrangebyscore($key, $max, $min, array $options = array())
         {
             if (!empty($options['withscores'])) {
-                throw new UnsupportedException('Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.');
+                throw new UnsupportedException(
+                  'Parameter `withscores` is not supported by RedisMock for `zrevrangebyscore` command.'
+                );
             }
 
             if (!isset($this->data[$key]) || $this->deleteOnTtlExpired($key)) {
@@ -695,7 +773,9 @@
         public function zadd($key, $score, $member)
         {
             if (func_num_args() > 3) {
-                throw new UnsupportedException('In RedisMock, `zadd` command can not set more than one member at once.');
+                throw new UnsupportedException(
+                  'In RedisMock, `zadd` command can not set more than one member at once.'
+                );
             }
 
             $this->deleteOnTtlExpired($key);
@@ -741,7 +821,9 @@
         public function zrem($key, $member)
         {
             if (func_num_args() > 2) {
-                throw new UnsupportedException('In RedisMock, `zrem` command can not remove more than one member at once.');
+                throw new UnsupportedException(
+                  'In RedisMock, `zrem` command can not remove more than one member at once.'
+                );
             }
 
             if (isset($this->data[$key]) && !is_array(
