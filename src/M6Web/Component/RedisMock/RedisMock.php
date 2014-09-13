@@ -264,7 +264,7 @@
                     return $this->returnPipedInfo(null);
                 } else {
                     $rev_list = array_reverse($list);
-                    $n_index = (abs($index)) - 1;
+                    $n_index  = (abs($index)) - 1;
                     if (isset($rev_list[$n_index])) {
                         return $this->returnPipedInfo($rev_list[$n_index]);
                     }
@@ -312,6 +312,31 @@
             array_unshift($this->data[$key], $value);
 
             return $this->returnPipedInfo(count($this->data[$key]));
+        }
+
+        /**
+         * @param $key
+         * @param $start
+         * @param $stop
+         *
+         * @return RedisMock
+         * Doesn't support negative offsets
+         */
+        public function lrange($key, $start, $stop)
+        {
+            if ($this->deleteOnTtlExpired($key) || !isset($this->data[$key])) {
+                return $this->returnPipedInfo(null);
+            }
+            if (!isset($this->data[$key][$start])) {
+                return $this->returnPipedInfo(null);
+            }
+            $results = [];
+            foreach ($this->data[$key] as $key => $value) {
+                if ($start <= $key && $key <= $stop) {
+                    $results[] = $value;
+                }
+            }
+            return $this->returnPipedInfo($results);
         }
 
         public function lrem($key, $count, $value)
