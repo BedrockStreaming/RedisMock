@@ -16,6 +16,7 @@
         protected $pipeline = false;
         protected $savedPipeline = false;
         protected $pipedInfo = array();
+        protected $use_serializer = false;
 
         public function reset()
         {
@@ -47,12 +48,24 @@
                 return $this->returnPipedInfo(null);
             }
 
-            return $this->returnPipedInfo($this->data[$key]);
+            if ($this->isUseSerializer() && $this->isSerializedValue($this->data[$key])) {
+                $value = $this->unserializer($this->data[$key]);
+            } else {
+                $value = $this->data[$key];
+            }
+
+
+            return $this->returnPipedInfo($value);
         }
 
         public function set($key, $value, $seconds = null)
         {
-            $this->data[$key]      = $value;
+            if ($this->isUseSerializer() && is_array($value)) {
+                $this->data[$key] = $this->serializer($value);
+            } else {
+                $this->data[$key] = $value;
+            }
+
             $this->dataTypes[$key] = 'string';
 
             if (!is_null($seconds)) {
@@ -964,4 +977,40 @@
 
             return false;
         }
+
+        protected function serializer($value)
+        {
+            return serialize($value);
+        }
+
+        protected function unserializer($value)
+        {
+            return unserialize($value);
+        }
+
+        /**
+         * @return boolean
+         */
+        public function isUseSerializer()
+        {
+            return $this->use_serializer;
+        }
+
+        /**
+         * @param boolean $serialize_set
+         */
+        public function setUseSerializer($use_serializer)
+        {
+            $this->use_serializer = $use_serializer;
+        }
+
+        protected function isSerializedValue($value)
+        {
+            $data = @unserialize($value);
+            if ($data !== false) {
+                return true;
+            }
+            return false;
+        }
+
     }
