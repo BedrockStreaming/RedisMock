@@ -883,7 +883,7 @@ class RedisMock extends test
                 ->isEmpty();;
     }
 
-    public function testHSetHMSetHGetHDelHExistsHGetAll()
+    public function testHSetHMSetHGetHDelHExistsHGetAllMGetMSet()
     {
         $redisMock = new Redis();
 
@@ -1055,6 +1055,36 @@ class RedisMock extends test
                 'raoul' => null,
                 'test1' => null,
             ));
+
+        //mget/mset test (roughly based on above hmset/hmset tests)
+        sleep(2);
+        $this->assert
+            ->array($redisMock->mget(array('raoul', 'test1')))
+               ->isEqualTo(array(
+                   null,
+                   null,
+               ))
+            ->string($redisMock->mset(array(
+                'test1' => 'somthing',
+                'raoul' => 'nothing',
+            )))
+            ->array($redisMock->mget(array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'nothing',
+                    'somthing',
+                ))
+            ->integer($redisMock->expire('raoul', 1))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire('test1', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->array($redisMock->mget(array('raoul', 'test1')))
+            ->isEqualTo(array(
+                null,
+                null,
+            ));
+
     }
 
     public function testLPushRPushLRemLTrim()
