@@ -33,7 +33,7 @@ Redis command                                    | Description
 **TTL** *key*                                    | Gets the time to live for a key
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **GET** *key*                                    | Gets the value of a key
-**MGET** *array<fields>*                         | Gets the values of multiple keys
+**MGET** *array<field>*                         | Gets the values of multiple keys
 **INCR** *key*                                   | Increments the integer value of a key by one
 **INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
 **DECR** *key*                                   | Decrements the integer value of a key by one

@@ -76,10 +76,11 @@ class RedisMock
 
     public function mget($fields)
     {
-    
+        $this->stopPipeline();
         foreach ($fields as $field) {
             $result[] = $this->get($field);
         }
+        $this->restorePipeline();
 
         return $this->returnPipedInfo($result);
     }
