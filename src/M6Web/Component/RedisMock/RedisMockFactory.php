@@ -217,32 +217,37 @@ METHODEXCEPTION;
     }
 CONSTRUCTOR;
 
-    public function getAdapter($classToExtend, $failOnlyAtRuntime = false)
+    public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true)
     {
-        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend);
+        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
 
         if (!class_exists($class)) {
-            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), true, $failOnlyAtRuntime);
+            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
             eval($classCode);
         }
 
         return new $class();
     }
 
-    public function getAdapterClass($classToExtend)
+    public function getAdapterClass($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = false)
     {
-        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, '_NativeConstructor');
+        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
 
         if (!class_exists($class)) {
-            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend));
+            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
             eval($classCode);
         }
 
         return $class;
     }
 
-    protected function getAdapterClassName($classToExtend, $suffix = '')
+    protected function getAdapterClassName($classToExtend, $orphanizeConstructor = false)
     {
+        $suffix = '';
+        if (!$orphanizeConstructor) {
+            $suffix = '_NativeConstructor';
+        }
+
         $newClassName = sprintf('RedisMock_%s_Adapter%s', str_replace('\\', '_', $classToExtend), $suffix);
         $namespace = __NAMESPACE__;
         $class = $namespace . '\\'. $newClassName;

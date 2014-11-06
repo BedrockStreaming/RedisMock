@@ -18,6 +18,7 @@
         "php": ">=5.3.3"
     },
     "require-dev": {
-        "atoum/atoum": "master-dev"
+        "atoum/atoum": "master-dev",
+        "predis/predis": "~0.8"
     }
 }
