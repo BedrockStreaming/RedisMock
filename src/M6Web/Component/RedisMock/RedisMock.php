@@ -207,23 +207,35 @@ class RedisMock
 
     // Sets
 
-    public function sadd($key, $member)
+    public function sadd($key, $members)
     {
+        // Check if members are passed as simple arguments
+        // If so convert to an array
         if (func_num_args() > 2) {
-            throw new UnsupportedException('In RedisMock, `sadd` command can not set more than one member at once.');
+            $arg_list = func_get_args();
+            $members = array_slice($arg_list, 1);
+        }
+        // convert single argument to array
+        if ( !is_array($members) ) {
+          $members = array($members);
         }
 
         $this->deleteOnTtlExpired($key);
 
+        // Check if key is defined
         if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key]) || !in_array($member, self::$data[$key]);
-
-        if ($isNew) {
-            self::$data[$key][] = $member;
+        if ( !isset(self::$data[$key]) ) {
+          self::$data[$key] = array();
         }
+
+        // Calculate new members
+        $new_members = array_diff($members, self::$data[$key]);
+
+        // Insert new members (based on diff above, these should be unique)
+        self::$data[$key] = array_merge(self::$data[$key], $new_members);
 
         self::$dataTypes[$key] = 'set';
 
@@ -231,7 +243,9 @@ class RedisMock
             unset(self::$dataTtl[$key]);
         }
 
-        return $this->returnPipedInfo((int) $isNew);
+        // return number of new members inserted
+        return $this->returnPipedInfo(sizeof($new_members));
+
     }
 
     public function smembers($key)
@@ -243,23 +257,39 @@ class RedisMock
         return $this->returnPipedInfo(self::$data[$key]);
     }
 
-    public function srem($key, $member)
+    public function srem($key, $members)
     {
+        // if (func_num_args() > 2) {
+        //     throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
+        // }
+
+        // Check if members are passed as simple arguments
+        // If so convert to an array
         if (func_num_args() > 2) {
-            throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
+            $arg_list = func_get_args();
+            $members = array_slice($arg_list, 1);
+        }
+        // convert single argument to array
+        if ( !is_array($members) ) {
+          $members = array($members);
         }
 
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        self::$data[$key] = array_diff(self::$data[$key], array($member));
+        // Calcuale intersection to we know how many members were removed
+        $rem_members = array_intersect($members, self::$data[$key]);
+        // Remove members
+        self::$data[$key] = array_diff(self::$data[$key], $members);
 
+        // Unset key is set empty
         if (0 === count(self::$data[$key])) {
             unset(self::$dataTypes[$key]);
         }
 
-        return $this->returnPipedInfo(1);
+        // return number of members removed
+        return $this->returnPipedInfo(sizeof($rem_members));
     }
 
     public function sismember($key, $member)
