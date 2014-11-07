@@ -259,10 +259,6 @@ class RedisMock
 
     public function srem($key, $members)
     {
-        // if (func_num_args() > 2) {
-        //     throw new UnsupportedException('In RedisMock, `srem` command can not remove more than one member at once.');
-        // }
-
         // Check if members are passed as simple arguments
         // If so convert to an array
         if (func_num_args() > 2) {
