@@ -33,13 +33,11 @@ Redis command                                    | Description
 **TTL** *key*                                    | Gets the time to live for a key
 **TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **GET** *key*                                    | Gets the value of a key
-**MGET** *array<field>*                         | Gets the values of multiple keys
 **INCR** *key*                                   | Increments the integer value of a key by one
 **INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
 **DECR** *key*                                   | Decrements the integer value of a key by one
 **DECRBY** *key* *decrement*                     | Decrements the integer value of a key by `decrement` value
 **SET** *key* *value*                            | Sets the string value of a key
-**MSET** *array<field, value>*                   | Sets the string values of multiple keys
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SETNX** *key* *value*                          | Sets key to hold value if key does not exist
 **SADD** *key* *member*                          | Adds one member to a set
@@ -48,16 +46,18 @@ Redis command                                    | Description
 **SREM** *key* *member*                          | Removes one member from a set
 **HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
-**HMGET** *key *array<field>*                    | Gets the values of multiple hash fields
+**HMGET** *key* *array\<field\>*                 | Gets the values of multiple hash fields
 **HGET** *key* *field*                           | Gets the value of a hash field
 **HGETALL** *key*                                | Gets all the fields and values in a hash
-**HMSET** *key* *array<field, value>*            | Sets each value in the corresponding field
+**HMSET** *key* *array\<field, value\>*          | Sets each value in the corresponding field
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
 **LPUSH** *key* *value*                          | Pushs values at the head of a list
 **LPOP** *key*                                   | Pops values at the head of a list
 **LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
 **LTRIM** *key* *start* *stop*                   | Removes the values of the `key` list which are outside the range `start`...`stop`
 **LRANGE** *key* *start* *stop*                  | Gets a range of elements from a list
+**MGET** *array\<field\>*                        | Gets the values of multiple keys
+**MSET** *array\<field, value\>*                 | Sets the string values of multiple keys
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
