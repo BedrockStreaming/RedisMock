@@ -62,6 +62,29 @@ class RedisMock
         return $this->returnPipedInfo('OK');
     }
 
+    //mset/mget (built on set and get above)
+    public function mset($pairs)
+    {
+        $this->stopPipeline();
+        foreach ($pairs as $key => $value) {
+            $this->set($key, $value);
+        }
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo('OK');
+    }
+
+    public function mget($fields)
+    {
+        $this->stopPipeline();
+        foreach ($fields as $field) {
+            $result[] = $this->get($field);
+        }
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo($result);
+    }
+
     public function setex($key, $seconds, $value)
     {
         return $this->set($key, $value, $seconds);

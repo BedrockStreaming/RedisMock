@@ -129,6 +129,33 @@ class RedisMock extends test
             ->integer($redisMock->setnx("test-setnx-expire", "lala"))
                 ->isEqualTo(1);
 
+        //mget/mset test (roughly based on hmset/hmset tests)
+        $this->assert
+            ->array($redisMock->mget(array('raoul', 'test1')))
+               ->isEqualTo(array(
+                   null,
+                   null,
+               ))
+            ->string($redisMock->mset(array(
+                'test1' => 'somthing',
+                'raoul' => 'nothing',
+            )))
+            ->array($redisMock->mget(array('raoul', 'test1')))
+                ->isEqualTo(array(
+                    'nothing',
+                    'somthing',
+                ))
+            ->integer($redisMock->expire('raoul', 1))
+                ->isEqualTo(1)
+            ->integer($redisMock->expire('test1', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->array($redisMock->mget(array('raoul', 'test1')))
+            ->isEqualTo(array(
+                null,
+                null,
+            ));
     }
 
     public function testExpireTtl()
@@ -1210,6 +1237,8 @@ class RedisMock extends test
                 $redisMock->pipeline()
                     ->set('test', 'something')
                     ->get('test')
+                    ->mset(array('test1' => 'something', 'test2' => 'nothing'))
+                    ->mget(array('test1', 'test2'))
                     ->incr('test')
                     ->keys('test')
                     ->del('test')
