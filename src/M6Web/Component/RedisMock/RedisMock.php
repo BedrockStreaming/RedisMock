@@ -213,7 +213,7 @@ class RedisMock
         // If so convert to an array
         if (func_num_args() > 2) {
             $arg_list = func_get_args();
-            $members = array_slice($arg_list, 1);
+            $members  = array_slice($arg_list, 1);
         }
         // convert single argument to array
         if ( !is_array($members) ) {
@@ -232,10 +232,10 @@ class RedisMock
         }
 
         // Calculate new members
-        $new_members = array_diff($members, self::$data[$key]);
+        $newMembers = array_diff($members, self::$data[$key]);
 
         // Insert new members (based on diff above, these should be unique)
-        self::$data[$key] = array_merge(self::$data[$key], $new_members);
+        self::$data[$key] = array_merge(self::$data[$key], $newMembers);
 
         self::$dataTypes[$key] = 'set';
 
@@ -244,7 +244,7 @@ class RedisMock
         }
 
         // return number of new members inserted
-        return $this->returnPipedInfo(sizeof($new_members));
+        return $this->returnPipedInfo(sizeof($newMembers));
 
     }
 
@@ -263,7 +263,7 @@ class RedisMock
         // If so convert to an array
         if (func_num_args() > 2) {
             $arg_list = func_get_args();
-            $members = array_slice($arg_list, 1);
+            $members  = array_slice($arg_list, 1);
         }
         // convert single argument to array
         if ( !is_array($members) ) {
@@ -275,7 +275,7 @@ class RedisMock
         }
 
         // Calcuale intersection to we know how many members were removed
-        $rem_members = array_intersect($members, self::$data[$key]);
+        $remMembers = array_intersect($members, self::$data[$key]);
         // Remove members
         self::$data[$key] = array_diff(self::$data[$key], $members);
 
@@ -285,7 +285,7 @@ class RedisMock
         }
 
         // return number of members removed
-        return $this->returnPipedInfo(sizeof($rem_members));
+        return $this->returnPipedInfo(sizeof($remMembers));
     }
 
     public function sismember($key, $member)

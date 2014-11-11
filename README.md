@@ -40,10 +40,10 @@ Redis command                                    | Description
 **SET** *key* *value*                            | Sets the string value of a key
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SETNX** *key* *value*                          | Sets key to hold value if key does not exist
-**SADD** *key* *members*                          | Adds members to a set
+**SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
-**SREM** *key* *members*                          | Removes members from a set
+**SREM** *key* *member* *[member ...]*           | Removes one or more members from a set
 **HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HMGET** *key *array<field>*                    | Gets the values of multiple hash fields
