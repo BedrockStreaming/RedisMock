@@ -1,4 +1,4 @@
-# Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.png?branch=master)](http://travis-ci.org/M6Web/RedisMock)
+# Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.svg?branch=master)](http://travis-ci.org/M6Web/RedisMock) [![Total Downloads](https://poser.pugx.org/m6web/redis-mock/downloads.svg)](https://packagist.org/packages/m6web/redis-mock)
 
 PHP 5.3 library providing a Redis PHP mock for your tests.
 
@@ -99,17 +99,26 @@ $myRedisMock = $factory->getAdapter('My\Redis\Library');
 
 ## Tests
 
+The development environment is provided by Vagrant and the [Xotelia box](https://github.com/Xotelia/VagrantBox).
+
 ```shell
-$ curl -sS https://getcomposer.org/installer | php
-$ php composer.phar install
+$ cp Vagrantfile.dist Vagrantfile
+$ vagrant up
+$ vagrant ssh
+```
+
+```shell
+$ cd /vagrant
+$ composer install
 $ ./vendor/bin/atoum
 ```
 
 ## Credits
 
-Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).
+Developped by the [Cytron Team](http://cytron.fr/) of [M6 Web](http://tech.m6web.fr/).  
 Tested with [atoum](http://atoum.org).  
 
 ## License
 
 RedisMock is licensed under the [MIT license](LICENSE).
+
