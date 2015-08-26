@@ -60,6 +60,7 @@ Redis command                                    | Description
 **MSET** *array\<field, value\>*                 | Sets the string values of multiple keys
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
+**SCARD** *key*                                  | Get cardinality of set (count of members)
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score

@@ -280,6 +280,16 @@ class RedisMock
         return $this->returnPipedInfo(self::$data[$key]);
     }
 
+
+    public function scard($key)
+    {
+        // returns 0 if key not found
+        if (!isset(self::$data[$key])) {
+            return $this->returnPipedInfo(0);
+        }
+        return $this->returnPipedInfo(count(self::$data[$key]));
+    }
+
     public function srem($key, $members)
     {
         // Check if members are passed as simple arguments
