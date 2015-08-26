@@ -43,6 +43,7 @@ Redis command                                    | Description
 **SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
+**SCARD** *key*                                  | Get cardinality of set (count of members)
 **SREM** *key* *member* *[member ...]*           | Removes one or more members from a set
 **HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
@@ -60,7 +61,6 @@ Redis command                                    | Description
 **MSET** *array\<field, value\>*                 | Sets the string values of multiple keys
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
-**SCARD** *key*                                  | Get cardinality of set (count of members)
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
