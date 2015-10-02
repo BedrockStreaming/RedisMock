@@ -1162,6 +1162,58 @@ class RedisMock extends test
             ));
     }
 
+    public function testLLen()
+    {
+        $redisMock = new Redis();
+        $redisMock->lpush($testList = uniqid(), 'test1');
+
+        $this->assert
+            ->integer($redisMock->llen($testList))
+                ->isEqualTo(1);
+
+        $redisMock->lpush($testList, 'test2');
+        $redisMock->lpush($testList, 'test3');
+        $redisMock->lpush($testList, 'test4');
+        $redisMock->lpush($testList, 'test5');
+
+        $this->assert
+            ->integer($redisMock->llen($testList))
+                ->isEqualTo(5);
+
+        // Not existing list
+        $this->assert
+            ->integer($redisMock->llen('invalid'))
+                ->isEqualTo(0);
+
+    }
+
+    public function testLIndex()
+    {
+        $redisMock = new Redis();
+        $redisMock->rpush($testList = uniqid(), 'test1');
+        $redisMock->rpush($testList, 'test2');
+        $redisMock->rpush($testList, 'test3');
+        $redisMock->rpush($testList, 'test4');
+        $redisMock->rpush($testList, 'test5');
+
+        $this->assert
+            // Access index from starting position
+            ->string($redisMock->lindex($testList, 0))->isEqualTo('test1')
+            ->string($redisMock->lindex($testList, 1))->isEqualTo('test2')
+            ->string($redisMock->lindex($testList, 4))->isEqualTo('test5')
+            // Access index from ending position
+            ->string($redisMock->lindex($testList, -1))->isEqualTo('test5')
+            ->string($redisMock->lindex($testList, -3))->isEqualTo('test3')
+            // Out of range indexes
+            ->variable($redisMock->lindex($testList, 5))->isNull()
+            ->variable($redisMock->lindex($testList, 10))->isNull()
+            ->variable($redisMock->lindex($testList, -5))->isNull()
+            ->variable($redisMock->lindex($testList, -10))->isNull()
+            // Non-existent index
+            ->variable($redisMock->lindex('invalid', rand()))->isNull()
+        ;
+    }
+
     public function testLPushRPushLRemLTrim()
     {
         $redisMock = new Redis();

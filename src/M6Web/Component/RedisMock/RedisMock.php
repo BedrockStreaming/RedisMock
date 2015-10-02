@@ -332,6 +332,40 @@ class RedisMock
 
     // Lists
 
+    public function llen($key)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(0);
+        }
+
+        return $this->returnPipedInfo(count(self::$data[$key]));
+    }
+
+    public function lindex($key, $index)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            // Doc (http://redis.io/commands/lindex) : "When the value at key is not a list, an error is returned."
+            // but what is "an error" ?
+            return $this->returnPipedInfo(null);
+        }
+
+        $size = count(self::$data[$key]);
+
+        // Empty index or out of range
+        if ($size == 0 || abs($index) >= $size) {
+            return $this->returnPipedInfo(null);
+        }
+
+        // Compute position for positive or negative $index (0 for first, -1 for last, ...)
+        $position = ($size + $index) % $size;
+
+        if (!isset(self::$data[$key][$position])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo(self::$data[$key][$position]);
+    }
+
     public function lrem($key, $count, $value)
     {
         if (!isset(self::$data[$key]) || !in_array($value, self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
