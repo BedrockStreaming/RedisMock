@@ -381,6 +381,25 @@ class RedisMock extends test
                 ->containsValues(array('something', 'someting_else'));
     }
 
+    public function testSCard()
+    {
+        $redisMock = new Redis();
+        $redisMock->sadd('test', 'test4');
+        $redisMock->sadd('test', 'test2');
+        $redisMock->sadd('test', 'test3');
+        $redisMock->sadd('test', 'test1');
+        $redisMock->sadd('test', 'test5');
+        $redisMock->sadd('test', 'test6');
+
+        $this->assert
+            ->integer($redisMock->scard('test'))
+                ->isEqualTo(6);
+
+        $this->assert
+            ->integer($redisMock->scard('nothere'))
+                ->isEqualTo(0);
+    }
+
     public function testSAddSMembersSIsMemberSRem()
     {
         $redisMock = new Redis();
