@@ -770,6 +770,22 @@ class RedisMock
         return $this->returnPipedInfo(count(self::$data[$key]));
     }
 
+    public function zrank($key, $member)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(null);
+        }
+
+        // Get position of key $member (absolute, 0-based)
+        $rank = array_search($member, array_keys(self::$data[$key]));
+
+        if ($rank === false) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo($rank);
+    }
+
     public function zremrangebyscore($key, $min, $max) {
         if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);

@@ -604,6 +604,28 @@ class RedisMock extends test
                 ->isEqualTo(0);
     }
 
+    public function testZRank()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('test', 0, 'test6');
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 4, 'test1');
+        $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 30, 'test5');
+
+
+        $this->assert->variable($redisMock->zrank('test', 'test6'))->isEqualTo(0);
+        $this->assert->variable($redisMock->zrank('test', 'test4'))->isEqualTo(1);
+        $this->assert->variable($redisMock->zrank('test', 'test3'))->isEqualTo(2);
+        $this->assert->variable($redisMock->zrank('test', 'test1'))->isEqualTo(3);
+        $this->assert->variable($redisMock->zrank('test', 'test2'))->isEqualTo(4);
+        $this->assert->variable($redisMock->zrank('test', 'test5'))->isEqualTo(5);
+
+        $this->assert->variable($redisMock->zrank('test', 'invalid'))->isEqualTo(null);
+        $this->assert->variable($redisMock->zrank('invalid', 'whatever'))->isEqualTo(null);
+    }
+
     public function testZRange()
     {
         $redisMock = new Redis();
