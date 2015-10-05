@@ -3,11 +3,11 @@
 namespace M6Web\Component\RedisMock;
 
 /**
-* Redis mock class
-*
-* @author Florent Dubost <fdubost.externe@m6.fr>
-* @author Denis Roussel <denis.roussel@m6.fr>
-*/
+ * Redis mock class
+ *
+ * @author Florent Dubost <fdubost.externe@m6.fr>
+ * @author Denis Roussel <denis.roussel@m6.fr>
+ */
 class RedisMock
 {
     protected static $data      = array();
@@ -331,6 +331,40 @@ class RedisMock
     }
 
     // Lists
+
+    public function llen($key)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(0);
+        }
+
+        return $this->returnPipedInfo(count(self::$data[$key]));
+    }
+
+    public function lindex($key, $index)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            // Doc (http://redis.io/commands/lindex) : "When the value at key is not a list, an error is returned."
+            // but what is "an error" ?
+            return $this->returnPipedInfo(null);
+        }
+
+        $size = count(self::$data[$key]);
+
+        // Empty index or out of range
+        if ($size == 0 || abs($index) >= $size) {
+            return $this->returnPipedInfo(null);
+        }
+
+        // Compute position for positive or negative $index (0 for first, -1 for last, ...)
+        $position = ($size + $index) % $size;
+
+        if (!isset(self::$data[$key][$position])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo(self::$data[$key][$position]);
+    }
 
     public function lrem($key, $count, $value)
     {
@@ -759,6 +793,31 @@ class RedisMock
         }
 
         return $this->returnPipedInfo((int) $isNew);
+    }
+
+    public function zcard($key)
+    {
+        // returns 0 if key not found
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(0);
+        }
+        return $this->returnPipedInfo(count(self::$data[$key]));
+    }
+
+    public function zrank($key, $member)
+    {
+        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(null);
+        }
+
+        // Get position of key $member (absolute, 0-based)
+        $rank = array_search($member, array_keys(self::$data[$key]));
+
+        if ($rank === false) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo($rank);
     }
 
     public function zremrangebyscore($key, $min, $max) {

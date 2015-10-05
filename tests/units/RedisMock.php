@@ -381,6 +381,25 @@ class RedisMock extends test
                 ->containsValues(array('something', 'someting_else'));
     }
 
+    public function testSCard()
+    {
+        $redisMock = new Redis();
+        $redisMock->sadd('test', 'test4');
+        $redisMock->sadd('test', 'test2');
+        $redisMock->sadd('test', 'test3');
+        $redisMock->sadd('test', 'test1');
+        $redisMock->sadd('test', 'test5');
+        $redisMock->sadd('test', 'test6');
+
+        $this->assert
+            ->integer($redisMock->scard('test'))
+                ->isEqualTo(6);
+
+        $this->assert
+            ->integer($redisMock->scard('nothere'))
+                ->isEqualTo(0);
+    }
+
     public function testSAddSMembersSIsMemberSRem()
     {
         $redisMock = new Redis();
@@ -564,6 +583,47 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->zremrangebyscore('test', '0', '2'))
                 ->isEqualTo(0);
+    }
+
+    public function testZCard()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 1, 'test1');
+        $redisMock->zadd('test', 30, 'test5');
+        $redisMock->zadd('test', 0, 'test6');
+
+        $this->assert
+            ->integer($redisMock->zcard('test'))
+                ->isEqualTo(6);
+
+        $this->assert
+            ->integer($redisMock->zcard('nothere'))
+                ->isEqualTo(0);
+    }
+
+    public function testZRank()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('test', 0, 'test6');
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 4, 'test1');
+        $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 30, 'test5');
+
+
+        $this->assert->variable($redisMock->zrank('test', 'test6'))->isEqualTo(0);
+        $this->assert->variable($redisMock->zrank('test', 'test4'))->isEqualTo(1);
+        $this->assert->variable($redisMock->zrank('test', 'test3'))->isEqualTo(2);
+        $this->assert->variable($redisMock->zrank('test', 'test1'))->isEqualTo(3);
+        $this->assert->variable($redisMock->zrank('test', 'test2'))->isEqualTo(4);
+        $this->assert->variable($redisMock->zrank('test', 'test5'))->isEqualTo(5);
+
+        $this->assert->variable($redisMock->zrank('test', 'invalid'))->isEqualTo(null);
+        $this->assert->variable($redisMock->zrank('invalid', 'whatever'))->isEqualTo(null);
     }
 
     public function testZRange()
@@ -1100,6 +1160,58 @@ class RedisMock extends test
                 'raoul' => null,
                 'test1' => null,
             ));
+    }
+
+    public function testLLen()
+    {
+        $redisMock = new Redis();
+        $redisMock->lpush($testList = uniqid(), 'test1');
+
+        $this->assert
+            ->integer($redisMock->llen($testList))
+                ->isEqualTo(1);
+
+        $redisMock->lpush($testList, 'test2');
+        $redisMock->lpush($testList, 'test3');
+        $redisMock->lpush($testList, 'test4');
+        $redisMock->lpush($testList, 'test5');
+
+        $this->assert
+            ->integer($redisMock->llen($testList))
+                ->isEqualTo(5);
+
+        // Not existing list
+        $this->assert
+            ->integer($redisMock->llen('invalid'))
+                ->isEqualTo(0);
+
+    }
+
+    public function testLIndex()
+    {
+        $redisMock = new Redis();
+        $redisMock->rpush($testList = uniqid(), 'test1');
+        $redisMock->rpush($testList, 'test2');
+        $redisMock->rpush($testList, 'test3');
+        $redisMock->rpush($testList, 'test4');
+        $redisMock->rpush($testList, 'test5');
+
+        $this->assert
+            // Access index from starting position
+            ->string($redisMock->lindex($testList, 0))->isEqualTo('test1')
+            ->string($redisMock->lindex($testList, 1))->isEqualTo('test2')
+            ->string($redisMock->lindex($testList, 4))->isEqualTo('test5')
+            // Access index from ending position
+            ->string($redisMock->lindex($testList, -1))->isEqualTo('test5')
+            ->string($redisMock->lindex($testList, -3))->isEqualTo('test3')
+            // Out of range indexes
+            ->variable($redisMock->lindex($testList, 5))->isNull()
+            ->variable($redisMock->lindex($testList, 10))->isNull()
+            ->variable($redisMock->lindex($testList, -5))->isNull()
+            ->variable($redisMock->lindex($testList, -10))->isNull()
+            // Non-existent index
+            ->variable($redisMock->lindex('invalid', rand()))->isNull()
+        ;
     }
 
     public function testLPushRPushLRemLTrim()
