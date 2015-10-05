@@ -1341,6 +1341,14 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->lrem('test', 1 , 'test1'))
                 ->isEqualTo(0);
+
+        $this->assert
+            // lpush allow to push further values at once
+            ->integer($redisMock->lpush('test', 'last', 'middle', 'first'))
+                ->isEqualTo(3)
+            ->array($redisMock->getData())
+                ->isEqualTo(array('test' => array('first', 'middle', 'last')))
+        ;
     }
 
     public function testFlushDb()
