@@ -52,6 +52,8 @@ Redis command                                    | Description
 **HGETALL** *key*                                | Gets all the fields and values in a hash
 **HMSET** *key* *array\<field, value\>*          | Sets each value in the corresponding field
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
+**LINDEX** *key* *index*                         | Returns the element at index *index* in the list stored at *key*
+**LLEN** *key*                                   | Returns the length of the list stored at *key*
 **LPUSH** *key* *value*                          | Pushs values at the head of a list
 **LPOP** *key*                                   | Pops values at the head of a list
 **LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
@@ -62,8 +64,10 @@ Redis command                                    | Description
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
+**ZCARD** *key*                                  | Returns the sorted set cardinality (number of elements) of the sorted set stored at *key*
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
+**ZRANK** *key* *member*                         | Returns the rank of *member* in the sorted set stored at *key*
 **ZREM** *key* *member*                          | Removes one membner from a sorted set
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
