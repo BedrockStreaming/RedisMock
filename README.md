@@ -54,7 +54,7 @@ Redis command                                    | Description
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
 **LINDEX** *key* *index*                         | Returns the element at index *index* in the list stored at *key*
 **LLEN** *key*                                   | Returns the length of the list stored at *key*
-**LPUSH** *key* *value*                          | Pushs values at the head of a list
+**LPUSH** *key* *value* *[value ...]*            | Pushs values at the head of a list
 **LPOP** *key*                                   | Pops values at the head of a list
 **LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
 **LTRIM** *key* *start* *stop*                   | Removes the values of the `key` list which are outside the range `start`...`stop`

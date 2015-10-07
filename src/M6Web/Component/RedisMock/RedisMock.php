@@ -413,7 +413,13 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        array_unshift(self::$data[$key], $value);
+        // Get all values (less first parameters who is $key)
+        $values = func_get_args();
+        array_shift($values);
+
+        foreach ($values as $value) {
+            array_unshift(self::$data[$key], $value);
+        }
 
         return $this->returnPipedInfo(count(self::$data[$key]));
     }
