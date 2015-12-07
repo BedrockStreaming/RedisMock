@@ -1160,6 +1160,17 @@ class RedisMock extends test
                 'raoul' => null,
                 'test1' => null,
             ));
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->hsetnx('mykey', 'field', 'my value'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hsetnx('mykey', 'field2', 'second value'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hsetnx('mykey', 'field', 'override value'))
+                ->isEqualTo(0)
+            ->integer($redisMock->del('mykey'))
+                ->isEqualTo(2)
+        ;
     }
 
     public function testLLen()

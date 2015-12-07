@@ -548,6 +548,27 @@ class RedisMock
         return $this->returnPipedInfo((int) $isNew);
     }
 
+    public function hsetnx($key, $field, $value)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        $isNew = !isset(self::$data[$key][$field]);
+
+        if ($isNew) {
+            self::$data[$key][$field] = $value;
+            self::$dataTypes[$key]    = 'hash';
+            if (array_key_exists($key, self::$dataTtl)) {
+                unset(self::$dataTtl[$key]);
+            }
+        }
+
+        return $this->returnPipedInfo((int) $isNew);
+    }
+
     public function hmset($key, $pairs)
     {
         $this->deleteOnTtlExpired($key);
