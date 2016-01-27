@@ -226,6 +226,17 @@ class RedisMockFactory extends test
             ->string($factory->getAdapterClass('Predis\Client', true))
                 ->isEqualTo('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter_NativeConstructor');
     }
+
+    /**
+     * Mock a concrete Redis instance (the phpredis extension)
+     *
+     * @return void
+     */
+    public function testRedisExtension()
+    {
+        $factory = new Factory();
+        $factory->getAdapter('Redis', true);
+    }
 }
 
 class RedisWithMethods
