@@ -15,7 +15,7 @@
         "psr-0": {"M6Web\\Component\\RedisMock": "src/"}
     },
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.5"
     },
     "require-dev": {
         "atoum/atoum": "~2.5",
