@@ -267,6 +267,7 @@ CONSTRUCTOR;
                     $methodsCode .= strtr($this->methodTemplateException, array(
                             '{{method}}'    => $methodName,
                             '{{signature}}' => $this->getMethodSignature($method),
+                            '{{args}}'      => $this->getMethodArgs($method),
                         ));
                 } else {
                     throw new UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
@@ -315,6 +316,8 @@ CONSTRUCTOR;
                 } else {
                     $signature .= var_export($parameter->getDefaultValue(), true);
                 }
+            } elseif ($parameter->isOptional()) {
+                $signature .= ' = NULL ';
             }
 
             $signatures[] = $signature;
