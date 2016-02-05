@@ -231,7 +231,6 @@ class RedisMockFactory extends test
 
     /**
      * Mock a concrete Redis instance (the phpredis extension)
-     * @tags test
      * @return void
      */
     public function testRedisExtension()
@@ -239,8 +238,8 @@ class RedisMockFactory extends test
         $factory = new Factory();
 
         $this->assert
-            ->object($factory->getAdapter('\Redis', true))
-                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock__Redis_Adapter');
+            ->class(get_class($factory->getAdapter('\Redis', true)))
+                ->isSubclassOf('\Redis');
     }
 }
 
