@@ -13,7 +13,7 @@ namespace M6Web\Component\RedisMock;
  */
 class RedisMockFactory
 {
-    protected $redisCommands = array(
+    protected $redisCommands = [
         'append',
         'auth',
         'bgrewriteaof',
@@ -32,8 +32,12 @@ class RedisMockFactory
         'del',
         'discard',
         'dump',
-        'echo',
-        'eval',
+        /*
+         * echo and eval cannot be function names
+         * no solution for mocking this for now
+         */
+        //'echo',
+        //'eval',
         'evalsha',
         'exec',
         'exists',
@@ -156,7 +160,7 @@ class RedisMockFactory
         'sscan',
         'hscan',
         'zscan',
-    );
+    ];
 
     protected $classTemplate = <<<'CLASS'
 
