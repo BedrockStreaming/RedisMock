@@ -2,6 +2,8 @@
 
 PHP 5.3 library providing a Redis PHP mock for your tests.
 
+** Work for now only with predis**
+
 ## Installation
 
 Add this line in your `composer.json` :
