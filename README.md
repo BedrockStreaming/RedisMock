@@ -52,6 +52,8 @@ Redis command                                    | Description
 **HMGET** *key* *array\<field\>*                 | Gets the values of multiple hash fields
 **HGET** *key* *field*                           | Gets the value of a hash field
 **HGETALL** *key*                                | Gets all the fields and values in a hash
+**HKEYS** *key*                                  | Gets all the fields in a hash
+**HLEN** *key*                                   | Gets the number of fields in a hash
 **HMSET** *key* *array\<field, value\>*          | Sets each value in the corresponding field
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
 **HSETNX** *key* *field* *value*                 | Sets field in the hash stored at key to value, only if field does not yet exist
