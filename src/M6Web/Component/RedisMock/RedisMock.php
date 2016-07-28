@@ -62,6 +62,18 @@ class RedisMock
         return $this->returnPipedInfo('OK');
     }
 
+    public function getset($key, $value)
+    {
+        $old = $this->get($key);
+        $this->set($key, $value);
+        // Doc (http://redis.io/commands/getset) : "Returns an error when key exists but does not hold a string value"
+        // but what is "an error" ?
+        if (!is_string($old)) {
+            return $this->returnPipedInfo(null);
+        }
+        return $old;
+    }
+
     //mset/mget (built on set and get above)
     public function mset($pairs)
     {

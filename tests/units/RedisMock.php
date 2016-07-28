@@ -22,6 +22,18 @@ class RedisMock extends test
             ->integer($redisMock->del('test'))
                 ->isEqualTo(0)
 
+            ->variable($redisMock->getset('test', 'something'))
+                ->isNull()
+            ->string($redisMock->getset('test', 'something else'))
+                ->isEqualTo('something')
+            ->string($redisMock->getset('test', 'something'))
+                ->isEqualTo('something else')
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(0)
+            ->variable($redisMock->hset('test', 'myfield', 'something'))
+            ->variable($redisMock->getset('test', 'something else'))
+                ->isNull()
+
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
             ->string($redisMock->type('test'))
