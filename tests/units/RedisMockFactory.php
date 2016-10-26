@@ -226,6 +226,41 @@ class RedisMockFactory extends test
             ->string($factory->getAdapterClass('Predis\Client', true))
                 ->isEqualTo('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter_NativeConstructor');
     }
+
+    public function testGetAdapterWithStorageArea()
+    {
+        $factory = new Factory();
+        $mock    = $factory->getAdapter('StdClass');
+
+        $this->assert
+            ->string($mock->set('test', 'aaa'))
+            ->isEqualTo('OK')
+            ->string($mock->get('test'))
+            ->isEqualTo('aaa')
+        ;
+
+        $mock2 = $factory->getAdapter('StdClass', false, true, 'second-server');
+
+        $this->assert
+            // On this "other server", the key 'test' should not exist
+            ->variable($mock2->get('test'))
+            ->isNull()
+            // Let's give it a different value
+            ->string($mock2->set('test', 'bbb'))
+            ->isEqualTo('OK')
+            ->string($mock2->get('test'))
+            ->isEqualTo('bbb')
+        ;
+
+
+        $this->assert
+            // And let's verify that the value for same key on the
+            // first server did not change.
+            ->string($mock->get('test'))
+            ->isEqualTo('aaa')
+        ;
+
+    }
 }
 
 class RedisWithMethods

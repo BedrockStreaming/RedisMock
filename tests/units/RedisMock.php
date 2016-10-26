@@ -1603,4 +1603,29 @@ class RedisMock extends test
                 ->isEmpty()
         ;
     }
+
+    public function testTwoSeparateStorage()
+    {
+        $redisMock1 = new Redis();
+        $redisMock1->set('key1', 'value1');
+
+        $redisMock2 = new Redis();
+        $redisMock2->selectStorage('alternateStorage');
+
+        $this->assert
+            ->boolean($redisMock1->exists('key1'))
+            ->isTrue()
+            ->boolean($redisMock2->exists('key1'))
+            ->isFalse()
+        ;
+
+        $redisMock2->set('key1', 'value2');
+
+        $this->assert
+            ->string($redisMock1->get('key1'))
+            ->isEqualTo('value1')
+            ->string($redisMock2->get('key1'))
+            ->isEqualTo('value2')
+        ;
+    }
 }
