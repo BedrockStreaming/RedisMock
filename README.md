@@ -107,6 +107,18 @@ $myRedisMock = $factory->getAdapter('My\Redis\Library');
 
 *Note : the factory will throw an exception by default if your parent class implements unsupported commands. If you want even so partially use the mock, you can specify the second parameter when you build it `$factory->getAdapter('My\Redis\Library', true)`. The exception will then thrown only when the command is called.*
 
+### Static storage & Multiple servers
+The storage in the RedisMock class is organized by named areas. The default area's name is the empty string `''` but you can
+specify an alternate area name when calling the factory's `getAdapter` method.
+
+````php
+getAdapter($classToExtend, $failOnlyAtRuntime = false, $ignoreConstructor = true, $storage = '')
+````
+
+ This enables the mocking of several remote Redis servers, each one with its own storage area.
+
+ However, one same area remains statically shared across all the instances bound to it.
+
 ## Tests
 
 The development environment is provided by Vagrant and the [Xotelia box](https://github.com/Xotelia/VagrantBox).

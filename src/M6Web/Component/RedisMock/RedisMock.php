@@ -10,53 +10,80 @@ namespace M6Web\Component\RedisMock;
  */
 class RedisMock
 {
-    protected static $data      = array();
-    protected static $dataTypes = array();
-    protected static $dataTtl   = array();
+    protected static $dataValues = array('' => array());
+    protected static $dataTypes = array('' => array());
+    protected static $dataTtl   = array('' => array());
     protected $pipeline         = false;
     protected $savedPipeline    = false;
     protected $pipedInfo        = array();
 
+    /**
+     * This value enables to mock several Redis nodes regarding
+     * storage. By default, the storage area is called '', but
+     * by invoking selectStoarge('anotherName') you can switch to
+     * a different storage area.
+     * The static storage used to be an array ; it is now an
+     * assoc array of storage arrays.
+     * @var string
+     */
+    protected $storage = '';
+
+    /**
+     * @param string $storage
+     * @author Gabriel Zerbib <gabriel@figdice.org>
+     */
+    public function selectStorage($storage)
+    {
+        $this->storage = $storage;
+        if (! array_key_exists($storage, self::$dataValues)) {
+            self::$dataValues[$storage] = array();
+            self::$dataTypes[$storage] = array();
+            self::$dataTtl[$storage] = array();
+        }
+    }
+
     public function reset()
     {
-        self::$data = array();
+        self::$dataValues[$this->storage] = array();
+        self::$dataTypes[$this->storage] = array();
+        self::$dataTtl[$this->storage] = array();
 
         return $this;
     }
 
     public function getData()
     {
-        return self::$data;
+        return self::$dataValues[$this->storage];
     }
 
     public function getDataTtl()
     {
-        return self::$dataTtl;
+        return self::$dataTtl[$this->storage];
     }
 
     public function getDataTypes()
     {
-        return self::$dataTypes;
+        return self::$dataTypes[$this->storage];
     }
 
     // Strings
 
     public function get($key)
     {
-        if (!isset(self::$data[$key]) || is_array(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$data[$key]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
     public function set($key, $value, $seconds = null)
     {
-        self::$data[$key]      = $value;
-        self::$dataTypes[$key] = 'string';
+        self::$dataValues[$this->storage][$key]      = $value;
+        self::$dataTypes[$this->storage][$key] = 'string';
 
         if (!is_null($seconds)) {
-            self::$dataTtl[$key] = time() + $seconds;
+            self::$dataTtl[$this->storage][$key] = time() + $seconds;
         }
 
         return $this->returnPipedInfo('OK');
@@ -77,6 +104,7 @@ class RedisMock
     public function mget($fields)
     {
         $this->stopPipeline();
+        $result = array();
         foreach ($fields as $field) {
             $result[] = $this->get($field);
         }
@@ -101,24 +129,24 @@ class RedisMock
 
     public function ttl($key)
     {
-        if (!array_key_exists($key, self::$data) || $this->deleteOnTtlExpired($key)) {
+        if (!array_key_exists($key, self::$dataValues[$this->storage]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(-2);
         }
 
-        if (!array_key_exists($key, self::$dataTtl)) {
+        if (!array_key_exists($key, self::$dataTtl[$this->storage])) {
             return $this->returnPipedInfo(-1);
         }
 
-        return $this->returnPipedInfo(self::$dataTtl[$key] - time());
+        return $this->returnPipedInfo(self::$dataTtl[$this->storage][$key] - time());
     }
 
     public function expire($key, $seconds)
     {
-        if (!array_key_exists($key, self::$data) || $this->deleteOnTtlExpired($key)) {
+        if (!array_key_exists($key, self::$dataValues[$this->storage]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        self::$dataTtl[$key] = time() + $seconds;
+        self::$dataTtl[$this->storage][$key] = time() + $seconds;
 
         return $this->returnPipedInfo(1);
     }
@@ -132,17 +160,17 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (!isset(self::$data[$key])) {
-            self::$data[$key] = (int) $increment;
-        } elseif (!is_integer(self::$data[$key])) {
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = (int) $increment;
+        } elseif (!is_integer(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         } else {
-            self::$data[$key] += (int) $increment;
+            self::$dataValues[$this->storage][$key] += (int) $increment;
         }
 
-        self::$dataTypes[$key] = 'string';
+        self::$dataTypes[$this->storage][$key] = 'string';
 
-        return $this->returnPipedInfo(self::$data[$key]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
     public function decr($key)
@@ -154,17 +182,17 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (!isset(self::$data[$key])) {
-            self::$data[$key] = 0;
-        } elseif (!is_integer(self::$data[$key])) {
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = 0;
+        } elseif (!is_integer(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        self::$data[$key] -= (int) $decrement;
+        self::$dataValues[$this->storage][$key] -= (int) $decrement;
 
-        self::$dataTypes[$key] = 'string';
+        self::$dataTypes[$this->storage][$key] = 'string';
 
-        return $this->returnPipedInfo(self::$data[$key]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
     // Keys
@@ -175,8 +203,8 @@ class RedisMock
             return $this->returnPipedInfo('none');
         }
 
-        if (array_key_exists($key, self::$dataTypes)) {
-            return $this->returnPipedInfo(self::$dataTypes[$key]);
+        if (array_key_exists($key, self::$dataTypes[$this->storage])) {
+            return $this->returnPipedInfo(self::$dataTypes[$this->storage][$key]);
         } else {
             return $this->returnPipedInfo('none');
         }
@@ -188,7 +216,7 @@ class RedisMock
             return $this->returnPipedInfo(false);
         }
 
-        return $this->returnPipedInfo(array_key_exists($key, self::$data));
+        return $this->returnPipedInfo(array_key_exists($key, self::$dataValues[$this->storage]));
     }
 
     public function del($key)
@@ -201,12 +229,12 @@ class RedisMock
 
         $deletedKeyCount = 0;
         foreach ( $keys as $k ) {
-            if ( isset(self::$data[$k]) ) {
-                $deletedKeyCount += count(self::$data[$k]);
-                unset(self::$data[$k]);
-                unset(self::$dataTypes[$k]);
-                if (array_key_exists($k, self::$dataTtl)) {
-                    unset(self::$dataTtl[$k]);
+            if ( isset(self::$dataValues[$this->storage][$k]) ) {
+                $deletedKeyCount += count(self::$dataValues[$this->storage][$k]);
+                unset(self::$dataValues[$this->storage][$k]);
+                unset(self::$dataTypes[$this->storage][$k]);
+                if (array_key_exists($k, self::$dataTtl[$this->storage])) {
+                    unset(self::$dataTtl[$this->storage][$k]);
                 }
             }
         }
@@ -219,7 +247,7 @@ class RedisMock
         $pattern = preg_replace(array('#\*#', '#\?#', '#(\[[^\]]+\])#'), array('.*', '.', '$1+'), $pattern);
 
         $results = array();
-        foreach (self::$data as $key => $value) {
+        foreach (self::$dataValues[$this->storage] as $key => $value) {
             if (preg_match('#^' . $pattern . '$#', $key) and !$this->deleteOnTtlExpired($key)) {
                 $results[] = $key;
             }
@@ -246,24 +274,24 @@ class RedisMock
         $this->deleteOnTtlExpired($key);
 
         // Check if key is defined
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        if ( !isset(self::$data[$key]) ) {
-          self::$data[$key] = array();
+        if ( !isset(self::$dataValues[$this->storage][$key]) ) {
+          self::$dataValues[$this->storage][$key] = array();
         }
 
         // Calculate new members
-        $newMembers = array_diff($members, self::$data[$key]);
+        $newMembers = array_diff($members, self::$dataValues[$this->storage][$key]);
 
         // Insert new members (based on diff above, these should be unique)
-        self::$data[$key] = array_merge(self::$data[$key], $newMembers);
+        self::$dataValues[$this->storage][$key] = array_merge(self::$dataValues[$this->storage][$key], $newMembers);
 
-        self::$dataTypes[$key] = 'set';
+        self::$dataTypes[$this->storage][$key] = 'set';
 
-        if (array_key_exists($key, self::$dataTtl)) {
-            unset(self::$dataTtl[$key]);
+        if (array_key_exists($key, self::$dataTtl[$this->storage])) {
+            unset(self::$dataTtl[$this->storage][$key]);
         }
 
         // return number of new members inserted
@@ -273,21 +301,21 @@ class RedisMock
 
     public function smembers($key)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
-        return $this->returnPipedInfo(self::$data[$key]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
 
     public function scard($key)
     {
         // returns 0 if key not found
-        if (!isset(self::$data[$key])) {
+        if (!isset(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(0);
         }
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function srem($key, $members)
@@ -303,18 +331,18 @@ class RedisMock
           $members = array($members);
         }
 
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
         // Calcuale intersection to we know how many members were removed
-        $remMembers = array_intersect($members, self::$data[$key]);
+        $remMembers = array_intersect($members, self::$dataValues[$this->storage][$key]);
         // Remove members
-        self::$data[$key] = array_diff(self::$data[$key], $members);
+        self::$dataValues[$this->storage][$key] = array_diff(self::$dataValues[$this->storage][$key], $members);
 
         // Unset key is set empty
-        if (0 === count(self::$data[$key])) {
-            unset(self::$dataTypes[$key]);
+        if (0 === count(self::$dataValues[$this->storage][$key])) {
+            unset(self::$dataTypes[$this->storage][$key]);
         }
 
         // return number of members removed
@@ -323,7 +351,7 @@ class RedisMock
 
     public function sismember($key, $member)
     {
-        if (!isset(self::$data[$key]) || !in_array($member, self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !in_array($member, self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
@@ -334,22 +362,22 @@ class RedisMock
 
     public function llen($key)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function lindex($key, $index)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             // Doc (http://redis.io/commands/lindex) : "When the value at key is not a list, an error is returned."
             // but what is "an error" ?
             return $this->returnPipedInfo(null);
         }
 
-        $size = count(self::$data[$key]);
+        $size = count(self::$dataValues[$this->storage][$key]);
 
         // Empty index or out of range
         if ($size == 0 || abs($index) >= $size) {
@@ -359,20 +387,20 @@ class RedisMock
         // Compute position for positive or negative $index (0 for first, -1 for last, ...)
         $position = ($size + $index) % $size;
 
-        if (!isset(self::$data[$key][$position])) {
+        if (!isset(self::$dataValues[$this->storage][$key][$position])) {
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$data[$key][$position]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$position]);
     }
 
     public function lrem($key, $count, $value)
     {
-        if (!isset(self::$data[$key]) || !in_array($value, self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !in_array($value, self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        $arr      = self::$data[$key];
+        $arr      = self::$dataValues[$this->storage][$key];
         $reversed = false;
 
         if ($count < 0) {
@@ -392,24 +420,24 @@ class RedisMock
             return true;
         });
 
-        $deletedItems = count(self::$data[$key]) - count($arr);
+        $deletedItems = count(self::$dataValues[$this->storage][$key]) - count($arr);
 
         if ($reversed) {
             $arr = array_reverse($arr);
         }
 
-        self::$data[$key] = array_values($arr);
+        self::$dataValues[$this->storage][$key] = array_values($arr);
 
         return $this->returnPipedInfo($deletedItems);
     }
 
     public function lpush($key, $value)
     {
-        if ($this->deleteOnTtlExpired($key) || !isset(self::$data[$key])) {
-            self::$data[$key] = array();
+        if ($this->deleteOnTtlExpired($key) || !isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = array();
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
@@ -418,60 +446,60 @@ class RedisMock
         array_shift($values);
 
         foreach ($values as $value) {
-            array_unshift(self::$data[$key], $value);
+            array_unshift(self::$dataValues[$this->storage][$key], $value);
         }
 
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function rpush($key, $value)
     {
-        if ($this->deleteOnTtlExpired($key) || !isset(self::$data[$key])) {
-            self::$data[$key] = array();
+        if ($this->deleteOnTtlExpired($key) || !isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = array();
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        array_push(self::$data[$key], $value);
+        array_push(self::$dataValues[$this->storage][$key], $value);
 
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function lpop($key)
     {
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(array_shift(self::$data[$key]));
+        return $this->returnPipedInfo(array_shift(self::$dataValues[$this->storage][$key]));
     }
 
     public function rpop($key)
     {
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(array_pop(self::$data[$key]));
+        return $this->returnPipedInfo(array_pop(self::$dataValues[$this->storage][$key]));
     }
 
     public function ltrim($key, $start, $stop)
     {
         $this->deleteOnTtlExpired($key);
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
-        } elseif (!isset(self::$data[$key])) {
+        } elseif (!isset(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo('OK');
         }
 
         if ($start < 0) {
-            if (abs($start) > count(self::$data[$key])) {
+            if (abs($start) > count(self::$dataValues[$this->storage][$key])) {
                 $start = 0;
             } else {
-                $start = count(self::$data[$key]) + $start;
+                $start = count(self::$dataValues[$this->storage][$key]) + $start;
             }
         }
 
@@ -485,9 +513,9 @@ class RedisMock
             }
         }
 
-        self::$data[$key] = array_slice(self::$data[$key], $start, $length);
+        self::$dataValues[$this->storage][$key] = array_slice(self::$dataValues[$this->storage][$key], $start, $length);
 
-        if (!count(self::$data[$key])) {
+        if (!count(self::$dataValues[$this->storage][$key])) {
             $this->stopPipeline();
             $this->del($key);
             $this->restorePipeline();
@@ -500,15 +528,15 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(array());
         }
 
         if ($start < 0) {
-            if (abs($start) > count(self::$data[$key])) {
+            if (abs($start) > count(self::$dataValues[$this->storage][$key])) {
                 $start = 0;
             } else {
-                $start = count(self::$data[$key]) + $start;
+                $start = count(self::$dataValues[$this->storage][$key]) + $start;
             }
         }
 
@@ -522,7 +550,7 @@ class RedisMock
             }
         }
 
-        $data = array_slice(self::$data[$key], $start, $length);
+        $data = array_slice(self::$dataValues[$this->storage][$key], $start, $length);
 
         return $this->returnPipedInfo($data);
     }
@@ -533,16 +561,16 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key]) || !isset(self::$data[$key][$field]);
+        $isNew = !isset(self::$dataValues[$this->storage][$key]) || !isset(self::$dataValues[$this->storage][$key][$field]);
 
-        self::$data[$key][$field] = $value;
-        self::$dataTypes[$key]    = 'hash';
-        if (array_key_exists($key, self::$dataTtl)) {
-            unset(self::$dataTtl[$key]);
+        self::$dataValues[$this->storage][$key][$field] = $value;
+        self::$dataTypes[$this->storage][$key]    = 'hash';
+        if (array_key_exists($key, self::$dataTtl[$this->storage])) {
+            unset(self::$dataTtl[$this->storage][$key]);
         }
 
         return $this->returnPipedInfo((int) $isNew);
@@ -552,17 +580,17 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key][$field]);
+        $isNew = !isset(self::$dataValues[$this->storage][$key][$field]);
 
         if ($isNew) {
-            self::$data[$key][$field] = $value;
-            self::$dataTypes[$key]    = 'hash';
-            if (array_key_exists($key, self::$dataTtl)) {
-                unset(self::$dataTtl[$key]);
+            self::$dataValues[$this->storage][$key][$field] = $value;
+            self::$dataTypes[$this->storage][$key]    = 'hash';
+            if (array_key_exists($key, self::$dataTtl[$this->storage])) {
+                unset(self::$dataTtl[$this->storage][$key]);
             }
         }
 
@@ -573,7 +601,7 @@ class RedisMock
     {
         $this->deleteOnTtlExpired($key);
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
@@ -589,20 +617,21 @@ class RedisMock
 
     public function hget($key, $field)
     {
-        if (!isset(self::$data[$key][$field]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key][$field]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$data[$key][$field]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$field]);
     }
 
     public function hmget($key, $fields)
     {
+        $result = array();
         foreach ($fields as $field) {
-            if (!isset(self::$data[$key][$field]) || $this->deleteOnTtlExpired($key)) {
+            if (!isset(self::$dataValues[$this->storage][$key][$field]) || $this->deleteOnTtlExpired($key)) {
                 $result[$field] = null;
             } else {
-                $result[$field] = self::$data[$key][$field];
+                $result[$field] = self::$dataValues[$this->storage][$key][$field];
             }
         }
 
@@ -615,18 +644,18 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        if (!array_key_exists($key, self::$data) || $this->deleteOnTtlExpired($key)) {
+        if (!array_key_exists($key, self::$dataValues[$this->storage]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        if (array_key_exists($field, self::$data[$key])) {
-            unset(self::$data[$key][$field]);
-            if (0 === count(self::$data[$key])) {
-                unset(self::$dataTypes[$key]);
+        if (array_key_exists($field, self::$dataValues[$this->storage][$key])) {
+            unset(self::$dataValues[$this->storage][$key][$field]);
+            if (0 === count(self::$dataValues[$this->storage][$key])) {
+                unset(self::$dataTypes[$this->storage][$key]);
             }
 
             return $this->returnPipedInfo(1);
@@ -637,43 +666,43 @@ class RedisMock
 
     public function hkeys($key)
     {
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
-        return $this->returnPipedInfo(array_keys(self::$data[$key]));
+        return $this->returnPipedInfo(array_keys(self::$dataValues[$this->storage][$key]));
     }
 
     public function hlen($key)
     {
-        if (!isset(self::$data[$key]) || !is_array(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || !is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function hgetall($key)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
-        return $this->returnPipedInfo(self::$data[$key]);
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
     public function hexists($key, $field)
     {
         $this->deleteOnTtlExpired($key);
 
-        return $this->returnPipedInfo((int) isset(self::$data[$key][$field]));
+        return $this->returnPipedInfo((int) isset(self::$dataValues[$this->storage][$key][$field]));
     }
 
     // Sorted set
 
     public function zrange($key, $start, $stop, $withscores = false)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
@@ -704,7 +733,7 @@ class RedisMock
 
     public function zrevrange($key, $start, $stop, $withscores = false)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
@@ -735,20 +764,20 @@ class RedisMock
 
     protected function zrangebyscoreHelper($key, $min, $max, array $options = array(), $rev = false)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(array());
         }
 
-        if (!is_array(self::$data[$key])) {
+        if (!is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
         if (!isset($options['limit']) || !is_array($options['limit']) || count($options['limit']) != 2) {
-            $options['limit'] = array(0, count(self::$data[$key]));
+            $options['limit'] = array(0, count(self::$dataValues[$this->storage][$key]));
         }
 
-        $set = self::$data[$key];
-        uksort(self::$data[$key], function($a, $b) use ($set, $rev) {
+        $set = self::$dataValues[$this->storage][$key];
+        uksort(self::$dataValues[$this->storage][$key], function($a, $b) use ($set, $rev) {
             if ($set[$a] > $set[$b]) {
                 return $rev ? -1 : 1;
             } elseif ($set[$a] < $set[$b]) {
@@ -759,7 +788,7 @@ class RedisMock
         });
 
         if ($min == '-inf' && $max == '+inf') {
-            $slice = array_slice(self::$data[$key], $options['limit'][0], $options['limit'][1], true);
+            $slice = array_slice(self::$dataValues[$this->storage][$key], $options['limit'][0], $options['limit'][1], true);
             if (isset($options['withscores']) && $options['withscores']) {
                 return $this->returnPipedInfo($slice);
             } else {
@@ -784,7 +813,7 @@ class RedisMock
         };
 
         $results = array();
-        foreach (self::$data[$key] as $k => $v) {
+        foreach (self::$dataValues[$this->storage][$key] as $k => $v) {
             if ($min == '-inf' && $isInfMax($v)) {
                 $results[$k] = $v;
             } elseif ($max == '+inf' && $isSupMin($v)) {
@@ -824,17 +853,17 @@ class RedisMock
 
         $this->deleteOnTtlExpired($key);
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key])) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
         }
 
-        $isNew = !isset(self::$data[$key][$member]);
+        $isNew = !isset(self::$dataValues[$this->storage][$key][$member]);
 
-        self::$data[$key][$member] = (int) $score;
-        self::$dataTypes[$key]     = 'zset';
-        if (array_key_exists($key, self::$dataTtl))
+        self::$dataValues[$this->storage][$key][$member] = (int) $score;
+        self::$dataTypes[$this->storage][$key]     = 'zset';
+        if (array_key_exists($key, self::$dataTtl[$this->storage]))
         {
-            unset(self::$dataTtl[$key]);
+            unset(self::$dataTtl[$this->storage][$key]);
         }
 
         return $this->returnPipedInfo((int) $isNew);
@@ -843,20 +872,20 @@ class RedisMock
     public function zcard($key)
     {
         // returns 0 if key not found
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
-        return $this->returnPipedInfo(count(self::$data[$key]));
+        return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
     public function zrank($key, $member)
     {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(null);
         }
 
         // Get position of key $member (absolute, 0-based)
-        $rank = array_search($member, array_keys(self::$data[$key]));
+        $rank = array_search($member, array_keys(self::$dataValues[$this->storage][$key]));
 
         if ($rank === false) {
             return $this->returnPipedInfo(null);
@@ -866,7 +895,7 @@ class RedisMock
     }
 
     public function zremrangebyscore($key, $min, $max) {
-        if (!isset(self::$data[$key]) || $this->deleteOnTtlExpired($key)) {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
@@ -892,14 +921,14 @@ class RedisMock
             throw new UnsupportedException('In RedisMock, `zrem` command can not remove more than one member at once.');
         }
 
-        if (isset(self::$data[$key]) && !is_array(self::$data[$key]) || !isset(self::$data[$key][$member]) || $this->deleteOnTtlExpired($key)) {
+        if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key]) || !isset(self::$dataValues[$this->storage][$key][$member]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        unset(self::$data[$key][$member]);
+        unset(self::$dataValues[$this->storage][$key][$member]);
 
-        if (0 === count(self::$data[$key])) {
-            unset(self::$dataTypes[$key]);
+        if (0 === count(self::$dataValues[$this->storage][$key])) {
+            unset(self::$dataTypes[$this->storage][$key]);
         }
 
         return $this->returnPipedInfo(1);
@@ -991,7 +1020,7 @@ class RedisMock
 
     protected function deleteOnTtlExpired($key)
     {
-        if (array_key_exists($key, self::$dataTtl) and (time() > self::$dataTtl[$key])) {
+        if (array_key_exists($key, self::$dataTtl[$this->storage]) and (time() > self::$dataTtl[$this->storage][$key])) {
             // clean datas
             $this->stopPipeline();
             $this->del($key);
