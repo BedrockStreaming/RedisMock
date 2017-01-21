@@ -179,7 +179,7 @@ class {{class}} extends \{{baseClass}}
         return $this->clientMock;
     }
 
-    public function __call($method, $args)
+    public function __call($method, array $args)
     {
         $methodName = strtolower($method);
 
