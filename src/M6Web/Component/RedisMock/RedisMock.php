@@ -727,6 +727,25 @@ class RedisMock
         return $this->returnPipedInfo((int) isset(self::$dataValues[$this->storage][$key][$field]));
     }
 
+    public function hincrby($key, $field, $increment)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = array();
+        }
+
+        if (!isset(self::$dataValues[$this->storage][$key][$field])) {
+            self::$dataValues[$this->storage][$key][$field] = (int) $increment;
+        } elseif (!is_integer(self::$dataValues[$this->storage][$key][$field])) {
+            return $this->returnPipedInfo(null);
+        } else {
+            self::$dataValues[$this->storage][$key][$field] += (int) $increment;
+        }
+
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$field]);
+    }
+
     // Sorted set
 
     public function zrange($key, $start, $stop, $withscores = false)
