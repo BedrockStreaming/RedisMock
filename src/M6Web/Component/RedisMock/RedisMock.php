@@ -120,8 +120,8 @@ class RedisMock
 
     public function setnx($key, $value)
     {
-        if (!$this->get($key)) {
-            $this->set($key, $value);
+        if (!$this->getNoPipe($key)) {
+            $this->setNoPipe($key, $value);
             return $this->returnPipedInfo(1);
         }
         return $this->returnPipedInfo(0);
@@ -989,9 +989,7 @@ class RedisMock
 
     public function execute()
     {
-        $this->pipeline = false;
-
-        return $this;
+        return $this->exec();
     }
 
     // Protected methods
@@ -1031,4 +1029,26 @@ class RedisMock
 
         return false;
     }
+
+    protected function setNoPipe($key, $value, $seconds = null)
+    {
+        self::$dataValues[$this->storage][$key] = $value;
+        self::$dataTypes[$this->storage][$key]  = 'string';
+
+        if (!is_null($seconds)) {
+            self::$dataTtl[$this->storage][$key] = time() + $seconds;
+        }
+
+        return 'OK';
+    }
+
+    protected function getNoPipe($key)
+    {
+        if (!isset(self::$dataValues[$this->storage][$key]) || is_array(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+            return null;
+        }
+
+        return self::$dataValues[$this->storage][$key];
+    }
+
 }
