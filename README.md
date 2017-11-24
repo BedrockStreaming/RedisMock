@@ -1,6 +1,6 @@
 # Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.svg?branch=master)](http://travis-ci.org/M6Web/RedisMock) [![Total Downloads](https://poser.pugx.org/m6web/redis-mock/downloads.svg)](https://packagist.org/packages/m6web/redis-mock)
 
-PHP 5.3 library providing a Redis PHP mock for your tests.
+PHP 7.1 library providing a Redis PHP mock for your tests.
 
 **Work for now only with predis**
 
