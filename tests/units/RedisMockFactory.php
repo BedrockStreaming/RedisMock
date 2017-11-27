@@ -124,17 +124,16 @@ class RedisMockFactory extends test
 
     /**
      * Build mock by using 'orphanizeConstruct' parameter
-     * 
+     *
      * @return void
      */
     public function testOrphanizeConstruct() {
         $factory = new Factory();
         $this->assert
-            ->when(function() use ($factory) {
+            ->exception(function() use ($factory) {
                $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor', false, false);
             })
-                ->error()
-                    ->exists();
+                ->isInstanceOf(\ArgumentCountError::class);;
 
         $mock = $factory->getAdapter('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor');
 
@@ -149,11 +148,12 @@ class RedisMockFactory extends test
                 ->isEqualTo('M6Web\Component\RedisMock\RedisMock_M6Web_Component_RedisMock_tests_units_RedisWithNativeConstructor_Adapter_NativeConstructor')
             ->class($class)
                 ->extends('M6Web\Component\RedisMock\tests\units\RedisWithNativeConstructor')
-            ->when(function() use ($class) {
+            ->exception(function() use ($class) {
                 $mock = new $class();
             })
-                ->error()
-                    ->exists()
+                ->isInstanceOf(\ArgumentCountError::class);
+
+        $this->assert
             ->when(function() use ($class) {
                 $mock = new $class(null);
             })

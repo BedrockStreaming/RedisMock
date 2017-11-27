@@ -230,7 +230,7 @@ class RedisMock
         $deletedKeyCount = 0;
         foreach ( $keys as $k ) {
             if ( isset(self::$dataValues[$this->storage][$k]) ) {
-                $deletedKeyCount += count(self::$dataValues[$this->storage][$k]);
+                $deletedKeyCount += is_array(self::$dataValues[$this->storage][$k]) ? count(self::$dataValues[$this->storage][$k]) : 1;
                 unset(self::$dataValues[$this->storage][$k]);
                 unset(self::$dataTypes[$this->storage][$k]);
                 if (array_key_exists($k, self::$dataTtl[$this->storage])) {
