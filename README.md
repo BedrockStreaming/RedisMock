@@ -45,6 +45,7 @@ Redis command                                    | Description
 **SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
+**SUNION** *key* *[key ...]*                     | Returns the members of the set resulting from the union of all the given sets.
 **SCARD** *key*                                  | Get cardinality of set (count of members)
 **SREM** *key* *member* *[member ...]*           | Removes one or more members from a set
 **HDEL** *key* *field*                           | Delete one hash fields
