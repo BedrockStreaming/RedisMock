@@ -308,6 +308,20 @@ class RedisMock
         return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
+    public function sunion()
+    {
+        $this->stopPipeline();
+        $keys = func_get_args();
+        $result = array();
+        foreach ($keys as $key) {
+            $result = array_merge($result, $this->smembers($key));
+        }
+        $result = array_values(array_unique($result));
+
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo($result);
+    }
 
     public function scard($key)
     {
