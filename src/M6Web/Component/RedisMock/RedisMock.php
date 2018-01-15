@@ -308,6 +308,35 @@ class RedisMock
         return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
+    public function sunion($key)
+    {
+        $this->stopPipeline();
+        $keys = is_array($key) ? $key : func_get_args();
+        $result = [];
+        foreach ($keys as $key) {
+            $result = array_merge($result, $this->smembers($key));
+        }
+        $result = array_values(array_unique($result));
+
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo($result);
+    }
+
+    public function sinter($key)
+    {
+        $this->stopPipeline();
+        $keys = is_array($key) ? $key : func_get_args();
+        $result = [];
+        foreach ($keys as $key) {
+            $result[] = $this->smembers($key);
+        }
+        $result = call_user_func_array('array_intersect', $result);
+
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo($result);
+    }
 
     public function scard($key)
     {
