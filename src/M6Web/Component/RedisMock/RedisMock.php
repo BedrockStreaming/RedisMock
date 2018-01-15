@@ -311,11 +311,7 @@ class RedisMock
     public function sunion($key)
     {
         $this->stopPipeline();
-        if (is_array($key)) {
-            $keys = $key;
-        } else {
-            $keys = func_get_args();
-        }
+        $keys = is_array($key) ? $key : func_get_args();
         $result = array();
         foreach ($keys as $key) {
             $result = array_merge($result, $this->smembers($key));
@@ -330,11 +326,7 @@ class RedisMock
     public function sinter($key)
     {
         $this->stopPipeline();
-        if (is_array($key)) {
-            $keys = $key;
-        } else {
-            $keys = func_get_args();
-        }
+        $keys = is_array($key) ? $key : func_get_args();
         $result = array();
         foreach ($keys as $key) {
             $result[] = $this->smembers($key);
