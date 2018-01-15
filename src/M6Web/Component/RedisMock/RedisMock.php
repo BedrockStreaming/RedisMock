@@ -312,7 +312,7 @@ class RedisMock
     {
         $this->stopPipeline();
         $keys = is_array($key) ? $key : func_get_args();
-        $result = array();
+        $result = [];
         foreach ($keys as $key) {
             $result = array_merge($result, $this->smembers($key));
         }
@@ -327,7 +327,7 @@ class RedisMock
     {
         $this->stopPipeline();
         $keys = is_array($key) ? $key : func_get_args();
-        $result = array();
+        $result = [];
         foreach ($keys as $key) {
             $result[] = $this->smembers($key);
         }
