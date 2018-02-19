@@ -1186,6 +1186,39 @@ class RedisMock extends test
         ;
     }
 
+    public function testHincrby()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->hget('test', 'count'))
+            ->isNull()
+            ->integer($redisMock->hincrby('test', 'count', 5))
+            ->isEqualTo(5)
+            ->integer($redisMock->hget('test', 'count'))
+            ->isEqualTo(5)
+            ->integer($redisMock->hincrby('test', 'count', 1))
+            ->isEqualTo(6)
+            ->integer($redisMock->hincrby('test', 'count', 2))
+            ->isEqualTo(8)
+            ->integer($redisMock->hset('test', 'count', 'something'))
+            ->isEqualTo(0)
+            ->variable($redisMock->hincrby('test', 'count', 4))
+            ->isNull()
+            ->integer($redisMock->hdel('test', 'count'))
+            ->isEqualTo(1)
+            ->integer($redisMock->hincrby('test', 'count', 2))
+            ->isEqualTo(2)
+            ->integer($redisMock->expire('test', 1))
+            ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->integer($redisMock->hincrby('test', 'count', 3))
+            ->isEqualTo(3)
+            ->integer($redisMock->hincrby('test', 'count', -2))
+            ->isEqualTo(1);
+    }
+
     public function testLLen()
     {
         $redisMock = new Redis();

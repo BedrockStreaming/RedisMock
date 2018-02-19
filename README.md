@@ -59,6 +59,7 @@ Redis command                                    | Description
 **HMSET** *key* *array\<field, value\>*          | Sets each value in the corresponding field
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
 **HSETNX** *key* *field* *value*                 | Sets field in the hash stored at key to value, only if field does not yet exist
+**HINCRBY** *key* *field* *increment*            | Increments the integer stored at `field` in the hash stored at `key` by `increment`.
 **LINDEX** *key* *index*                         | Returns the element at index *index* in the list stored at *key*
 **LLEN** *key*                                   | Returns the length of the list stored at *key*
 **LPUSH** *key* *value* *[value ...]*            | Pushs values at the head of a list
