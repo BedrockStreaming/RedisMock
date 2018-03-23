@@ -217,7 +217,7 @@ METHODEXCEPTION;
     }
 CONSTRUCTOR;
 
-    public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true, $storage = '')
+    public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true, $storage = '', array $constructorParams = [])
     {
         list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
 
@@ -227,7 +227,7 @@ CONSTRUCTOR;
         }
 
         /** @var RedisMock $instance */
-        $instance = new $class();
+        $instance = new $class(...$constructorParams);
         // This is our chance to configure explicitly the storage area
         // that the consumer of the Mock wants to use, in order to simulate
         // separate connections to different Redis servers, despite the static

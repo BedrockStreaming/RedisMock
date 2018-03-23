@@ -1079,4 +1079,85 @@ class RedisMock
 
         return false;
     }
+
+    /**
+     * Mock the `quit` command
+     * @see https://redis.io/commands/quit
+     */
+    public function quit(): string
+    {
+        return 'OK'; // see the doc : always return `OK` ...
+    }
+
+    /**
+     * Mock the `monitor` command
+     * @see https://redis.io/commands/monitor
+     */
+    public function monitor()
+    {
+        return;
+    }
+
+    /**
+     * Mock the `scan` command
+     * @see https://redis.io/commands/scan
+     * @param int $cursor
+     * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
+     *
+     * @return array
+     */
+    public function scan($cursor = 0, array $options = []): array
+    {
+        // Define default options
+        $match = isset($options['MATCH']) ? $options['MATCH'] : '*';
+        $count = isset($options['COUNT']) ? $options['COUNT'] : 10;
+        $maximumValue = $cursor + $count -1;
+
+        // List of all keys in the storage (already ordered by index).
+        $keysArray = array_keys(self::$dataValues[$this->storage]);
+        $maximumListElement = count($keysArray);
+
+        // Next cursor position
+        $nextCursorPosition = 0;
+        // Matched values.
+        $values = [];
+        // Pattern, for find matched values.
+        $pattern =  str_replace('*', '.*', sprintf('/^%s/', $match));
+
+        for($i = $cursor; $i <= $maximumValue; $i++)
+        {
+            if (isset($keysArray[$i])){
+                $nextCursorPosition = $i >= $maximumListElement ? 0 : $i + 1;
+
+                if ('*' === $match || 1 === preg_match($pattern, $keysArray[$i])){
+                    $values[] = $keysArray[$i];
+                }
+
+            } else {
+                // Out of the arrays values, return first element
+                $nextCursorPosition = 0;
+            }
+        }
+
+        return [$nextCursorPosition, $values];
+    }
+
+    /**
+     * Mock the `rpoplpush` command
+     * @see https://redis.io/commands/rpoplpush
+     * @param string $sourceList
+     * @param string $destinationList
+     * @return RedisMock
+     */
+    public function rpoplpush(string $sourceList, string $destinationList)
+    {
+        // RPOP (get last value of the $sourceList)
+        $rpopValue = $this->rpop($sourceList);
+
+        // LPUSH (send the value at the end of the $destinationList)
+        $this->lpush($destinationList, $rpopValue);
+
+        // return the rpop value;
+        return $rpopValue;
+    }
 }

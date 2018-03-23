@@ -18,7 +18,7 @@ Add this line in your `composer.json` :
 
 Update your vendors :
 
-```
+```bash
 $ composer update m6web/redis-mock
 ```
 
@@ -28,27 +28,14 @@ It currently mocks these Redis commands :
 
 Redis command                                    | Description
 -------------------------------------------------|------------
+**DBSIZE**                                       | Returns the number of keys in the selected database
 **DEL** *key* *[key ...]*                        | Deletes one or more keys
-**EXISTS** *key*                                 | Determines if a key exists
-**EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
-**KEYS** *pattern*                               | Finds all keys matching the given pattern
-**TTL** *key*                                    | Gets the time to live for a key
-**TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
-**GET** *key*                                    | Gets the value of a key
-**INCR** *key*                                   | Increments the integer value of a key by one
-**INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
 **DECR** *key*                                   | Decrements the integer value of a key by one
 **DECRBY** *key* *decrement*                     | Decrements the integer value of a key by `decrement` value
-**SET** *key* *value*                            | Sets the string value of a key
-**SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
-**SETNX** *key* *value*                          | Sets key to hold value if key does not exist
-**SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
-**SISMEMBER** *key* *member*                     | Determines if a member is in a set
-**SMEMBERS** *key*                               | Gets all the members in a set
-**SUNION** *key* *[key ...]*                     | Returns the members of the set resulting from the union of all the given sets.
-**SINTER** *key* *[key ...]*                     | Returns the members of the set resulting from the intersection of all the given sets.
-**SCARD** *key*                                  | Get cardinality of set (count of members)
-**SREM** *key* *member* *[member ...]*           | Removes one or more members from a set
+**EXISTS** *key*                                 | Determines if a key exists
+**EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
+**FLUSHDB**                                      | Flushes the database
+**GET** *key*                                    | Gets the value of a key
 **HDEL** *key* *field*                           | Delete one hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HMGET** *key* *array\<field\>*                 | Gets the values of multiple hash fields
@@ -60,6 +47,9 @@ Redis command                                    | Description
 **HSET** *key* *field* *value*                   | Sets the string value of a hash field
 **HSETNX** *key* *field* *value*                 | Sets field in the hash stored at key to value, only if field does not yet exist
 **HINCRBY** *key* *field* *increment*            | Increments the integer stored at `field` in the hash stored at `key` by `increment`.
+**INCR** *key*                                   | Increments the integer value of a key by one
+**INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
+**KEYS** *pattern*                               | Finds all keys matching the given pattern
 **LINDEX** *key* *index*                         | Returns the element at index *index* in the list stored at *key*
 **LLEN** *key*                                   | Returns the length of the list stored at *key*
 **LPUSH** *key* *value* *[value ...]*            | Pushs values at the head of a list
@@ -69,8 +59,22 @@ Redis command                                    | Description
 **LRANGE** *key* *start* *stop*                  | Gets a range of elements from a list
 **MGET** *array\<field\>*                        | Gets the values of multiple keys
 **MSET** *array\<field, value\>*                 | Sets the string values of multiple keys
+**QUIT**                                         | Quit the REDIS
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
+**SCAN**                                         | Iterates the set of keys in the currently selected Redis database.
+**SET** *key* *value*                            | Sets the string value of a key
+**SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
+**SETNX** *key* *value*                          | Sets key to hold value if key does not exist
+**SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
+**SISMEMBER** *key* *member*                     | Determines if a member is in a set
+**SMEMBERS** *key*                               | Gets all the members in a set
+**SUNION** *key* *[key ...]*                     | Returns the members of the set resulting from the union of all the given sets.
+**SINTER** *key* *[key ...]*                     | Returns the members of the set resulting from the intersection of all the given sets.
+**SCARD** *key*                                  | Get cardinality of set (count of members)
+**SREM** *key* *member* *[member ...]*           | Removes one or more members from a set
+**TTL** *key*                                    | Gets the time to live for a key
+**TYPE** *key*                                   | Returns the string representation of the type of the value stored at key.
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
 **ZCARD** *key*                                  | Returns the sorted set cardinality (number of elements) of the sorted set stored at *key*
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
@@ -80,8 +84,7 @@ Redis command                                    | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
-**DBSIZE**                                       | Returns the number of keys in the selected database
-**FLUSHDB**                                      | Flushes the database
+
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
 **PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.  

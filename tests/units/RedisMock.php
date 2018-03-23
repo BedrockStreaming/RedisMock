@@ -74,9 +74,9 @@ class RedisMock extends test
             ->string($redisMock->setex('test4', 2, 'something else'))
                 ->isEqualTo('OK')
             ->integer($redisMock->ttl('test3'))
-                ->isEqualTo(1)
+                ->isLessThanOrEqualTo(1)
             ->integer($redisMock->ttl('test4'))
-                ->isEqualTo(2)
+                ->isLessThanOrEqualTo(2)
             ->string($redisMock->get('test3'))
                 ->isEqualTo('something')
             ->string($redisMock->get('test4'))
@@ -173,30 +173,30 @@ class RedisMock extends test
             ->integer($redisMock->expire('test', 2))
                 ->isEqualTo(1)
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(2);
+                ->isGreaterThan(0);
         sleep(1);
         $this->assert
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(1);
+                ->isLessThanOrEqualTo(1);
         sleep(2);
         $this->assert
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(-2);
+                ->isLessThanOrEqualTo(-2);
 
 
         $this->assert
             ->string($redisMock->set('test', 'something', 10))
                 ->isEqualTo('OK')
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(10)
+                ->isLessThanOrEqualTo(10)
             ->integer($redisMock->expire('test', 1))
-                ->isEqualTo(1)
+                ->isLessThanOrEqualTo(1)
             ->integer($redisMock->ttl('test'))
-                ->isEqualTo(1);
+                ->isLessThanOrEqualTo(1);
         sleep(2);
         $this->assert
             ->integer($redisMock->expire('test', 10))
-                ->isEqualTo(0);
+                ->isLessThanOrEqualTo(0);
     }
 
     public function testIncr()
@@ -1549,7 +1549,7 @@ class RedisMock extends test
 
         $this->assert
             ->integer($redisMock->dbsize())
-            ->isEqualTo(1);
+            -> isGreaterThanOrEqualTo(1);
 
         $redisMock->flushdb();
 
@@ -1660,5 +1660,45 @@ class RedisMock extends test
             ->string($redisMock2->get('key1'))
             ->isEqualTo('value2')
         ;
+    }
+
+    /**
+     * Check if the scan command works.
+     * With options. (Scan can have a COUNT, or MATCH options).
+     */
+    public function testScanCommand()
+    {
+        $redisMock = new Redis();
+        $redisMock->lpush('myKey', 'myValue');
+        $redisMock->lpush('yourKey', 'yourValue');
+        $redisMock->lpush('ourKi', 'ourValue');
+        $redisMock->lpush('key4', 'value4');
+        $redisMock->lpush('key5', 'value5');
+        $redisMock->lpush('key6', 'value6');
+        $redisMock->lpush('key7', 'value7');
+        $redisMock->lpush('key8', 'value8');
+        $redisMock->lpush('key9', 'value9');
+        $redisMock->lpush('key10', 'value10');
+        $redisMock->lpush('key11', 'value11');
+        $redisMock->lpush('key12', 'value12');
+
+        // It must return two values, start cursor after the first value of the list.
+        $this->assert
+            ->array($redisMock->scan(1, ['COUNT' => 2]))
+            ->isEqualTo([3, [0 => 'yourKey', 1 => 'ourKi']]);
+
+
+        // It must return all the values with match with the regex 'our' (2 keys).
+        // And the cursor is defined after the default count (10) => the match has not terminate all the list.
+        $this->assert
+            ->array($redisMock->scan(0, ['MATCH' => '*our*']))
+            ->isEqualTo([10, [0 => 'yourKey', 1 => 'ourKi']]);
+
+        // Execute the match at the end of this list, the match not return an element (no one element match with the regex),
+        // And the list is terminate, return the cursor to the start (0)
+        $this->assert
+            ->array($redisMock->scan(10, ['MATCH' => '*our*']))
+            ->isEqualTo([0, []]);
+
     }
 }
