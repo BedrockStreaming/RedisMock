@@ -1155,7 +1155,9 @@ class RedisMock
         $rpopValue = $this->rpop($sourceList);
 
         // LPUSH (send the value at the end of the $destinationList)
-        $this->lpush($destinationList, $rpopValue);
+        if (null !== $rpopValue){
+            $this->lpush($destinationList, $rpopValue);
+        }
 
         // return the rpop value;
         return $rpopValue;
