@@ -129,6 +129,37 @@ class RedisMock extends test
             ->integer($redisMock->setnx("test-setnx-expire", "lala"))
                 ->isEqualTo(1);
 
+        //set with nx
+        $this->assert
+            ->string($redisMock->set('test-set-nx', 'value', ['nx']))
+            ->isEqualTo('OK');
+        $this->assert
+            ->integer($redisMock->set('test-set-nx', 'value', ['nx']))
+            ->isEqualTo(0);
+
+        //set with xx
+        $this->assert
+            ->integer($redisMock->set('test-set-xx', 'value', ['xx']))
+            ->isEqualTo(0);
+        $this->assert
+            ->string($redisMock->set('test-set-xx', 'value'))
+            ->isEqualTo('OK');
+        $this->assert
+            ->string($redisMock->set('test-set-xx', 'value2', ['xx']))
+            ->isEqualTo('OK');
+
+        //set with nx ex
+        $this->assert
+            ->string($redisMock->set('test-set-nx-ex', 'value', ['nx', 'ex' => 1]))
+            ->isEqualTo('OK');
+        $this->assert
+            ->integer($redisMock->set('test-set-nx-ex', 'value', ['nx', 'ex' => 1]))
+            ->isEqualTo(0);
+        sleep(2);
+        $this->assert
+            ->boolean($redisMock->exists('test-set-nx-ex'))
+            ->isFalse();
+
         //mget/mset test (roughly based on hmset/hmset tests)
         $this->assert
             ->array($redisMock->mget(array('raoul', 'test1')))
