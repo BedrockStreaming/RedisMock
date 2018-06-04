@@ -15,8 +15,8 @@ class RedisMock extends test
         $redisMock = new Redis();
 
         $this->assert
-            ->boolean($redisMock->exists('test'))
-                ->isFalse()
+            ->integer($redisMock->exists('test'))
+                ->isIdenticalTo(0)
             ->variable($redisMock->get('test'))
                 ->isNull()
             ->integer($redisMock->del('test'))
@@ -26,8 +26,8 @@ class RedisMock extends test
                 ->isEqualTo('OK')
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
-            ->boolean($redisMock->exists('test'))
-                ->isTrue()
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(1)
             ->string($redisMock->get('test'))
                 ->isEqualTo('something')
             ->integer($redisMock->del('test'))
@@ -36,15 +36,15 @@ class RedisMock extends test
                 ->isNull()
             ->string($redisMock->type('test'))
                 ->isEqualTo('none')
-            ->boolean($redisMock->exists('test'))
-                ->isFalse()
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(0)
 
             ->string($redisMock->setex('test1', 5, 'something'))
                 ->isEqualTo('OK')
             ->string($redisMock->type('test1'))
                 ->isEqualTo('string')
-            ->boolean($redisMock->exists('test1'))
-                ->isTrue()
+            ->integer($redisMock->exists('test1'))
+                ->isEqualTo(1)
             ->string($redisMock->get('test1'))
                 ->isEqualTo('something')
             ->integer($redisMock->del('test1'))
@@ -53,8 +53,8 @@ class RedisMock extends test
                 ->isNull()
             ->string($redisMock->type('test1'))
                 ->isEqualTo('none')
-            ->boolean($redisMock->exists('test1'))
-                ->isFalse()
+            ->integer($redisMock->exists('test1'))
+                ->isEqualTo(0)
 
             ->string($redisMock->set('test1', 'something'))
                 ->isEqualTo('OK')
@@ -98,12 +98,12 @@ class RedisMock extends test
                 ->isEqualTo('none')
             ->string($redisMock->set('test', 'something', 1))
                 ->isEqualTo('OK')
-            ->boolean($redisMock->exists('test'))
-                ->isTrue();
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(1);
         sleep(2);
         $this->assert
-            ->boolean($redisMock->exists('test'))
-                ->isFalse();
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(0);
 
         //setnx
         $this->assert
@@ -1352,8 +1352,8 @@ class RedisMock extends test
                 ->isEqualTo(array('test' => array('raoul', 'something')))
             ->string($redisMock->ltrim('test', -1, 0))
                 ->isIdenticalTo('OK')
-            ->boolean($redisMock->exists('test'))
-                ->isIdenticalTo(false)
+            ->integer($redisMock->exists('test'))
+                ->isIdenticalTo(0)
             ->integer($redisMock->lpush('test', 'raoul'))
                 ->isIdenticalTo(1)
             ->array($redisMock->getData())
@@ -1415,12 +1415,12 @@ class RedisMock extends test
         $this->assert
             ->string($redisMock->set('test', 'a'))
                 ->isEqualTo('OK')
-            ->boolean($redisMock->exists('test'))
-                ->isTrue()
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(1)
             ->string($redisMock->flushdb())
                 ->isEqualTo('OK')
-            ->boolean($redisMock->exists('test'))
-                ->isFalse();
+            ->integer($redisMock->exists('test'))
+                ->isEqualTo(0);
     }
 
     public function testPipeline()
@@ -1646,10 +1646,10 @@ class RedisMock extends test
         $redisMock2->selectStorage('alternateStorage');
 
         $this->assert
-            ->boolean($redisMock1->exists('key1'))
-            ->isTrue()
-            ->boolean($redisMock2->exists('key1'))
-            ->isFalse()
+            ->integer($redisMock1->exists('key1'))
+            ->isEqualTo(1)
+            ->integer($redisMock2->exists('key1'))
+            ->isEqualTo(0)
         ;
 
         $redisMock2->set('key1', 'value2');
