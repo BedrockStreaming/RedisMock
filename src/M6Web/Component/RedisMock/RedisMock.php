@@ -213,10 +213,10 @@ class RedisMock
     public function exists($key)
     {
         if ($this->deleteOnTtlExpired($key)) {
-            return $this->returnPipedInfo(false);
+            return $this->returnPipedInfo(0);
         }
 
-        return $this->returnPipedInfo(array_key_exists($key, self::$dataValues[$this->storage]));
+        return $this->returnPipedInfo(array_key_exists($key, self::$dataValues[$this->storage]) ? 1 : 0);
     }
 
     public function del($key)
