@@ -32,6 +32,7 @@ Redis command                                    | Description
 **DEL** *key* *[key ...]*                        | Deletes one or more keys
 **DECR** *key*                                   | Decrements the integer value of a key by one
 **DECRBY** *key* *decrement*                     | Decrements the integer value of a key by `decrement` value
+**DECRBYFLOAT** *key* *decrement*                | Decrements the float value of a key by `decrement` value
 **EXISTS** *key*                                 | Determines if a key exists
 **EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
 **FLUSHDB**                                      | Flushes the database
@@ -49,6 +50,7 @@ Redis command                                    | Description
 **HINCRBY** *key* *field* *increment*            | Increments the integer stored at `field` in the hash stored at `key` by `increment`.
 **INCR** *key*                                   | Increments the integer value of a key by one
 **INCRBY** *key* *increment*                     | Increments the integer value of a key by `increment` value
+**INCRBYFLOAT** *key* *increment*                | Increments the float value of a key by `increment` value
 **KEYS** *pattern*                               | Finds all keys matching the given pattern
 **LINDEX** *key* *index*                         | Returns the element at index *index* in the list stored at *key*
 **LLEN** *key*                                   | Returns the length of the list stored at *key*

@@ -173,6 +173,23 @@ class RedisMock
         return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
 
+    public function incrbyfloat($key, $increment)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = (float) $increment;
+        } elseif (!is_float(self::$dataValues[$this->storage][$key])) {
+            return $this->returnPipedInfo(null);
+        } else {
+            self::$dataValues[$this->storage][$key] += (float) $increment;
+        }
+
+        self::$dataTypes[$this->storage][$key] = 'string';
+
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+    }
+
     public function decr($key)
     {
         return $this->decrby($key, 1);
@@ -189,6 +206,23 @@ class RedisMock
         }
 
         self::$dataValues[$this->storage][$key] -= (int) $decrement;
+
+        self::$dataTypes[$this->storage][$key] = 'string';
+
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+    }
+
+    public function decrbyfloat($key, $decrement)
+    {
+        $this->deleteOnTtlExpired($key);
+
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = 0;
+        } elseif (!is_float(self::$dataValues[$this->storage][$key])) {
+            return $this->returnPipedInfo(null);
+        }
+
+        self::$dataValues[$this->storage][$key] -= (float) $decrement;
 
         self::$dataTypes[$this->storage][$key] = 'string';
 
