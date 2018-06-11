@@ -269,6 +269,41 @@ class RedisMock extends test
                 ->isEqualTo(3);
     }
 
+    public function testIncrbyfloat()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->get('test'))
+                ->isNull()
+            ->float($redisMock->incrbyfloat('test', 0.5))
+                ->isEqualTo(0.5)
+            ->float($redisMock->get('test'))
+                ->isEqualTo(0.5)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('string')
+            ->float($redisMock->incrbyfloat('test', 1))
+                ->isEqualTo(1.5)
+            ->float($redisMock->incrbyfloat('test', 2.5))
+                ->isEqualTo(4)
+            ->string($redisMock->set('test', 'something'))
+                ->isEqualTo('OK')
+            ->variable($redisMock->incrbyfloat('test', 3.5))
+                ->isNull()
+            ->integer($redisMock->del('test'))
+                ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+                ->isEqualTo('none')
+            ->float($redisMock->incrbyfloat('test', 0.5))
+                ->isEqualTo(0.5)
+            ->integer($redisMock->expire('test', 1))
+                ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->float($redisMock->incrbyfloat('test', 0.5))
+                ->isEqualTo(0.5);
+    }
+
     public function testDecr()
     {
         $redisMock = new Redis();
@@ -337,6 +372,41 @@ class RedisMock extends test
         $this->assert
             ->integer($redisMock->decrby('test', 3))
                 ->isEqualTo(-3);
+    }
+
+    public function testDecrbyfloat()
+    {
+        $redisMock = new Redis();
+
+        $this->assert
+            ->variable($redisMock->get('test'))
+            ->isNull()
+            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->isEqualTo(-0.5)
+            ->float($redisMock->get('test'))
+            ->isEqualTo(-0.5)
+            ->string($redisMock->type('test'))
+            ->isEqualTo('string')
+            ->float($redisMock->decrbyfloat('test', 1))
+            ->isEqualTo(-1.5)
+            ->float($redisMock->decrbyfloat('test', 2.5))
+            ->isEqualTo(-4.0)
+            ->string($redisMock->set('test', 'something'))
+            ->isEqualTo('OK')
+            ->variable($redisMock->decrbyfloat('test', 3.5))
+            ->isNull()
+            ->integer($redisMock->del('test'))
+            ->isEqualTo(1)
+            ->string($redisMock->type('test'))
+            ->isEqualTo('none')
+            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->isEqualTo(-0.5)
+            ->integer($redisMock->expire('test', 1))
+            ->isEqualTo(1);
+        sleep(2);
+        $this->assert
+            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->isEqualTo(-0.5);
     }
 
     public function testKeys() {
