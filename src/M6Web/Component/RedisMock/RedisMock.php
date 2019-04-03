@@ -1196,4 +1196,30 @@ class RedisMock
         // return the rpop value;
         return $rpopValue;
     }
+
+    /**
+     * Evaluate a LUA script serverside, from the SHA1 hash of the script instead of the script itself.
+     *
+     * @param  string  $script
+     * @param  int  $numkeys
+     * @param  mixed  $arguments
+     * @return mixed
+     */
+    public function evalsha($script, $numkeys, ...$arguments)
+    {
+        return;
+    }
+
+    /**
+     * Evaluate a script and return its result.
+     *
+     * @param  string  $script
+     * @param  int  $numberOfKeys
+     * @param  dynamic  $arguments
+     * @return mixed
+     */
+    public function eval($script, $numberOfKeys, ...$arguments)
+    {
+        return;
+    }
 }
