@@ -1207,7 +1207,7 @@ class RedisMock
      */
     public function evalsha($script, $numkeys, ...$arguments)
     {
-        return;
+        return true;
     }
 
     /**
@@ -1220,6 +1220,6 @@ class RedisMock
      */
     public function eval($script, $numberOfKeys, ...$arguments)
     {
-        return;
+        return true;
     }
 }
