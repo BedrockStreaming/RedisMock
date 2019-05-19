@@ -479,7 +479,7 @@ class RedisMock extends test
 
         $this->assert
             ->array($redisMock->sdiff('key1', 'key2', 'key3'))
-            ->isEqualTo([1 => 'b', 3 => 'd']);
+            ->isEqualTo(['b', 'd']);
     }
 
     public function testSAddSMembersSIsMemberSRem()
