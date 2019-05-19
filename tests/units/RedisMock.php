@@ -470,6 +470,18 @@ class RedisMock extends test
                 ->isEqualTo(0);
     }
 
+    public function testSDiff()
+    {
+        $redisMock = new Redis();
+        $redisMock->sadd('key1', 'a', 'b', 'c', 'd');
+        $redisMock->sadd('key2', 'c');
+        $redisMock->sadd('key3', 'a', 'c', 'e');
+
+        $this->assert
+            ->array($redisMock->sdiff('key1', 'key2', 'key3'))
+            ->isEqualTo([1 => 'b', 3 => 'd']);
+    }
+
     public function testSAddSMembersSIsMemberSRem()
     {
         $redisMock = new Redis();

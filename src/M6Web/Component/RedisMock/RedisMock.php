@@ -333,6 +333,21 @@ class RedisMock
 
     }
 
+    public function sdiff($key)
+    {
+        $this->stopPipeline();
+        $keys = is_array($key) ? $key : func_get_args();
+        $result = [];
+        foreach ($keys as $key) {
+            $result[] = $this->smembers($key);
+        }
+        $result = call_user_func_array('array_diff', $result);
+
+        $this->restorePipeline();
+
+        return $this->returnPipedInfo($result);
+    }
+
     public function smembers($key)
     {
         if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {

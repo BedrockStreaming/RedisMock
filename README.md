@@ -69,6 +69,7 @@ Redis command                                    | Description
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SETNX** *key* *value*                          | Sets key to hold value if key does not exist
 **SADD** *key* *member* *[member ...]*           | Adds one or more members to a set
+**SDIFF** *key* *key* *[key ...]*                | Returns the members of the set resulting from the difference between the first set and all the successive sets.
 **SISMEMBER** *key* *member*                     | Determines if a member is in a set
 **SMEMBERS** *key*                               | Gets all the members in a set
 **SUNION** *key* *[key ...]*                     | Returns the members of the set resulting from the union of all the given sets.
