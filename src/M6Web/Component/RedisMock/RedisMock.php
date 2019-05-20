@@ -341,7 +341,7 @@ class RedisMock
         foreach ($keys as $key) {
             $result[] = $this->smembers($key);
         }
-        $result = array_values(call_user_func_array('array_diff', $result));
+        $result = array_values(array_diff(...$result));
 
         $this->restorePipeline();
 
