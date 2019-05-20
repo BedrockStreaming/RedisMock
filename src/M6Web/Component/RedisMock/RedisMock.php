@@ -380,7 +380,7 @@ class RedisMock
         foreach ($keys as $key) {
             $result[] = $this->smembers($key);
         }
-        $result = call_user_func_array('array_intersect', $result);
+        $result = array_values(array_intersect(...$result));
 
         $this->restorePipeline();
 
