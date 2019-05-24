@@ -261,6 +261,38 @@ class RedisMockFactory extends test
         ;
 
     }
+
+    /**
+     * Test that the php-redis extension can be mocked.
+     */
+    public function testRedisExt() {
+        if (!class_exists(\Redis::class)) {
+            $this->skip('Redis ext is required');
+        }
+
+        $factory = new Factory();
+        $mock = $factory->getAdapter(\Redis::class, true);
+
+        $this->assert
+            ->object($mock)
+            ->isInstanceOf('Redis')
+        ;
+
+        $this->assert
+            ->string($mock->set('test', 'aaa'))
+            ->isEqualTo('OK')
+            ->string($mock->get('test'))
+            ->isEqualTo('aaa')
+        ;
+
+        $this->assert
+            ->exception(function() use ($mock) {
+                $mock->append('foo', 'bar');
+            })
+            ->isInstanceOf('\M6Web\Component\RedisMock\UnsupportedException')
+            ->hasMessage('Redis command append is not supported by RedisMock.')
+        ;
+    }
 }
 
 class RedisWithMethods
