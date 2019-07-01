@@ -975,6 +975,15 @@ class RedisMock
         return $this->returnPipedInfo((int) $isNew);
     }
 
+    public function zscore($key, $member)
+    {
+        if (!isset(self::$dataValues[$this->storage][$key][$member]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo(null);
+        }
+
+        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$member]);
+    }
+
     public function zcard($key)
     {
         // returns 0 if key not found

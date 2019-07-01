@@ -667,6 +667,25 @@ class RedisMock extends test
                 ->isEqualTo(0);
     }
 
+    public function testZScore()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('test', 1, 'test4');
+        $redisMock->zadd('test', 15, 'test2');
+
+        $this->assert
+            ->integer($redisMock->zscore('test', 'test4'))
+            ->isEqualTo(1);
+
+        $this->assert
+            ->integer($redisMock->zscore('test', 'test2'))
+            ->isEqualTo(15);
+
+        $this->assert
+            ->variable($redisMock->zscore('test', 'test99'))
+            ->isEqualTo(null);
+    }
+
     public function testZCard()
     {
         $redisMock = new Redis();
