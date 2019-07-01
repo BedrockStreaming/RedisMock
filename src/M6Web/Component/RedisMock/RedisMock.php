@@ -943,9 +943,18 @@ class RedisMock
     }
 
 
-    public function zadd($key, $score, $member) {
-        if (func_num_args() > 3) {
-            throw new UnsupportedException('In RedisMock, `zadd` command can not set more than one member at once.');
+    public function zadd($key, ...$args) {
+        if (count($args) === 1) {
+            if (count($args[0]) > 1) {
+                throw new UnsupportedException('In RedisMock, `zadd` used with an array cannot be used to set more than one element.');
+            }
+            $score = reset($args[0]);
+            $member = key($args[0]);
+        } elseif (count($args) === 2) {
+            $score = $args[0];
+            $member = $args[1];
+        } else {
+            throw new UnsupportedException('In RedisMock, `zadd` command  can either take two arguments (score and member), or one associative array with member as key and score as value');
         }
 
         $this->deleteOnTtlExpired($key);
