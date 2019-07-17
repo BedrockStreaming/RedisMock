@@ -700,12 +700,12 @@ class RedisMock extends test
     public function testZRank()
     {
         $redisMock = new Redis();
-        $redisMock->zadd('test', 0, 'test6');
-        $redisMock->zadd('test', 1, 'test4');
-        $redisMock->zadd('test', 2, 'test3');
         $redisMock->zadd('test', 4, 'test1');
         $redisMock->zadd('test', 15, 'test2');
+        $redisMock->zadd('test', 2, 'test3');
+        $redisMock->zadd('test', 1, 'test4');
         $redisMock->zadd('test', 30, 'test5');
+        $redisMock->zadd('test', 0, 'test6');
 
 
         $this->assert->variable($redisMock->zrank('test', 'test6'))->isEqualTo(0);
