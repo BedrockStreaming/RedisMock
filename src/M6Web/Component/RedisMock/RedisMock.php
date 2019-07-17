@@ -972,6 +972,8 @@ class RedisMock
             unset(self::$dataTtl[$this->storage][$key]);
         }
 
+        asort(self::$dataValues[$this->storage][$key]);
+
         return $this->returnPipedInfo((int) $isNew);
     }
 
