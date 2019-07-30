@@ -697,6 +697,25 @@ class RedisMock extends test
             ->isEqualTo(2);
     }
 
+    public function testZIncrBy()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('test', 1, 'test1');
+        $redisMock->zadd('test', 2, 'test2');
+
+        $this->assert
+            ->integer($redisMock->zincrby('test', 10, 'test1'))
+            ->isEqualTo(11);
+
+        $this->assert
+            ->integer($redisMock->zincrby('test', -10, 'test2'))
+            ->isEqualTo(-8);
+
+        $this->assert
+            ->integer($redisMock->zincrby('test', 10, 'test16'))
+            ->isEqualTo(10);
+    }
+
     public function testZRank()
     {
         $redisMock = new Redis();

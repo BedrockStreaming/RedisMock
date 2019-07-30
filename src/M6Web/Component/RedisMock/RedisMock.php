@@ -986,6 +986,19 @@ class RedisMock
         return $this->returnPipedInfo(count(self::$dataValues[$this->storage][$key]));
     }
 
+    public function zincrby($key, $increment, $member)
+    {
+        if (!isset(self::$dataValues[$this->storage][$key][$member]) || $this->deleteOnTtlExpired($key)) {
+            $this->zadd($key, $increment, $member);
+            return $this->returnPipedInfo($increment);
+        }
+
+        $newScore = self::$dataValues[$this->storage][$key][$member] + $increment;
+        $this->zadd($key, $newScore, $member);
+
+        return $this->returnPipedInfo($newScore);
+    }
+
     public function zrank($key, $member)
     {
         if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
