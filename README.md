@@ -87,6 +87,7 @@ Redis command                                    | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
+**ZSCORE** *key* *member*                        | Returns the score of *member* in the sorted set at *key*
 
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
