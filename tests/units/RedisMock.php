@@ -157,8 +157,8 @@ class RedisMock extends test
             ->isEqualTo(0);
         sleep(2);
         $this->assert
-            ->boolean($redisMock->exists('test-set-nx-ex'))
-            ->isFalse();
+            ->integer($redisMock->exists('test-set-nx-ex'))
+            ->isEqualTo(0);
 
         //mget/mset test (roughly based on hmset/hmset tests)
         $this->assert
