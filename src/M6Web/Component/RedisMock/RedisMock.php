@@ -79,6 +79,29 @@ class RedisMock
 
     public function set($key, $value, $seconds = null)
     {
+        if (\is_array($seconds)) {
+            /**
+             * Per https://redis.io/commands/set#options
+             * EX seconds -- Set the specified expire time, in seconds.
+             * PX milliseconds -- Set the specified expire time, in milliseconds.
+             * NX -- Only set the key if it does not already exist.
+             * XX -- Only set the key if it already exist.
+             */
+            $options = $seconds;
+            if (\in_array('nx', $options, true) && $this->get($key)) {
+                return $this->returnPipedInfo(0);
+            }
+            if (\in_array('xx', $options, true) && !$this->get($key)) {
+                return $this->returnPipedInfo(0);
+            }
+
+            $seconds = null;
+            if (isset($options['ex'])) {
+                $seconds = $options['ex'];
+            } elseif (isset($options['px'])) {
+                $seconds = $options['px'] / 1000;
+            }
+        }
         self::$dataValues[$this->storage][$key]      = $value;
         self::$dataTypes[$this->storage][$key] = 'string';
 
