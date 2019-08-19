@@ -753,10 +753,22 @@ class RedisMock extends test
         $redisMock = new Redis();
         $redisMock->zadd('test', ['test1' => 1]);
         $redisMock->zadd('test', ['test2' => 10]);
+        $redisMock->zadd('test', ['test3' => 1.5]);
+        $redisMock->zadd('test', ['test4' => '10.5']);
 
         $this->assert
             ->integer($redisMock->zcard('test'))
-            ->isEqualTo(2);
+            ->isEqualTo(4);
+    }
+
+    public function testZAddDoNotAcceptNonNumericValue()
+    {
+        $redisMock = new Redis();
+        $this->exception(
+            function () use ($redisMock) {
+                $redisMock->zadd('test', ['test1' => 'NotANumeric']);
+            }
+        )->isInstanceOf(\InvalidArgumentException::class);
     }
 
     public function testZIncrBy()
