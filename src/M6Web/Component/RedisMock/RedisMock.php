@@ -910,7 +910,7 @@ class RedisMock
         if ($min == '-inf' && $max == '+inf') {
             $slice = array_slice(self::$dataValues[$this->storage][$key], $options['limit'][0], $options['limit'][1], true);
             if (isset($options['withscores']) && $options['withscores']) {
-                return $this->returnPipedInfo($slice);
+                return $this->returnPipedInfo(array_map('strval', $slice));
             } else {
                 return $this->returnPipedInfo(array_keys($slice));
             }
@@ -947,13 +947,11 @@ class RedisMock
 
         $slice = array_slice($results, $options['limit'][0], $options['limit'][1], true);
         if (isset($options['withscores']) && $options['withscores']) {
-            return $this->returnPipedInfo($slice);
+            return $this->returnPipedInfo(array_map('strval', $slice));
         } else {
             return $this->returnPipedInfo(array_keys($slice));
         }
     }
-
-
 
     public function zrangebyscore($key, $min, $max, array $options = array())
     {
@@ -964,7 +962,6 @@ class RedisMock
     {
         return $this->zrangebyscoreHelper($key, $min, $max, $options, true);
     }
-
 
     public function zadd($key, ...$args) {
         if (count($args) === 1) {
@@ -1006,7 +1003,7 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$member]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key][$member]);
     }
 
     public function zcard($key)

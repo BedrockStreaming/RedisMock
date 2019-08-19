@@ -717,11 +717,11 @@ class RedisMock extends test
         $redisMock->zadd('test', 15, 'test2');
 
         $this->assert
-            ->integer($redisMock->zscore('test', 'test4'))
+            ->string($redisMock->zscore('test', 'test4'))
             ->isEqualTo(1);
 
         $this->assert
-            ->integer($redisMock->zscore('test', 'test2'))
+            ->string($redisMock->zscore('test', 'test2'))
             ->isEqualTo(15);
 
         $this->assert
@@ -948,10 +948,10 @@ class RedisMock extends test
                     'test6',
                 ))
             ->array($redisMock->zrevrange('test', 1, -3, true))
-                ->isEqualTo(array(
-                    'test2' => 15,
-                    'test3' => 2,
-                    'test4' => 1,
+                ->isIdenticalTo(array(
+                    'test2' => '15',
+                    'test3' => '2',
+                    'test4' => '1',
                 ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
@@ -1046,10 +1046,10 @@ class RedisMock extends test
                     'test3',
                 ))
             ->array($redisMock->zrangebyscore('test', '-inf', '15', array('limit' => array(1, 3), 'withscores' => true)))
-                ->isEqualTo(array(
-                    'test1' => 1,
-                    'test4' => 1,
-                    'test3' => 2,
+                ->isIdenticalTo(array(
+                    'test1' => '1',
+                    'test4' => '1',
+                    'test3' => '2',
                 ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
@@ -1143,10 +1143,10 @@ class RedisMock extends test
                     'test1',
                 ))
             ->array($redisMock->zrevrangebyscore('test', '15', '-inf', array('limit' => array(1, 3), 'withscores' => true)))
-                ->isEqualTo(array(
-                    'test3' => 2,
-                    'test4' => 1,
-                    'test1' => 1,
+                ->isIdenticalTo(array(
+                    'test3' => '2',
+                    'test4' => '1',
+                    'test1' => '1',
                 ))
             ->integer($redisMock->del('test'))
                 ->isEqualTo(6)
@@ -1159,7 +1159,7 @@ class RedisMock extends test
         sleep(2);
         $this->assert
             ->array($redisMock->zrevrangebyscore('test', '1', '0'))
-                ->isEmpty();;
+                ->isEmpty();
     }
 
     public function testHSetHMSetHGetHDelHExistsHKeysHLenHGetAll()
