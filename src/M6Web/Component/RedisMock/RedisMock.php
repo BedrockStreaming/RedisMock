@@ -988,10 +988,14 @@ class RedisMock
 
         $isNew = !isset(self::$dataValues[$this->storage][$key][$member]);
 
-        self::$dataValues[$this->storage][$key][$member] = (int) $score;
-        self::$dataTypes[$this->storage][$key]     = 'zset';
-        if (array_key_exists($key, self::$dataTtl[$this->storage]))
-        {
+        if (!is_numeric($score)) {
+            throw new \InvalidArgumentException('Score should be either an integer or a float.');
+        }
+        $score += 0; // convert potential string value to int or float
+
+        self::$dataValues[$this->storage][$key][$member] = $score;
+        self::$dataTypes[$this->storage][$key] = 'zset';
+        if (array_key_exists($key, self::$dataTtl[$this->storage])) {
             unset(self::$dataTtl[$this->storage][$key]);
         }
 
