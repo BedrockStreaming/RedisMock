@@ -1055,7 +1055,8 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        $revRank = count (self::$dataValues[$this->storage][$key]) - $rank - 1;
+        $revRank = count(self::$dataValues[$this->storage][$key]) - $rank - 1;
+        
         return $this->returnPipedInfo($revRank);
     }
 
