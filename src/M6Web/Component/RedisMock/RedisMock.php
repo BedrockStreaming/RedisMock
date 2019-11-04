@@ -1048,6 +1048,18 @@ class RedisMock
         return $this->returnPipedInfo($rank);
     }
 
+    public function zrevrank($key, $member)
+    {
+        $rank = $this->zrank($key, $member);
+        if ($rank === null) {
+            return $this->returnPipedInfo(null);
+        }
+
+        $revRank = count(self::$dataValues[$this->storage][$key]) - $rank - 1;
+        
+        return $this->returnPipedInfo($revRank);
+    }
+
     public function zremrangebyscore($key, $min, $max) {
         if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);

@@ -83,7 +83,8 @@ Redis command                                    | Description
 **ZCARD** *key*                                  | Returns the sorted set cardinality (number of elements) of the sorted set stored at *key*
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
-**ZRANK** *key* *member*                         | Returns the rank of *member* in the sorted set stored at *key*
+**ZRANK** *key* *member*                         | Returns the rank of *member* in the sorted set stored at *key*, with the scores ordered from low to high
+**ZREVRANK** *key* *member*                      | Returns the rank of *member* in the sorted set stored at *key*, with the scores ordered from high to low
 **ZREM** *key* *member*                          | Removes one membner from a sorted set
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
