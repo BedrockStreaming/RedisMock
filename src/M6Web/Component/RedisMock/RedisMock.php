@@ -495,7 +495,7 @@ class RedisMock
         return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$position]);
     }
 
-    public function lrem($key, $count, $value)
+    public function lrem($key, $value, $count)
     {
         if (!isset(self::$dataValues[$this->storage][$key]) || !in_array($value, self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
