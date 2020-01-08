@@ -1497,11 +1497,11 @@ class RedisMock extends test
                 ->isIdenticalTo(4)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('raoul', 'blabla', 'something', 'raoul')))
-            ->integer($redisMock->lrem('test', 2, 'blabla'))
+            ->integer($redisMock->lrem('test', 'blabla', 2))
                 ->isIdenticalTo(1)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
-            ->integer($redisMock->lrem('test', 1, 'raoul'))
+            ->integer($redisMock->lrem('test', 'raoul', 1))
                 ->isIdenticalTo(1)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('something', 'raoul')))
@@ -1513,7 +1513,7 @@ class RedisMock extends test
                 ->isIdenticalTo(5)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('raoul', 'something', 'raoul', 'raoul', 'raoul')))
-            ->integer($redisMock->lrem('test', -2, 'raoul'))
+            ->integer($redisMock->lrem('test', 'raoul', -2))
                 ->isIdenticalTo(2)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('raoul', 'something', 'raoul')))
@@ -1523,7 +1523,7 @@ class RedisMock extends test
                 ->isIdenticalTo(5)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('raoul', 'something', 'raoul', 'raoul', 'raoul')))
-            ->integer($redisMock->lrem('test', 0, 'raoul'))
+            ->integer($redisMock->lrem('test', 'raoul', 0))
                 ->isIdenticalTo(4)
             ->array($redisMock->getData())
                 ->isEqualTo(array('test' => array('something')))
@@ -1597,13 +1597,13 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->integer($redisMock->rpush('test', 'test1'))
                 ->isEqualTo(2)
-            ->integer($redisMock->lrem('test', 1 , 'test1'))
+            ->integer($redisMock->lrem('test', 'test1', 1))
                 ->isEqualTo(1)
             ->integer($redisMock->expire('test', 1))
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
-            ->integer($redisMock->lrem('test', 1 , 'test1'))
+            ->integer($redisMock->lrem('test', 'test1', 1))
                 ->isEqualTo(0);
 
         $this->assert
@@ -1667,7 +1667,7 @@ class RedisMock extends test
                     ->lpush('test', 'test1')
                     ->lrange('test', 0, -1)
                     ->ltrim('test', 0, -1)
-                    ->lrem('test', 1, 'test1')
+                    ->lrem('test', 'test1', 1)
                     ->rpush('test', 'test1')
                     ->type('test')
                     ->ttl('test')
