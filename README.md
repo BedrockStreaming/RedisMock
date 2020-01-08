@@ -6,20 +6,8 @@ PHP 7.1 library providing a Redis PHP mock for your tests.
 
 ## Installation
 
-Add this line in your `composer.json` :
-
-```json
-{
-    "require": {
-        "m6web/redis-mock": "~2.0"
-    }
-}
-```
-
-Update your vendors :
-
 ```bash
-$ composer update m6web/redis-mock
+$ composer require --dev m6web/redis-mock
 ```
 
 ## Functions
@@ -56,7 +44,7 @@ Redis command                                    | Description
 **LLEN** *key*                                   | Returns the length of the list stored at *key*
 **LPUSH** *key* *value* *[value ...]*            | Pushs values at the head of a list
 **LPOP** *key*                                   | Pops values at the head of a list
-**LREM** *key* *count* *value*                   | Removes `count` instances of `value` from the head of a list
+**LREM** *key* *value* *count*                   | Removes `count` instances of `value` from the head of a list (follows the [`predis` parameters order](https://github.com/phpredis/phpredis#lrem-lremove))
 **LTRIM** *key* *start* *stop*                   | Removes the values of the `key` list which are outside the range `start`...`stop`
 **LRANGE** *key* *start* *stop*                  | Gets a range of elements from a list
 **MGET** *array\<field\>*                        | Gets the values of multiple keys
