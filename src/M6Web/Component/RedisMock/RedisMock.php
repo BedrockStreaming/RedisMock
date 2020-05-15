@@ -744,6 +744,8 @@ class RedisMock
         if (func_num_args() > 2) {
             throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
         }
+        //add support for first field if an array so hdel mimics redis second paramater type
+        $field = (is_array($field)) ? $field[0] : $field;
 
         if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
             return $this->returnPipedInfo(null);
