@@ -25,7 +25,7 @@ Redis command                                    | Description
 **EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
 **FLUSHDB**                                      | Flushes the database
 **GET** *key*                                    | Gets the value of a key
-**HDEL** *key* *field*                           | Delete one hash fields
+**HDEL** *key* *array\<fields\>*                 | Delete hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HMGET** *key* *array\<field\>*                 | Gets the values of multiple hash fields
 **HGET** *key* *field*                           | Gets the value of a hash field
