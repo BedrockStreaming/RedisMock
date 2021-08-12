@@ -106,7 +106,7 @@ class RedisMock
         self::$dataTypes[$this->storage][$key] = 'string';
 
         if (!is_null($seconds)) {
-            self::$dataTtl[$this->storage][$key] = time() + $seconds;
+            self::$dataTtl[$this->storage][$key] = time() + (int) $seconds;
         }
 
         return $this->returnPipedInfo('OK');
