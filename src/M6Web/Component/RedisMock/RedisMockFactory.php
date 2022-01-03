@@ -300,13 +300,19 @@ CONSTRUCTOR;
         $signatures = array();
         foreach ($method->getParameters() as $parameter) {
             $signature = '';
+            $parameterType = $parameter->getType();
+            $isReflectionNamedType = $parameterType instanceof \ReflectionNamedType;
             // typeHint
-            if ($parameter->isArray()) {
+            if ($isReflectionNamedType && $parameterType->getName() === 'array') {
                 $signature .= 'array ';
-            } elseif (method_exists($parameter, 'isCallable') && $parameter->isCallable()) {
+            } elseif (
+                method_exists($parameter, 'isCallable')
+                && $isReflectionNamedType
+                && $parameterType->getName() === 'callable'
+            ) {
                 $signature .= 'callable ';
-            } elseif ($parameter->getClass()) {
-                $signature .= sprintf('\%s ', $parameter->getClass());
+            } elseif ($isReflectionNamedType && $parameterType->getName() === 'object') {
+                $signature .= sprintf('\%s ', get_class($parameter));
             }
             // reference
             if ($parameter->isPassedByReference()) {
