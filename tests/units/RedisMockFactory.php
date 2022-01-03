@@ -4,12 +4,12 @@ namespace M6Web\Component\RedisMock\tests\units;
 
 use M6Web\Component\RedisMock\RedisMockFactory as Factory;
 use M6Web\Component\RedisMock\RedisMock as Mock;
-use mageekguy\atoum\test;
+use atoum;
 
 /**
  * Test class for RedisMockFactory
  */
-class RedisMockFactory extends test
+class RedisMockFactory extends atoum
 {
 
     /**

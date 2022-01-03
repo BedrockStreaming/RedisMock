@@ -2,13 +2,13 @@
 
 namespace M6Web\Component\RedisMock\tests\units;
 
-use mageekguy\atoum\test;
+use atoum;
 use M6Web\Component\RedisMock\RedisMock as Redis;
 
 /**
  * Redis mock test
  */
-class RedisMock extends test
+class RedisMock extends atoum
 {
     public function testSetGetDelExists()
     {
