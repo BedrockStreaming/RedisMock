@@ -739,10 +739,10 @@ class RedisMock
         return $this->returnPipedInfo($result);
     }
 
-    public function hdel($key, $field)
+    public function hdel($key, $fields)
     {
         if (func_num_args() > 2) {
-            throw new UnsupportedException('In RedisMock, `hdel` command can not delete more than one entry at once.');
+            throw new UnsupportedException('In RedisMock, `hdel` command does not accept more than two arguments.');
         }
 
         if (isset(self::$dataValues[$this->storage][$key]) && !is_array(self::$dataValues[$this->storage][$key])) {
@@ -753,16 +753,21 @@ class RedisMock
             return $this->returnPipedInfo(0);
         }
 
-        if (array_key_exists($field, self::$dataValues[$this->storage][$key])) {
-            unset(self::$dataValues[$this->storage][$key][$field]);
-            if (0 === count(self::$dataValues[$this->storage][$key])) {
-                unset(self::$dataTypes[$this->storage][$key]);
-            }
+        $fields = is_array($fields) ? $fields : [$fields];
+        $info = 0;
 
-            return $this->returnPipedInfo(1);
-        } else {
-            return $this->returnPipedInfo(0);
+        foreach ($fields as $field) {
+            if (array_key_exists($field, self::$dataValues[$this->storage][$key])) {
+                unset(self::$dataValues[$this->storage][$key][$field]);
+                if (0 === count(self::$dataValues[$this->storage][$key])) {
+                    unset(self::$dataTypes[$this->storage][$key]);
+                }
+
+                $info++;
+            }
         }
+
+        return $this->returnPipedInfo($info);
     }
 
     public function hkeys($key)

@@ -1,9 +1,8 @@
 <?php
 
-namespace M6Web\Component\RedisMock\tests\units;
+namespace M6Web\Component\RedisMock\Tests\Units;
 
 use M6Web\Component\RedisMock\RedisMockFactory as Factory;
-use M6Web\Component\RedisMock\RedisMock as Mock;
 use atoum;
 
 /**
