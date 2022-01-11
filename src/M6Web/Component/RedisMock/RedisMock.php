@@ -379,6 +379,16 @@ class RedisMock
 
         return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
     }
+    
+    public function sscan($key, $cursor = '0', array $options = [])
+    {
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo([,[]]);
+        }
+        // For the purposes of this mock we returning a simple chunk of all data similer to smembers
+        $chunk =  $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return [$cursor, $chunk];
+    }
 
     public function sunion($key)
     {
