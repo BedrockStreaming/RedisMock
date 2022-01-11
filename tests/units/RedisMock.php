@@ -1,14 +1,14 @@
 <?php
 
-namespace M6Web\Component\RedisMock\tests\units;
+namespace M6Web\Component\RedisMock\Tests\Units;
 
-use mageekguy\atoum\test;
+use atoum;
 use M6Web\Component\RedisMock\RedisMock as Redis;
 
 /**
  * Redis mock test
  */
-class RedisMock extends test
+class RedisMock extends atoum
 {
     public function testSetGetDelExists()
     {
@@ -1247,12 +1247,22 @@ class RedisMock extends test
                 ->isEqualTo(1)
             ->integer($redisMock->hset('test', 'test2', 'something else'))
                 ->isEqualTo(1)
+            ->integer($redisMock->hset('test', 'test4', 'something else 4'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hset('test', 'test5', 'something else 5'))
+                ->isEqualTo(1)
+            ->integer($redisMock->hset('test', 'test6', 'something else 6'))
+                ->isEqualTo(1)
             ->integer($redisMock->hdel('test', 'test2'))
                 ->isEqualTo(1)
             ->integer($redisMock->hdel('test', 'test3'))
                 ->isEqualTo(0)
             ->integer($redisMock->hdel('raoul', 'test2'))
                 ->isEqualTo(0)
+            ->integer($redisMock->hdel('test', ['test4']))
+                ->isEqualTo(1)
+            ->integer($redisMock->hdel('test', ['test5', 'test6']))
+                ->isEqualTo(2)
             ->string($redisMock->type('test'))
                 ->isEqualTo('hash')
             ->integer($redisMock->hdel('test', 'test1'))

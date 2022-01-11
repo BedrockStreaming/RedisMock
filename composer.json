@@ -14,11 +14,14 @@
     "autoload": {
         "psr-0": {"M6Web\\Component\\RedisMock": "src/"}
     },
+    "autoload-dev": {
+        "psr-4": {"M6Web\\Component\\RedisMock\\Tests\\Units\\": "tests/units/"}
+    },
     "require": {
         "php": ">=7.1.0"
     },
     "require-dev": {
-        "atoum/atoum": "master-dev",
+        "atoum/atoum": "~3.4||~4.0",
         "predis/predis": "~1.1"
     }
 }

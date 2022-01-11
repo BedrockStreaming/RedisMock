@@ -1,4 +1,4 @@
-# Redis PHP Mock [![Build Status](https://secure.travis-ci.org/M6Web/RedisMock.svg?branch=master)](http://travis-ci.org/M6Web/RedisMock) [![Total Downloads](https://poser.pugx.org/m6web/redis-mock/downloads.svg)](https://packagist.org/packages/m6web/redis-mock)
+# Redis PHP Mock [![Build Status](https://github.com/BedrockStreaming/RedisMock/actions/workflows/ci.yml/badge.svg)](https://github.com/BedrockStreaming/RedisMock/actions/workflows/ci.yml) [![Total Downloads](https://poser.pugx.org/m6web/redis-mock/downloads.svg)](https://packagist.org/packages/m6web/redis-mock)
 
 PHP 7.1 library providing a Redis PHP mock for your tests.
 
@@ -25,7 +25,7 @@ Redis command                                    | Description
 **EXPIRE** *key* *seconds*                       | Sets a key's time to live in seconds
 **FLUSHDB**                                      | Flushes the database
 **GET** *key*                                    | Gets the value of a key
-**HDEL** *key* *field*                           | Delete one hash fields
+**HDEL** *key* *array\<fields\>*                 | Delete hash fields
 **HEXISTS** *key* *field*                        | Determines if a hash field exists
 **HMGET** *key* *array\<field\>*                 | Gets the values of multiple hash fields
 **HGET** *key* *field*                           | Gets the value of a hash field
