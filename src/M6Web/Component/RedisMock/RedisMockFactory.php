@@ -125,6 +125,7 @@ class RedisMockFactory
         'spop',
         'srandmember',
         'srem',
+        'sscan',
         'strlen',
         'subscribe',
         'sunion',
