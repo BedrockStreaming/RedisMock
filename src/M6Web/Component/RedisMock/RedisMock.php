@@ -165,11 +165,16 @@ class RedisMock
 
     public function expire($key, $seconds)
     {
+        return $this->expireat($key, time() + $seconds);
+    }
+
+    public function expireat($key, $timestamp)
+    {
         if (!array_key_exists($key, self::$dataValues[$this->storage]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo(0);
         }
 
-        self::$dataTtl[$this->storage][$key] = time() + $seconds;
+        self::$dataTtl[$this->storage][$key] = $timestamp;
 
         return $this->returnPipedInfo(1);
     }
