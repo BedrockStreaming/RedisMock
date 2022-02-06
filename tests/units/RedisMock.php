@@ -748,6 +748,26 @@ class RedisMock extends atoum
                 ->isEqualTo(0);
     }
 
+    public function testZCount()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('myzset', 1, 'one');
+        $redisMock->zadd('myzset', 2, 'two');
+        $redisMock->zadd('myzset', 3, 'three');
+
+        $this->assert
+            ->integer($redisMock->zcount('myzset', '-inf', '+inf'))
+            ->isEqualTo(3);
+
+        $this->assert
+            ->integer($redisMock->zcount('myzset', '(1', 3))
+            ->isEqualTo(2);
+
+        $this->assert
+            ->integer($redisMock->zcount('unexisting set', 0, 10))
+            ->isEqualTo(0);
+    }
+
     public function testZAddWithArray()
     {
         $redisMock = new Redis();
