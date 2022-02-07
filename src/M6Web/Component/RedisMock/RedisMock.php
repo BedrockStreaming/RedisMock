@@ -2,6 +2,8 @@
 
 namespace M6Web\Component\RedisMock;
 
+use Predis\Response\Status;
+
 /**
  * Redis mock class
  *
@@ -1152,6 +1154,11 @@ class RedisMock
         $this->discard();
 
         return $pipedInfo;
+    }
+
+    public function watch($key)
+    {
+        return new Status('OK');
     }
 
     // Client pipeline

@@ -4,6 +4,7 @@ namespace M6Web\Component\RedisMock\Tests\Units;
 
 use atoum;
 use M6Web\Component\RedisMock\RedisMock as Redis;
+use Predis\Response\Status;
 
 /**
  * Redis mock test
@@ -1743,6 +1744,18 @@ class RedisMock extends atoum
         $this->assert
             ->array($redisMock->exec())
                 ->isEmpty();
+    }
+
+    public function testWatch()
+    {
+        $redisMock = new Redis();
+        $redisMock->set('test', 'something');
+
+        $this->assert
+            ->object($redisMock->watch('test'))
+                ->isInstanceOf(Status::class)
+            ->object($redisMock->watch('unexisting-key'))
+                ->isInstanceOf(Status::class);
     }
 
     public function testDbsize()
