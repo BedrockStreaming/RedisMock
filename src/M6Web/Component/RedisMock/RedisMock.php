@@ -727,7 +727,7 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$field]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key][$field]);
     }
 
     public function hmget($key, $fields)
