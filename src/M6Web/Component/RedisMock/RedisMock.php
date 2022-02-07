@@ -1161,6 +1161,11 @@ class RedisMock
         return new Status('OK');
     }
 
+    public function unwatch()
+    {
+        return new Status('OK');
+    }
+
     // Client pipeline
 
     public function pipeline()

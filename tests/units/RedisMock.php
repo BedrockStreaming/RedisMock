@@ -1758,6 +1758,16 @@ class RedisMock extends atoum
                 ->isInstanceOf(Status::class);
     }
 
+    public function testUnwatch()
+    {
+        $redisMock = new Redis();
+        $redisMock->set('test', 'something');
+
+        $this->assert
+            ->object($redisMock->unwatch())
+            ->isInstanceOf(Status::class);
+    }
+
     public function testDbsize()
     {
         $redisMock = new Redis();
