@@ -74,7 +74,7 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key]);
     }
 
     public function set($key, $value, $seconds = null)

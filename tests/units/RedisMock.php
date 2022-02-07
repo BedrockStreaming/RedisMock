@@ -105,6 +105,13 @@ class RedisMock extends atoum
             ->integer($redisMock->exists('test'))
                 ->isEqualTo(0);
 
+        //set with integer
+        $this->assert
+            ->string($redisMock->set('test-setting-integer-value', 2))
+                ->isEqualTo('OK')
+            ->string($redisMock->get('test-setting-integer-value'))
+                ->isEqualTo('2');
+
         //setnx
         $this->assert
             ->integer($redisMock->setnx('test-setnx', 'lala'))
@@ -239,7 +246,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->incr('test'))
                 ->isEqualTo(1)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -274,7 +281,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->incrby('test', 5))
                 ->isEqualTo(5)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -309,7 +316,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->float($redisMock->incrbyfloat('test', 0.5))
                 ->isEqualTo(0.5)
-            ->float($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(0.5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -344,7 +351,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->decr('test'))
                 ->isEqualTo(-1)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(-1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -379,7 +386,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->decrby('test', 5))
                 ->isEqualTo(-5)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(-5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -414,7 +421,7 @@ class RedisMock extends atoum
             ->isNull()
             ->float($redisMock->decrbyfloat('test', 0.5))
             ->isEqualTo(-0.5)
-            ->float($redisMock->get('test'))
+            ->string($redisMock->get('test'))
             ->isEqualTo(-0.5)
             ->string($redisMock->type('test'))
             ->isEqualTo('string')
