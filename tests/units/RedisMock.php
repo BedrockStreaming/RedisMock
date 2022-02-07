@@ -1254,6 +1254,10 @@ class RedisMock extends atoum
                 ->isEqualTo(1)
             ->string($redisMock->hget('test-hset-integer-value', 'integer-value'))
                 ->isEqualTo('100')
+            ->array($redisMock->hgetall('test-hset-integer-value'))
+                ->isEqualTo([
+                    'integer-value' => '100',
+                ])
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->hset('test', 'test2', 'something else'))

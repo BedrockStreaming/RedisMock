@@ -799,7 +799,11 @@ class RedisMock
             return $this->returnPipedInfo(array());
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        $values = [];
+        foreach (self::$dataValues[$this->storage][$key] as $index => $value) {
+            $values[$index] = (string) $value;
+        }
+        return $this->returnPipedInfo($values);
     }
 
     public function hexists($key, $field)
