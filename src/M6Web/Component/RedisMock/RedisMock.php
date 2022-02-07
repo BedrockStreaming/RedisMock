@@ -737,7 +737,7 @@ class RedisMock
             if (!isset(self::$dataValues[$this->storage][$key][$field]) || $this->deleteOnTtlExpired($key)) {
                 $result[$field] = null;
             } else {
-                $result[$field] = self::$dataValues[$this->storage][$key][$field];
+                $result[$field] = (string) self::$dataValues[$this->storage][$key][$field];
             }
         }
 
