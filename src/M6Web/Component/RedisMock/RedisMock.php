@@ -215,7 +215,7 @@ class RedisMock
 
         self::$dataTypes[$this->storage][$key] = 'string';
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key]);
     }
 
     public function decr($key)
