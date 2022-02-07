@@ -1215,6 +1215,54 @@ class RedisMock extends atoum
                 ->isEmpty();
     }
 
+    public function testZUnionStore()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('zset1', 1, 'one');
+        $redisMock->zadd('zset1', 2, 'two');
+        $redisMock->zadd('zset1', 0, 'four');
+        $redisMock->zadd('zset2', 1, 'one');
+        $redisMock->zadd('zset2', 2, 'two');
+        $redisMock->zadd('zset2', 3, 'three');
+        $redisMock->zadd('zset2', 4, 'four');
+
+        // zunionstore with default options (weight of 1, sum as aggregate)
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'one'))
+                ->isEqualTo(2)
+            ->string($redisMock->zscore('out', 'two'))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'three'))
+                ->isEqualTo(3);
+
+        // zunionstore with weight option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['WEIGHTS' => [2, 3]]))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'one'))
+                ->isEqualTo(5)
+            ->string($redisMock->zscore('out', 'two'))
+                ->isEqualTo(10)
+            ->string($redisMock->zscore('out', 'three'))
+                ->isEqualTo(9);
+
+        // zunionstore with aggregate min option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['AGGREGATE' => 'MIN']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'four'))
+                ->isEqualTo(0);
+
+        // zunionstore with aggregate max option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['AGGREGATE' => 'MAX']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'four'))
+                ->isEqualTo(4);
+    }
+
     public function testHSetHMSetHGetHDelHExistsHKeysHLenHGetAll()
     {
         $redisMock = new Redis();

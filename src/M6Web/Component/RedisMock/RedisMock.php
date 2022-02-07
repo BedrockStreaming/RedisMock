@@ -1120,6 +1120,43 @@ class RedisMock
         return $this->returnPipedInfo(1);
     }
 
+    public function zunionstore($destination, array $keys, array $options = array())
+    {
+        $weights = isset($options['WEIGHTS']) ? $options['WEIGHTS'] : array_fill(0, count($keys), 1);
+        $aggregate = isset($options['AGGREGATE']) ? $options['AGGREGATE'] : 'SUM';
+
+        if (count($weights) !== count($keys)) {
+            throw new \RuntimeException('there must be one weight per key');
+        }
+
+        if ($aggregate !== 'SUM' && $aggregate !== 'MIN' && $aggregate !== 'MAX') {
+            throw new \RuntimeException('unknown aggregate function');
+        }
+
+        $this->del($destination);
+        foreach ($keys as $index => $key) {
+            foreach ($this->zrangebyscore($key, '-inf', '+inf', array('withscores' => true)) as $member => $score) {
+                $weight = $weights[$index];
+                $weightedScore = $score * $weight;
+
+                $currentScore = $this->zscore($destination, $member);
+                if ($currentScore === null) {
+                    $this->zadd($destination, $weightedScore, $member);
+                } else if ($aggregate === 'SUM') {
+                    $this->zincrby($destination, $weightedScore, $member);
+                } else if ($aggregate === 'MIN') {
+                    $finalScore = min($currentScore, $weightedScore);
+                    $this->zadd($destination, $finalScore, $member);
+                } else if ($aggregate === 'MAX') {
+                    $finalScore = max($currentScore, $weightedScore);
+                    $this->zadd($destination, $finalScore, $member);
+                }
+            }
+        }
+
+        return $this->zcount($destination, '-inf', '+inf');
+    }
+
     // Server
 
     public function dbsize()

@@ -79,6 +79,7 @@ Redis command                                    | Description
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 **ZSCORE** *key* *member*                        | Returns the score of *member* in the sorted set at *key*
+**ZUNIONSTORE** *dest* *numkeys* *key* ... *[weights ...]* *[aggregate SUM/MIN/MAX]*  | Computes the union of the stored sets given by the specified keys, store the result in the destination key, and returns the number of elements of the new sorted set.
 
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
