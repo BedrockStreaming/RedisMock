@@ -1918,4 +1918,39 @@ class RedisMock extends atoum
             ->isEqualTo([0, []]);
 
     }
+
+    public function testBitCountCommand()
+    {
+        $redisMock = new Redis();
+        $redisMock->setbit('myKey', 0, 0);
+        $redisMock->setbit('myKey', 1, 1);
+        $redisMock->setbit('myKey', 2, 1);
+
+
+        // It must return two values, start cursor after the first value of the list.
+        $this->assert->variable($redisMock->bitcount('myKey'))->isEqualTo(3);
+        $this->assert->variable($redisMock->bitcount('otherKey'))->isEqualTo(0);
+    }
+
+    public function testBitGetCommand()
+    {
+        $redisMock = new Redis();
+
+        $this->assert->variable($redisMock->getbit('myKey', 0))->isEqualTo(0);
+
+        $redisMock->setbit('myKey', 0, 1);
+        $this->assert->variable($redisMock->getbit('myKey', 0))->isEqualTo(1);
+    }
+
+    public function testBitSetCommand()
+    {
+        $redisMock = new Redis();
+
+        $this->assert->variable($redisMock->getbit('myKey', 0))->isEqualTo(0);
+
+        $returnValue = $redisMock->setbit('myKey', 0, 1);
+        $this->assert->variable($returnValue)->isEqualTo(0);
+        $returnValue = $redisMock->setbit('myKey', 0, 0);
+        $this->assert->variable($returnValue)->isEqualTo(1);
+    }
 }
