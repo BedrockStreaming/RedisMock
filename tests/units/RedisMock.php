@@ -1930,7 +1930,7 @@ class RedisMock extends atoum
         $this->assert->variable($redisMock->bitcount('otherKey'))->isEqualTo(0);
     }
 
-    public function testBitGetCommand()
+    public function testGetbitCommand()
     {
         $redisMock = new Redis();
 
