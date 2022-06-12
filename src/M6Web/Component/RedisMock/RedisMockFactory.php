@@ -14,9 +14,6 @@ namespace M6Web\Component\RedisMock;
 class RedisMockFactory
 {
     protected $redisCommands = array(
-        'bitcount',
-        'setbit',
-        'getbit',
         'append',
         'auth',
         'bgrewriteaof',
