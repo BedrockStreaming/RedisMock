@@ -1919,7 +1919,7 @@ class RedisMock extends atoum
 
     }
 
-    public function testBitCountCommand()
+    public function testBitcountCommand()
     {
         $redisMock = new Redis();
         $redisMock->setbit('myKey', 0, 0);
