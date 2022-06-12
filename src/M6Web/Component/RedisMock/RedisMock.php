@@ -1326,11 +1326,7 @@ class RedisMock
      */
     public function bitcount($key)
     {
-        if (!isset(self::$dataValues[$this->storage][$key])) {
-            self::$dataValues[$this->storage][$key] = [];
-        }
-
-        return count(self::$dataValues[$this->storage][$key]);
+        return count(self::$dataValues[$this->storage][$key] ?? []);
     }
 
     /**
