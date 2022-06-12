@@ -1926,8 +1926,6 @@ class RedisMock extends atoum
         $redisMock->setbit('myKey', 1, 1);
         $redisMock->setbit('myKey', 2, 1);
 
-
-        // It must return two values, start cursor after the first value of the list.
         $this->assert->variable($redisMock->bitcount('myKey'))->isEqualTo(3);
         $this->assert->variable($redisMock->bitcount('otherKey'))->isEqualTo(0);
     }
