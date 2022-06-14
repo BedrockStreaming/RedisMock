@@ -1316,4 +1316,51 @@ class RedisMock
     {
         return;
     }
+
+    /**
+     * Mock the `bitcount` command
+     * @see https://redis.io/commands/bitcount
+     *
+     * @param  string $key
+     * @return int
+     */
+    public function bitcount($key)
+    {
+        return count(self::$dataValues[$this->storage][$key] ?? []);
+    }
+
+    /**
+     * Mock the `setbit` command
+     * @see https://redis.io/commands/setbit
+     *
+     * @param string $key
+     * @param int $offset
+     * @param int $value
+     * @return int original value before the update
+     */
+    public function setbit($key, $offset, $value)
+    {
+        if (!isset(self::$dataValues[$this->storage][$key])) {
+            self::$dataValues[$this->storage][$key] = [];
+        }
+
+        $originalValue = self::$dataValues[$this->storage][$key][$offset] ?? 0;
+
+        self::$dataValues[$this->storage][$key][$offset] = $value;
+
+        return $originalValue;
+    }
+
+    /**
+     * Mock the `getbit` command
+     * @see https://redis.io/commands/getbit
+     *
+     * @param string $key
+     * @param int $offset
+     * @return int
+     */
+    public function getbit($key, $offset)
+    {
+        return self::$dataValues[$this->storage][$key][$offset] ?? 0;
+    }
 }

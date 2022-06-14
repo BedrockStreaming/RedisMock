@@ -4,10 +4,10 @@ namespace M6Web\Component\RedisMock;
 
 /**
  * Adapter allowing to setup a Redis Mock inheriting of an arbitrary class
- * 
+ *
  * WARNING ! RedisMock doesn't implement all Redis features and commands.
  * The mock can have undesired behavior if your parent class uses unsupported features.
- * 
+ *
  * @author Adrien Samson <asamson.externe@m6.fr>
  * @author Florent Dubost <fdubost.externe@m6.fr>
  */
