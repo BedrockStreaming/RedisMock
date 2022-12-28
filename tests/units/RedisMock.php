@@ -1926,6 +1926,11 @@ class RedisMock extends atoum
         $redisMock->sadd('myKey', ['b1', 'b2', 'b3', 'b4', 'b5', 'b6']);
         $redisMock->sadd('myKey', ['c1', 'c2', 'c3']);
 
+        // It must return no values, as the key is unknown.
+        $this->assert
+            ->array($redisMock->sscan('unknown', 1, ['COUNT' => 2]))
+            ->isEqualTo([0, []]);
+
         // It must return two values, start cursor after the first value of the list.
         $this->assert
             ->array($redisMock->sscan('myKey', 1, ['COUNT' => 2]))
@@ -1944,6 +1949,13 @@ class RedisMock extends atoum
             ->array($redisMock->sscan('myKey', 11, ['MATCH' => 'c*']))
             ->isEqualTo([0, []]);
 
+        $redisMock->expire('myKey', 1);
+        sleep(2);
+
+        // It must return no values, as the key is expired.
+        $this->assert
+            ->array($redisMock->sscan('myKey', 1, ['COUNT' => 2]))
+            ->isEqualTo([0, []]);
     }
 
     public function testBitcountCommand()
