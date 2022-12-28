@@ -1925,17 +1925,21 @@ class RedisMock extends atoum
         $redisMock->sadd('myKey', 'a1');
         $redisMock->sadd('myKey', ['b1', 'b2', 'b3', 'b4', 'b5', 'b6']);
         $redisMock->sadd('myKey', ['c1', 'c2', 'c3']);
+        $redisMock->sadd('a/b', 'c/d');
 
         // It must return no values, as the key is unknown.
         $this->assert
             ->array($redisMock->sscan('unknown', 1, ['COUNT' => 2]))
             ->isEqualTo([0, []]);
 
+        $this->assert
+            ->array($redisMock->sscan('a/b', 0, ['MATCH' => 'c/*']))
+            ->isEqualTo([0, [0 => 'c/d']]);
+
         // It must return two values, start cursor after the first value of the list.
         $this->assert
             ->array($redisMock->sscan('myKey', 1, ['COUNT' => 2]))
             ->isEqualTo([3, [0 => 'b1', 1 => 'b2']]);
-
 
         // It must return all the values with match with the regex 'our' (2 keys).
         // And the cursor is defined after the default count (10) => the match has not terminate all the list.
