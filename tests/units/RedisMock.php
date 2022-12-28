@@ -1919,6 +1919,33 @@ class RedisMock extends atoum
 
     }
 
+    public function testSscanCommand()
+    {
+        $redisMock = new Redis();
+        $redisMock->sadd('myKey', 'a1');
+        $redisMock->sadd('myKey', ['b1', 'b2', 'b3', 'b4', 'b5', 'b6']);
+        $redisMock->sadd('myKey', ['c1', 'c2', 'c3']);
+
+        // It must return two values, start cursor after the first value of the list.
+        $this->assert
+            ->array($redisMock->sscan('myKey', 1, ['COUNT' => 2]))
+            ->isEqualTo([3, [0 => 'b1', 1 => 'b2']]);
+
+
+        // It must return all the values with match with the regex 'our' (2 keys).
+        // And the cursor is defined after the default count (10) => the match has not terminate all the list.
+        $this->assert
+            ->array($redisMock->sscan('myKey', 0, ['MATCH' => 'c*']))
+            ->isEqualTo([10, [0 => 'c1', 1 => 'c2', 2 => 'c3']]);
+
+        // Execute the match at the end of this list, the match not return an element (no one element match with the regex),
+        // And the list is terminate, return the cursor to the start (0)
+        $this->assert
+            ->array($redisMock->sscan('myKey', 11, ['MATCH' => 'c*']))
+            ->isEqualTo([0, []]);
+
+    }
+
     public function testBitcountCommand()
     {
         $redisMock = new Redis();

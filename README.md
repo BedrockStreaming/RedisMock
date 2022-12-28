@@ -53,6 +53,7 @@ Redis command                                    | Description
 **RPUSH** *key* *value*                          | Pushs values at the tail of a list
 **RPOP** *key*                                   | Pops values at the tail of a list
 **SCAN**                                         | Iterates the set of keys in the currently selected Redis database.
+**SSCAN**                                        | Iterates elements of Sets types.
 **SET** *key* *value*                            | Sets the string value of a key
 **SETEX** *key* *seconds* *value*                | Sets the value and expiration of a key
 **SETNX** *key* *value*                          | Sets key to hold value if key does not exist
