@@ -1898,6 +1898,8 @@ class RedisMock extends atoum
         $redisMock->lpush('key10', 'value10');
         $redisMock->lpush('key11', 'value11');
         $redisMock->lpush('key12', 'value12');
+        $redisMock->lpush('slash-key/with/slashes/1', 'slash-value-1');
+        $redisMock->lpush('slash-key/with/slashes/2', 'slash-value-2');
 
         // It must return two values, start cursor after the first value of the list.
         $this->assert
@@ -1917,6 +1919,10 @@ class RedisMock extends atoum
             ->array($redisMock->scan(10, ['MATCH' => '*our*']))
             ->isEqualTo([0, []]);
 
+        // It must return all the values with match with the regex with '/'
+        $this->assert
+            ->array($redisMock->scan(0, ['MATCH' => 'slash-key/*/*', 'COUNT' => 100]))
+            ->isEqualTo([0, [0 => 'slash-key/with/slashes/1', 1 => 'slash-key/with/slashes/2']]);
     }
 
     public function testBitcountCommand()

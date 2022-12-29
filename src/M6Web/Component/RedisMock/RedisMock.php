@@ -1250,7 +1250,8 @@ class RedisMock
         // Matched values.
         $values = [];
         // Pattern, for find matched values.
-        $pattern =  str_replace('*', '.*', sprintf('/^%s$/', $match));
+        $escapedMatch = str_replace('/', '\/', $match);
+        $pattern =  str_replace('*', '.*', sprintf('/^%s$/', $escapedMatch));
 
         for($i = $cursor; $i <= $maximumValue; $i++)
         {
