@@ -74,7 +74,7 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key]);
     }
 
     public function set($key, $value, $seconds = null)
@@ -215,7 +215,7 @@ class RedisMock
 
         self::$dataTypes[$this->storage][$key] = 'string';
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key]);
     }
 
     public function decr($key)
@@ -254,7 +254,7 @@ class RedisMock
 
         self::$dataTypes[$this->storage][$key] = 'string';
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key]);
     }
 
     // Keys
@@ -727,7 +727,7 @@ class RedisMock
             return $this->returnPipedInfo(null);
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key][$field]);
+        return $this->returnPipedInfo((string) self::$dataValues[$this->storage][$key][$field]);
     }
 
     public function hmget($key, $fields)
@@ -737,7 +737,7 @@ class RedisMock
             if (!isset(self::$dataValues[$this->storage][$key][$field]) || $this->deleteOnTtlExpired($key)) {
                 $result[$field] = null;
             } else {
-                $result[$field] = self::$dataValues[$this->storage][$key][$field];
+                $result[$field] = (string) self::$dataValues[$this->storage][$key][$field];
             }
         }
 
@@ -799,7 +799,11 @@ class RedisMock
             return $this->returnPipedInfo(array());
         }
 
-        return $this->returnPipedInfo(self::$dataValues[$this->storage][$key]);
+        $values = [];
+        foreach (self::$dataValues[$this->storage][$key] as $index => $value) {
+            $values[$index] = (string) $value;
+        }
+        return $this->returnPipedInfo($values);
     }
 
     public function hexists($key, $field)

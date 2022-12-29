@@ -105,6 +105,13 @@ class RedisMock extends atoum
             ->integer($redisMock->exists('test'))
                 ->isEqualTo(0);
 
+        //set with integer
+        $this->assert
+            ->string($redisMock->set('test-setting-integer-value', 2))
+                ->isEqualTo('OK')
+            ->string($redisMock->get('test-setting-integer-value'))
+                ->isEqualTo('2');
+
         //setnx
         $this->assert
             ->integer($redisMock->setnx('test-setnx', 'lala'))
@@ -239,7 +246,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->incr('test'))
                 ->isEqualTo(1)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -274,7 +281,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->incrby('test', 5))
                 ->isEqualTo(5)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -307,15 +314,15 @@ class RedisMock extends atoum
         $this->assert
             ->variable($redisMock->get('test'))
                 ->isNull()
-            ->float($redisMock->incrbyfloat('test', 0.5))
+            ->string($redisMock->incrbyfloat('test', 0.5))
                 ->isEqualTo(0.5)
-            ->float($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(0.5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
-            ->float($redisMock->incrbyfloat('test', 1))
+            ->string($redisMock->incrbyfloat('test', 1))
                 ->isEqualTo(1.5)
-            ->float($redisMock->incrbyfloat('test', 2.5))
+            ->string($redisMock->incrbyfloat('test', 2.5))
                 ->isEqualTo(4)
             ->string($redisMock->set('test', 'something'))
                 ->isEqualTo('OK')
@@ -325,13 +332,13 @@ class RedisMock extends atoum
                 ->isEqualTo(1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('none')
-            ->float($redisMock->incrbyfloat('test', 0.5))
+            ->string($redisMock->incrbyfloat('test', 0.5))
                 ->isEqualTo(0.5)
             ->integer($redisMock->expire('test', 1))
                 ->isEqualTo(1);
         sleep(2);
         $this->assert
-            ->float($redisMock->incrbyfloat('test', 0.5))
+            ->string($redisMock->incrbyfloat('test', 0.5))
                 ->isEqualTo(0.5);
     }
 
@@ -344,7 +351,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->decr('test'))
                 ->isEqualTo(-1)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(-1)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -379,7 +386,7 @@ class RedisMock extends atoum
                 ->isNull()
             ->integer($redisMock->decrby('test', 5))
                 ->isEqualTo(-5)
-            ->integer($redisMock->get('test'))
+            ->string($redisMock->get('test'))
                 ->isEqualTo(-5)
             ->string($redisMock->type('test'))
                 ->isEqualTo('string')
@@ -412,15 +419,15 @@ class RedisMock extends atoum
         $this->assert
             ->variable($redisMock->get('test'))
             ->isNull()
-            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->string($redisMock->decrbyfloat('test', 0.5))
             ->isEqualTo(-0.5)
-            ->float($redisMock->get('test'))
+            ->string($redisMock->get('test'))
             ->isEqualTo(-0.5)
             ->string($redisMock->type('test'))
             ->isEqualTo('string')
-            ->float($redisMock->decrbyfloat('test', 1))
+            ->string($redisMock->decrbyfloat('test', 1))
             ->isEqualTo(-1.5)
-            ->float($redisMock->decrbyfloat('test', 2.5))
+            ->string($redisMock->decrbyfloat('test', 2.5))
             ->isEqualTo(-4.0)
             ->string($redisMock->set('test', 'something'))
             ->isEqualTo('OK')
@@ -430,13 +437,13 @@ class RedisMock extends atoum
             ->isEqualTo(1)
             ->string($redisMock->type('test'))
             ->isEqualTo('none')
-            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->string($redisMock->decrbyfloat('test', 0.5))
             ->isEqualTo(-0.5)
             ->integer($redisMock->expire('test', 1))
             ->isEqualTo(1);
         sleep(2);
         $this->assert
-            ->float($redisMock->decrbyfloat('test', 0.5))
+            ->string($redisMock->decrbyfloat('test', 0.5))
             ->isEqualTo(-0.5);
     }
 
@@ -1311,6 +1318,14 @@ class RedisMock extends atoum
                 ->isEqualTo(0)
             ->integer($redisMock->del('test'))
                 ->isEqualTo(2)
+            ->integer($redisMock->hset('test-hset-integer-value', 'integer-value', 100))
+                ->isEqualTo(1)
+            ->string($redisMock->hget('test-hset-integer-value', 'integer-value'))
+                ->isEqualTo('100')
+            ->array($redisMock->hgetall('test-hset-integer-value'))
+                ->isEqualTo([
+                    'integer-value' => '100',
+                ])
             ->integer($redisMock->hset('test', 'test1', 'something'))
                 ->isEqualTo(1)
             ->integer($redisMock->hset('test', 'test2', 'something else'))
@@ -1480,7 +1495,7 @@ class RedisMock extends atoum
             ->isNull()
             ->integer($redisMock->hincrby('test', 'count', 5))
             ->isEqualTo(5)
-            ->integer($redisMock->hget('test', 'count'))
+            ->string($redisMock->hget('test', 'count'))
             ->isEqualTo(5)
             ->integer($redisMock->hincrby('test', 'count', 1))
             ->isEqualTo(6)
