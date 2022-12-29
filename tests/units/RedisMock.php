@@ -748,6 +748,26 @@ class RedisMock extends atoum
                 ->isEqualTo(0);
     }
 
+    public function testZCount()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('myzset', 1, 'one');
+        $redisMock->zadd('myzset', 2, 'two');
+        $redisMock->zadd('myzset', 3, 'three');
+
+        $this->assert
+            ->integer($redisMock->zcount('myzset', '-inf', '+inf'))
+            ->isEqualTo(3);
+
+        $this->assert
+            ->integer($redisMock->zcount('myzset', '(1', 3))
+            ->isEqualTo(2);
+
+        $this->assert
+            ->integer($redisMock->zcount('unexisting set', 0, 10))
+            ->isEqualTo(0);
+    }
+
     public function testZAddWithArray()
     {
         $redisMock = new Redis();
@@ -1193,6 +1213,54 @@ class RedisMock extends atoum
         $this->assert
             ->array($redisMock->zrevrangebyscore('test', '1', '0'))
                 ->isEmpty();
+    }
+
+    public function testZUnionStore()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('zset1', 1, 'one');
+        $redisMock->zadd('zset1', 2, 'two');
+        $redisMock->zadd('zset1', 0, 'four');
+        $redisMock->zadd('zset2', 1, 'one');
+        $redisMock->zadd('zset2', 2, 'two');
+        $redisMock->zadd('zset2', 3, 'three');
+        $redisMock->zadd('zset2', 4, 'four');
+
+        // zunionstore with default options (weight of 1, sum as aggregate)
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'one'))
+                ->isEqualTo(2)
+            ->string($redisMock->zscore('out', 'two'))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'three'))
+                ->isEqualTo(3);
+
+        // zunionstore with weight option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['WEIGHTS' => [2, 3]]))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'one'))
+                ->isEqualTo(5)
+            ->string($redisMock->zscore('out', 'two'))
+                ->isEqualTo(10)
+            ->string($redisMock->zscore('out', 'three'))
+                ->isEqualTo(9);
+
+        // zunionstore with aggregate min option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['AGGREGATE' => 'MIN']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'four'))
+                ->isEqualTo(0);
+
+        // zunionstore with aggregate max option
+        $this->assert
+            ->integer($redisMock->zunionstore('out', ['zset1', 'zset2'], ['AGGREGATE' => 'MAX']))
+                ->isEqualTo(4)
+            ->string($redisMock->zscore('out', 'four'))
+                ->isEqualTo(4);
     }
 
     public function testHSetHMSetHGetHDelHExistsHKeysHLenHGetAll()

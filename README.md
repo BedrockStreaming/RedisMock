@@ -69,6 +69,7 @@ Redis command                                    | Description
 **ZADD** *key* *score* *member*                  | Adds one member to a sorted set, or update its score if it already exists
 **ZINCRBY** *key* *increment* *member*           | Increments the score of *member* in the sorted set stored at *key* by *increment*
 **ZCARD** *key*                                  | Returns the sorted set cardinality (number of elements) of the sorted set stored at *key*
+**ZCOUNT** **key** **min** **max**               | Returns the number of elements in the stored set at *key* with a score between *min* and *max*.      
 **ZRANGE** *key* *start* *stop* *[withscores]*   | Returns the specified range of members in a sorted set
 **ZRANGEBYSCORE** *key* *min* *max* *options*    | Returns a range of members in a sorted set, by score
 **ZRANK** *key* *member*                         | Returns the rank of *member* in the sorted set stored at *key*, with the scores ordered from low to high
@@ -78,6 +79,7 @@ Redis command                                    | Description
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
 **ZSCORE** *key* *member*                        | Returns the score of *member* in the sorted set at *key*
+**ZUNIONSTORE** *dest* *numkeys* *key* ... *[weights ...]* *[aggregate SUM/MIN/MAX]*  | Computes the union of the stored sets given by the specified keys, store the result in the destination key, and returns the number of elements of the new sorted set.
 
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
