@@ -466,6 +466,54 @@ class RedisMock
         return $this->returnPipedInfo(1);
     }
 
+
+    /**
+     * Mock the `sscan` command
+     * @see https://redis.io/commands/sscan
+     * @param string $key
+     * @param int $cursor
+     * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
+     * @return $this|array|mixed
+     */
+    public function sscan($key, $cursor = 0, array $options = [])
+    {
+        $match = isset($options['MATCH']) ? $options['MATCH'] : '*';
+        $count = isset($options['COUNT']) ? $options['COUNT'] : 10;
+        $maximumValue = $cursor + $count -1;
+
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo([0, []]);
+        }
+
+        // List of all keys in the storage (already ordered by index).
+        $set = self::$dataValues[$this->storage][$key];
+        $maximumListElement = count($set);
+
+        // Next cursor position
+        $nextCursorPosition = 0;
+        // Matched values.
+        $values = [];
+        // Pattern, for find matched values.
+        $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
+
+        for($i = $cursor; $i <= $maximumValue; $i++)
+        {
+            if (isset($set[$i])){
+                $nextCursorPosition = $i >= $maximumListElement ? 0 : $i + 1;
+
+                if ('*' === $match || 1 === preg_match($pattern, $set[$i])){
+                    $values[] = $set[$i];
+                }
+
+            } else {
+                // Out of the arrays values, return first element
+                $nextCursorPosition = 0;
+            }
+        }
+
+        return $this->returnPipedInfo([$nextCursorPosition, $values]);
+    }
+
     // Lists
 
     public function llen($key)
