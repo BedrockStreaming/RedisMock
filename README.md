@@ -84,7 +84,7 @@ Redis command                                    | Description
 
 It mocks **MULTI**, **DISCARD** and **EXEC** commands but without any transaction behaviors, they just make the interface fluent and return each command results.
 **PIPELINE** and **EXECUTE** pseudo commands (client pipelining) are also mocked.
-**EVAL** and **EVALSHA** are just stubs—they won't execute anything  
+**EVAL**, **EVALSHA**, **WATCH** and **UNWATCH** are just stubs—they won't execute anything  
 
 ## Usage
 
