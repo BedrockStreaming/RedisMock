@@ -320,6 +320,9 @@ CONSTRUCTOR;
             }
             // paramName
             $signature .= '$' . $parameter->getName();
+
+            $variadic = PHP_VERSION_ID >= 50600 ? $parameter->isVariadic() : false;
+
             // defaultValue
             if ($parameter->isDefaultValueAvailable()) {
                 $signature .= ' = ';
@@ -328,6 +331,12 @@ CONSTRUCTOR;
                 } else {
                     $signature .= var_export($parameter->getDefaultValue(), true);
                 }
+            } else if ($parameter->isOptional() && !$variadic) {
+                $signature .= ' = null';
+            }
+
+            if ($variadic) {
+                $signature = '...' . $signature;
             }
 
             $signatures[] = $signature;
