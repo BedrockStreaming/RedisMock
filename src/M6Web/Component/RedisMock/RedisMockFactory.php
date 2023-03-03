@@ -319,7 +319,12 @@ CONSTRUCTOR;
                 $signature .= '&';
             }
             // paramName
-            $signature .= '$' . $parameter->getName();
+            $paramName = '$' . $parameter->getName();
+            // variadic
+            if ($parameter->isVariadic()) {
+                $paramName = '...' . $paramName;
+            }
+            $signature .= $paramName;
             // defaultValue
             if ($parameter->isDefaultValueAvailable()) {
                 $signature .= ' = ';
