@@ -7,7 +7,7 @@ PHP 7.1 library providing a Redis PHP mock for your tests.
 ## Installation
 
 ```bash
-$ composer require --dev m6web/redis-mock
+$ composer require --dev aloware/redis-mock
 ```
 
 ## Functions
