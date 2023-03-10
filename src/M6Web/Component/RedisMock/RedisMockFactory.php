@@ -189,6 +189,11 @@ class {{class}} extends \{{baseClass}}
 
         return call_user_func_array(array($this->getClientMock(), $methodName), $args);
     }
+    
+    public function pipeline(...$arguments)
+    {
+        return $this->getClientMock()->pipeline(...$arguments);
+    }
 {{methods}}
 }
 CLASS;
@@ -269,12 +274,17 @@ CONSTRUCTOR;
         foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             $methodName = strtolower($method->getName());
 
+            // ignore pipeline
+            if ($methodName == 'pipeline') {
+                continue;
+            }
+
             if (!method_exists('M6Web\Component\RedisMock\RedisMock', $methodName) && in_array($methodName, $this->redisCommands)) {
                 if ($failOnlyAtRuntime) {
                     $methodsCode .= strtr($this->methodTemplateException, array(
-                            '{{method}}'    => $methodName,
-                            '{{signature}}' => $this->getMethodSignature($method),
-                        ));
+                        '{{method}}'    => $methodName,
+                        '{{signature}}' => $this->getMethodSignature($method),
+                    ));
                 } else {
                     throw new UnsupportedException(sprintf('Redis command `%s` is not supported by RedisMock.', $methodName));
                 }
@@ -337,12 +347,12 @@ CONSTRUCTOR;
     }
 
     protected function getMethodArgs(\ReflectionMethod $method)
-        {
-            $args = array();
-            foreach ($method->getParameters() as $parameter) {
-                $args[] = '$' . $parameter->getName();
-            }
-
-            return implode(', ', $args);
+    {
+        $args = array();
+        foreach ($method->getParameters() as $parameter) {
+            $args[] = '$' . $parameter->getName();
         }
+
+        return implode(', ', $args);
+    }
 }
