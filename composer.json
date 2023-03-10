@@ -1,5 +1,5 @@
 {
-    "name": "m6web/redis-mock",
+    "name": "aloware/redis-mock",
     "type": "library",
     "description" : "Library providing a PHP mock for Redis",
     "keywords": ["redis","mock"],
