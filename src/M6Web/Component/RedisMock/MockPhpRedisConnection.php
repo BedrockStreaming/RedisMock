@@ -7,6 +7,11 @@ use Redis;
 
 class MockPhpRedisConnection extends PhpRedisConnection
 {
+    public function __construct($client, callable $connector = null, array $config = [])
+    {
+        parent::__construct($client, $connector, $config);
+    }
+
     /**
      * Execute commands in a pipeline.
      *

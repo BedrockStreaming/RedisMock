@@ -3,8 +3,10 @@
 namespace M6Web\Component\RedisMock;
 
 use Illuminate\Redis\Connections\PhpRedisClusterConnection;
+use Illuminate\Redis\Connections\PhpRedisConnection;
 use Illuminate\Redis\Connectors\PhpRedisConnector;
 use Illuminate\Support\Arr;
+use ReflectionException;
 
 class MockPhpRedisConnector extends PhpRedisConnector
 {
@@ -14,7 +16,7 @@ class MockPhpRedisConnector extends PhpRedisConnector
      * @param array $config
      * @param array $options
      *
-     * @return PhpRedisConnector
+     * @return PhpRedisConnection
      */
     public function connect(array $config, array $options)
     {
@@ -22,11 +24,12 @@ class MockPhpRedisConnector extends PhpRedisConnector
             ['timeout' => 10.0], $options, Arr::pull($config, 'options', [])
         );
 
+        $connector = function () use ($config, $options, $formattedOptions) {
+            $factory = new RedisMockFactory();
+            return $factory->getAdapter('Redis', true);
+        };
 
-        $factory = new RedisMockFactory();
-        $redisMockClass = $factory->getAdapter('Redis', true);
-
-        return new MockPhpRedisConnector(new $redisMockClass($config, $formattedOptions));
+        return new MockPhpRedisConnection(new $connector($config, $options, $formattedOptions), $connector, $config);
     }
 
     /**
