@@ -7,7 +7,7 @@ PHP 8.2 library providing a Redis PHP mock for your tests.
 ## Installation
 
 ```bash
-$ composer require --dev aloware/redis-mock:dev-master
+$ composer require aloware/redis-mock:dev-master
 ```
 
 ## Functions

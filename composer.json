@@ -1,8 +1,8 @@
 {
     "name": "aloware/redis-mock",
     "type": "library",
-    "description" : "Library providing a PHP mock for Redis",
-    "keywords": ["redis","mock"],
+    "description" : "Library providing a PHP mock for Redis extension",
+    "keywords": ["redis","mock", "phpredis"],
     "license": "MIT",
     "authors": [
         {
@@ -19,9 +19,22 @@
     },
     "require": {
         "php": ">=8.2",
-        "ext-redis": ">=5.3"
+        "ext-redis": ">=5.3",
+        "laravel/framework": "^9.0|^10.0"
     },
     "require-dev": {
-        "atoum/atoum": "~3.4||~4.0"
+        "atoum/atoum": "~3.4||~4.0",
+        "phpunit/phpunit": "^7.0|^8.0|^9.5.10",
+        "orchestra/testbench": "~3.8.0|^4.0|^5.0|^6.0|^7.0|^8.0"
+    },
+    "scripts": {
+        "phpunit": "vendor/phpunit/phpunit/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "M6Web\\Component\\RedisMock\\Providers\\RedisMockServiceProvider"
+            ]
+        }
     }
 }
