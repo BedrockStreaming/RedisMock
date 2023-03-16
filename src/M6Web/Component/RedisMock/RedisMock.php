@@ -1445,7 +1445,7 @@ class RedisMock
      */
     public function evalsha(string $script, int $numkeys, ...$arguments): mixed
     {
-        return;
+        return null;
     }
 
     /**
@@ -1458,7 +1458,7 @@ class RedisMock
      */
     public function eval(string $script, int $numberOfKeys, ...$arguments): mixed
     {
-        return;
+        return null;
     }
 
     /**
