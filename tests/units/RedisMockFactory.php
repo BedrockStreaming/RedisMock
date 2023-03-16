@@ -209,21 +209,21 @@ class RedisMockFactory extends atoum
     }
 
     /**
-     * Mock a concrete Predis Client
+     * Mock a concrete PhpRedis Client
      *
      * @return void
      */
-    public function testFailOnlyAtRuntimeWithPredis()
+    public function testFailOnlyAtRuntimeWithPhpRedis()
     {
         $factory = new Factory();
 
         $this->assert
-            ->object($factory->getAdapter('Predis\Client', true))
-                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter');
+            ->object($factory->getAdapter('Redis', true))
+                ->isInstanceOf('M6Web\Component\RedisMock\RedisMock_PhpRedis_Client_Adapter');
 
         $this->assert
-            ->string($factory->getAdapterClass('Predis\Client', true))
-                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_Predis_Client_Adapter_NativeConstructor');
+            ->string($factory->getAdapterClass('Redis', true))
+                ->isEqualTo('M6Web\Component\RedisMock\RedisMock_PhpRedis_Client_Adapter_NativeConstructor');
     }
 
     public function testGetAdapterWithStorageArea()

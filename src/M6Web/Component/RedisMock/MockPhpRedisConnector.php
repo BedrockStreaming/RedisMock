@@ -9,7 +9,7 @@ use Illuminate\Support\Arr;
 class MockPhpRedisConnector extends PhpRedisConnector
 {
     /**
-     * Create a new clustered Predis connection.
+     * Create a new clustered PhpRedis connection.
      *
      * @param array $config
      * @param array $options
@@ -24,13 +24,13 @@ class MockPhpRedisConnector extends PhpRedisConnector
 
 
         $factory = new RedisMockFactory();
-        $redisMockClass = $factory->getAdapter('Predis\Client', true);
+        $redisMockClass = $factory->getAdapter('Redis', true);
 
         return new MockPhpRedisConnector(new $redisMockClass($config, $formattedOptions));
     }
 
     /**
-     * Create a new clustered Predis connection.
+     * Create a new clustered PhpRedis connection.
      *
      * @param array $config
      * @param array $clusterOptions
@@ -43,7 +43,7 @@ class MockPhpRedisConnector extends PhpRedisConnector
         $clusterSpecificOptions = Arr::pull($config, 'options', []);
 
         $factory = new RedisMockFactory();
-        $redisMockClass = $factory->getAdapter('Predis\Client', true);
+        $redisMockClass = $factory->getAdapter('Redis', true);
 
         return new MockPhpRedisConnector(new $redisMockClass(array_values($config), array_merge(
             $options, $clusterOptions, $clusterSpecificOptions
