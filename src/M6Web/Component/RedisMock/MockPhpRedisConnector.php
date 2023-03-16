@@ -29,7 +29,7 @@ class MockPhpRedisConnector extends PhpRedisConnector
             return $factory->getAdapter('Redis', true);
         };
 
-        return new MockPhpRedisConnection(new $connector($config, $options, $formattedOptions), $connector, $config);
+        return new MockPhpRedisConnection(new $connector($config, $options, $formattedOptions), null, $config);
     }
 
     /**
