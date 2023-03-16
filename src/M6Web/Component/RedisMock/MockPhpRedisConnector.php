@@ -24,12 +24,10 @@ class MockPhpRedisConnector extends PhpRedisConnector
             ['timeout' => 10.0], $options, Arr::pull($config, 'options', [])
         );
 
-        $connector = function () use ($config, $options, $formattedOptions) {
-            $factory = new RedisMockFactory();
-            return $factory->getAdapter('Redis', true);
-        };
+        $factory = new RedisMockFactory();
+        $mockedRedisClass = $factory->getAdapter('Redis', true);
 
-        return new MockPhpRedisConnection(new $connector($config, $options, $formattedOptions), null, $config);
+        return new MockPhpRedisConnection(new $mockedRedisClass($config, $options, $formattedOptions), null, $config);
     }
 
     /**
