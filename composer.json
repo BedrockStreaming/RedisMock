@@ -18,10 +18,10 @@
         "psr-4": {"M6Web\\Component\\RedisMock\\Tests\\Units\\": "tests/units/"}
     },
     "require": {
-        "php": ">=7.1.0"
+        "php": ">=8.2",
+        "ext-redis": ">=5.3"
     },
     "require-dev": {
-        "atoum/atoum": "~3.4||~4.0",
-        "predis/predis": "~1.1"
+        "atoum/atoum": "~3.4||~4.0"
     }
 }

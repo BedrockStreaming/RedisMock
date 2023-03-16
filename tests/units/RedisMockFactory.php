@@ -13,10 +13,10 @@ class RedisMockFactory extends atoum
 
     /**
      * Test the mock
-     * 
+     *
      * @return void
      */
-    public function testMock()
+    public function testMock(): void
     {
         $factory = new Factory();
         $mock    = $factory->getAdapter('StdClass');
@@ -60,7 +60,7 @@ class RedisMockFactory extends atoum
 
     /**
      * Test the mock with a complex base class
-     * 
+     *
      * @return void
      */
     public function testMockComplex()
@@ -105,7 +105,7 @@ class RedisMockFactory extends atoum
 
     /**
      * Test method getAdpaterClass
-     * 
+     *
      * @return void
      */
     public function testGetAdapterClass()
@@ -171,7 +171,7 @@ class RedisMockFactory extends atoum
 
     /**
      * Test the mock with a base class that implement unsupported Redis commands
-     * 
+     *
      * @return void
      */
     public function testUnsupportedMock()

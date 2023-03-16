@@ -3,8 +3,8 @@
 namespace M6Web\Component\RedisMock\Tests\Units;
 
 use atoum;
+use InvalidArgumentException;
 use M6Web\Component\RedisMock\RedisMock as Redis;
-use Predis\Response\Status;
 
 /**
  * Redis mock test
@@ -796,7 +796,7 @@ class RedisMock extends atoum
             function () use ($redisMock) {
                 $redisMock->zadd('test', ['test1' => 'NotANumeric']);
             }
-        )->isInstanceOf(\InvalidArgumentException::class);
+        )->isInstanceOf(InvalidArgumentException::class);
     }
 
     public function testZIncrBy()
@@ -1835,10 +1835,10 @@ class RedisMock extends atoum
         $redisMock->set('test', 'something');
 
         $this->assert
-            ->object($redisMock->watch('test'))
-                ->isInstanceOf(Status::class)
-            ->object($redisMock->watch('unexisting-key'))
-                ->isInstanceOf(Status::class);
+            ->bool($redisMock->watch('test'))
+            ->isTrue()
+            ->bool($redisMock->watch('unexisting-key'))
+            ->isTrue();
     }
 
     public function testUnwatch()
@@ -1847,8 +1847,8 @@ class RedisMock extends atoum
         $redisMock->set('test', 'something');
 
         $this->assert
-            ->object($redisMock->unwatch())
-            ->isInstanceOf(Status::class);
+            ->bool($redisMock->unwatch())
+            ->isTrue();
     }
 
     public function testDbsize()

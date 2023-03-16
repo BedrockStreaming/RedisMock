@@ -2,6 +2,11 @@
 
 namespace M6Web\Component\RedisMock;
 
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use ReflectionNamedType;
+
 /**
  * Adapter allowing to setup a Redis Mock inheriting of an arbitrary class
  *
@@ -13,7 +18,7 @@ namespace M6Web\Component\RedisMock;
  */
 class RedisMockFactory
 {
-    protected $redisCommands = array(
+    protected array $redisCommands = array(
         'append',
         'auth',
         'bgrewriteaof',
@@ -158,7 +163,7 @@ class RedisMockFactory
         'zscan',
     );
 
-    protected $classTemplate = <<<'CLASS'
+    protected string $classTemplate = <<<'CLASS'
 
 namespace {{namespace}};
 
@@ -198,7 +203,7 @@ class {{class}} extends \{{baseClass}}
 }
 CLASS;
 
-    protected $methodTemplate = <<<'METHOD'
+    protected string $methodTemplate = <<<'METHOD'
 
     public function {{method}}({{signature}})
     {
@@ -206,7 +211,7 @@ CLASS;
     }
 METHOD;
 
-    protected $methodTemplateException = <<<'METHODEXCEPTION'
+    protected string $methodTemplateException = <<<'METHODEXCEPTION'
 
     public function {{method}}({{signature}})
     {
@@ -214,7 +219,7 @@ METHOD;
     }
 METHODEXCEPTION;
 
-    protected $constructorTemplate = <<<'CONSTRUCTOR'
+    protected string $constructorTemplate = <<<'CONSTRUCTOR'
 
     public function __construct()
     {
@@ -222,12 +227,16 @@ METHODEXCEPTION;
     }
 CONSTRUCTOR;
 
-    public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true, $storage = '', array $constructorParams = [])
+    /**
+     * @throws ReflectionException
+     * @throws UnsupportedException
+     */
+    public function getAdapter($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = true, $storage = '', array $constructorParams = []): RedisMock
     {
-        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
+        [$namespace, $newClassName, $class] = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
 
         if (!class_exists($class)) {
-            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
+            $classCode = $this->getClassCode($namespace, $newClassName, new ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
             eval($classCode);
         }
 
@@ -241,19 +250,23 @@ CONSTRUCTOR;
         return $instance;
     }
 
+    /**
+     * @throws UnsupportedException
+     * @throws ReflectionException
+     */
     public function getAdapterClass($classToExtend, $failOnlyAtRuntime = false, $orphanizeConstructor = false)
     {
-        list($namespace, $newClassName, $class) = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
+        [$namespace, $newClassName, $class] = $this->getAdapterClassName($classToExtend, $orphanizeConstructor);
 
         if (!class_exists($class)) {
-            $classCode = $this->getClassCode($namespace, $newClassName, new \ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
+            $classCode = $this->getClassCode($namespace, $newClassName, new ReflectionClass($classToExtend), $orphanizeConstructor, $failOnlyAtRuntime);
             eval($classCode);
         }
 
         return $class;
     }
 
-    protected function getAdapterClassName($classToExtend, $orphanizeConstructor = false)
+    protected function getAdapterClassName($classToExtend, $orphanizeConstructor = false): array
     {
         $suffix = '';
         if (!$orphanizeConstructor) {
@@ -267,11 +280,14 @@ CONSTRUCTOR;
         return array($namespace, $newClassName, $class);
     }
 
-    protected function getClassCode($namespace, $newClassName, \ReflectionClass $class, $orphanizeConstructor = false, $failOnlyAtRuntime = false)
+    /**
+     * @throws UnsupportedException
+     */
+    protected function getClassCode($namespace, $newClassName, ReflectionClass $class, $orphanizeConstructor = false, $failOnlyAtRuntime = false): string
     {
         $methodsCode = $orphanizeConstructor ? $this->constructorTemplate : '';
 
-        foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+        foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             $methodName = strtolower($method->getName());
 
             // ignore pipeline
@@ -305,13 +321,16 @@ CONSTRUCTOR;
         ));
     }
 
-    protected function getMethodSignature(\ReflectionMethod $method)
+    /**
+     * @throws ReflectionException
+     */
+    protected function getMethodSignature(ReflectionMethod $method): string
     {
         $signatures = array();
         foreach ($method->getParameters() as $parameter) {
             $signature = '';
             $parameterType = $parameter->getType();
-            $isReflectionNamedType = $parameterType instanceof \ReflectionNamedType;
+            $isReflectionNamedType = $parameterType instanceof ReflectionNamedType;
             // typeHint
             if ($isReflectionNamedType && $parameterType->getName() === 'array') {
                 $signature .= 'array ';
@@ -346,7 +365,7 @@ CONSTRUCTOR;
         return implode(', ', $signatures);
     }
 
-    protected function getMethodArgs(\ReflectionMethod $method)
+    protected function getMethodArgs(ReflectionMethod $method): string
     {
         $args = array();
         foreach ($method->getParameters() as $parameter) {

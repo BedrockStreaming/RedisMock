@@ -1,8 +1,8 @@
 # Redis PHP Mock [![Build Status](https://github.com/BedrockStreaming/RedisMock/actions/workflows/ci.yml/badge.svg)](https://github.com/BedrockStreaming/RedisMock/actions/workflows/ci.yml) [![Total Downloads](https://poser.pugx.org/m6web/redis-mock/downloads.svg)](https://packagist.org/packages/m6web/redis-mock)
 
-PHP 7.1 library providing a Redis PHP mock for your tests.
+PHP 8.2 library providing a Redis PHP mock for your tests.
 
-**Work for now only with predis**
+**Work for now only with phpredis**
 
 ## Installation
 
