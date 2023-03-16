@@ -3,7 +3,7 @@
 namespace M6Web\Component\RedisMock;
 
 use Illuminate\Redis\Connections\PhpRedisClusterConnection;
-use Illuminate\Redis\Connections\PhpRedisConnector;
+use Illuminate\Redis\Connectors\PhpRedisConnector;
 use Illuminate\Support\Arr;
 
 class MockPhpRedisConnector extends PhpRedisConnector
