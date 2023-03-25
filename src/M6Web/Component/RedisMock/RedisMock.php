@@ -1211,6 +1211,56 @@ class RedisMock
         return $this->zcount($destination, '-inf', '+inf');
     }
 
+    /**
+     * Mock the `zscan` command
+     * @see https://redis.io/commands/zscan
+     * @param string $key
+     * @param int $cursor
+     * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
+     * @return $this|array|mixed
+     */
+    public function zscan($key, $cursor = 0, array $options = [])
+    {
+        $match = isset($options['MATCH']) ? $options['MATCH'] : '*';
+        $count = isset($options['COUNT']) ? $options['COUNT'] : 10;
+        $maximumValue = $cursor + $count -1;
+
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo([0, []]);
+        }
+
+        // Sorted set of all values in the storage.
+        $set = self::$dataValues[$this->storage][$key];
+        $maximumListElement = count($set);
+
+        // Next cursor position
+        $nextCursorPosition = 0;
+        // Matched values.
+        $values = [];
+        // Pattern, for find matched values.
+        $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
+
+        // Iterate over the sorted set starting from the given cursor position.
+        for($i = $cursor; $i <= $maximumValue; $i++)
+        {
+            if (isset($set[$i])){
+                $nextCursorPosition = $i >= $maximumListElement ? 0 : $i + 1;
+
+                // Check if the score matches the pattern
+                $score = $set[$i][0];
+                if ('*' === $match || 1 === preg_match($pattern, $set[$i][1])){
+                    $values[] = $set[$i][1];
+                }
+
+            } else {
+                // Out of the arrays values, return first element
+                $nextCursorPosition = 0;
+            }
+        }
+
+        return $this->returnPipedInfo([$nextCursorPosition, $values]);
+    }
+
     // Server
 
     public function dbsize()

@@ -2074,6 +2074,49 @@ class RedisMock extends atoum
             ->isEqualTo([0, []]);
     }
 
+    public function testZscanCommand()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('myZset', 1, 'a1');
+        $redisMock->zadd('myZset', ['b1' => 2, 'b2' => 3, 'b3' => 4, 'b4' => 5, 'b5' => 6, 'b6' => 7]);
+        $redisMock->zadd('myZset', ['c1' => 8, 'c2' => 9, 'c3' => 10]);
+        $redisMock->zadd('a/b', 11, 'c/d');
+
+        // It must return no values, as the key is unknown.
+        $this->assert
+            ->array($redisMock->zscan('unknown', 1, ['COUNT' => 2]))
+            ->isEqualTo([0, []]);
+
+        $this->assert
+            ->array($redisMock->zscan('a/b', 0, ['MATCH' => 'c/*']))
+            ->isEqualTo([0, [0 => 'c/d']]);
+
+        // It must return two values, start cursor after the first value of the set.
+        $this->assert
+            ->array($redisMock->zscan('myZset', 1, ['COUNT' => 2]))
+            ->isEqualTo([3, [0 => 'b1', 1 => 'b2']]);
+
+        // It must return all the values with score greater than or equal to 8.
+        // And the cursor is defined after the default count (10) => the match has not terminate all the set.
+        $this->assert
+            ->array($redisMock->zscan('myZset', 0, ['MATCH' => '*', 'COUNT' => 10]))
+            ->isEqualTo([10, [0 => 'a1', 1 => 'b1', 2 => 'b2', 3 => 'b3', 4 => 'b4', 5 => 'b5', 6 => 'b6', 7 => 'c1', 8 => 'c2', 9 => 'c3']]);
+
+        // Execute the match at the end of this set, the match not return an element (no one element match with the regex),
+        // And the set is terminate, return the cursor to the start (0)
+        $this->assert
+            ->array($redisMock->zscan('myZset', 11, ['MATCH' => 'd*']))
+            ->isEqualTo([0, []]);
+
+        $redisMock->expire('myZset', 1);
+        sleep(2);
+
+        // It must return no values, as the key is expired.
+        $this->assert
+            ->array($redisMock->zscan('myZset', 1, ['COUNT' => 2]))
+            ->isEqualTo([0, []]);
+    }
+
     public function testBitcountCommand()
     {
         $redisMock = new Redis();
