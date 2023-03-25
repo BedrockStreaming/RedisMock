@@ -1219,37 +1219,37 @@ class RedisMock
      * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
      * @return $this|array|mixed
      */
-    public function zscan($key, $cursor = 0, array $options = [])
+    public function zscan($key, $cursor, $options = [])
     {
+
+        $count = isset($options['COUNT']) ? (int) $options['COUNT'] : 10;
         $match = isset($options['MATCH']) ? $options['MATCH'] : '*';
-        $count = isset($options['COUNT']) ? $options['COUNT'] : 10;
         $maximumValue = $cursor + $count -1;
 
-        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+
+        $set = $this->zrange($key, 0, -1);
+        $maximumListElement = count($set);
+
+        if ($maximumListElement === 0 || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo([0, []]);
         }
 
-        // Sorted set of all values in the storage.
-        $set = self::$dataValues[$this->storage][$key];
-        $maximumListElement = count($set);
-
-        // Next cursor position
-        $nextCursorPosition = 0;
         // Matched values.
         $values = [];
         // Pattern, for find matched values.
         $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
 
-        // Iterate over the sorted set starting from the given cursor position.
+        // Next cursor position
+        $nextCursorPosition = 0;
+
+
         for($i = $cursor; $i <= $maximumValue; $i++)
         {
             if (isset($set[$i])){
                 $nextCursorPosition = $i >= $maximumListElement ? 0 : $i + 1;
 
-                // Check if the score matches the pattern
-                $score = $set[$i][0];
-                if ('*' === $match || 1 === preg_match($pattern, $set[$i][1])){
-                    $values[] = $set[$i][1];
+                if ('*' === $match || 1 === preg_match($pattern, $set[$i])){
+                    $values[] = $set[$i];
                 }
 
             } else {
