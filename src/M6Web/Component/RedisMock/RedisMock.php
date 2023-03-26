@@ -1219,46 +1219,38 @@ class RedisMock
      * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
      * @return $this|array|mixed
      */
-    public function zscan($key, $cursor = 0, array $options = [])
+    public function zscan($key, $cursor, $options = [])
     {
-        $match = isset($options['MATCH']) ? $options['MATCH'] : '*';
-        $count = isset($options['COUNT']) ? $options['COUNT'] : 10;
-        $maximumValue = $cursor + $count -1;
+        $options = array_change_key_case($options, CASE_UPPER); // normalize to match Laravel/Symfony
+        $count   = isset($options[ 'COUNT' ]) ? (int)$options[ 'COUNT' ] : 10;
+        $match   = isset($options[ 'MATCH' ]) ? $options[ 'MATCH' ] : '*';
+        $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
+
+        $iterator = $cursor;
 
         if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
             return $this->returnPipedInfo([0, []]);
         }
 
-        // Sorted set of all values in the storage.
-        $set = self::$dataValues[$this->storage][$key];
-        $maximumListElement = count($set);
+        $set = self::$dataValues[ $this->storage ][ $key ];
 
-        // Next cursor position
-        $nextCursorPosition = 0;
-        // Matched values.
-        $values = [];
-        // Pattern, for find matched values.
-        $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
-
-        // Iterate over the sorted set starting from the given cursor position.
-        for($i = $cursor; $i <= $maximumValue; $i++)
-        {
-            if (isset($set[$i])){
-                $nextCursorPosition = $i >= $maximumListElement ? 0 : $i + 1;
-
-                // Check if the score matches the pattern
-                $score = $set[$i][0];
-                if ('*' === $match || 1 === preg_match($pattern, $set[$i][1])){
-                    $values[] = $set[$i][1];
-                }
-
-            } else {
-                // Out of the arrays values, return first element
-                $nextCursorPosition = 0;
-            }
+        if ($match !== '*') {
+            $set = array_filter($set, function($key) use ($pattern) {
+                return preg_match($pattern, $key);
+            }, ARRAY_FILTER_USE_KEY);
         }
 
-        return $this->returnPipedInfo([$nextCursorPosition, $values]);
+        $results = array_slice($set, $iterator, $count, true);
+        $iterator += count($results);
+
+
+        if ($count <= count($results)) {
+            // there are more elements to scan
+            return $this->returnPipedInfo([$iterator, $results]);
+        } else {
+            // the end of the list has been reached
+            return $this->returnPipedInfo([0, $results]);
+        }
     }
 
     // Server
