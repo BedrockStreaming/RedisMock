@@ -11,7 +11,6 @@ use Predis\Response\Status;
  */
 class RedisMock extends atoum
 {
-
     public function testSetGetDelExists()
     {
         $redisMock = new Redis();

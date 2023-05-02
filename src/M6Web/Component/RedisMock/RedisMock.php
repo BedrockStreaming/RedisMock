@@ -1232,7 +1232,7 @@ class RedisMock
             return $this->returnPipedInfo([0, []]);
         }
 
-        $set = self::$dataValues[ $this->storage ][ $key ];
+        $set = self::$dataValues[$this->storage][$key];
 
         if ($match !== '*') {
             $set = array_filter($set, function($key) use ($pattern) {
