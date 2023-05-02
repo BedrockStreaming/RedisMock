@@ -150,6 +150,7 @@ class RedisMockFactory
         'zrevrange',
         'zrevrangebyscore',
         'zrevrank',
+        'zscan',
         'zscore',
         'zunionstore',
         'scan',

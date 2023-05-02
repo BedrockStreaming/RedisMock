@@ -1211,6 +1211,48 @@ class RedisMock
         return $this->zcount($destination, '-inf', '+inf');
     }
 
+    /**
+     * Mock the `zscan` command
+     * @see https://redis.io/commands/zscan
+     * @param string $key
+     * @param int $cursor
+     * @param array $options contain options of the command, with values (ex ['MATCH' => 'st*', 'COUNT' => 42] )
+     * @return $this|array|mixed
+     */
+    public function zscan($key, $cursor, $options = [])
+    {
+        $options = array_change_key_case($options, CASE_UPPER); // normalize to match Laravel/Symfony
+        $count   = isset($options[ 'COUNT' ]) ? (int)$options[ 'COUNT' ] : 10;
+        $match   = isset($options[ 'MATCH' ]) ? $options[ 'MATCH' ] : '*';
+        $pattern = sprintf('/^%s$/', str_replace(['*', '/'], ['.*', '\/'], $match));
+
+        $iterator = $cursor;
+
+        if (!isset(self::$dataValues[$this->storage][$key]) || $this->deleteOnTtlExpired($key)) {
+            return $this->returnPipedInfo([0, []]);
+        }
+
+        $set = self::$dataValues[$this->storage][$key];
+
+        if ($match !== '*') {
+            $set = array_filter($set, function($key) use ($pattern) {
+                return preg_match($pattern, $key);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        $results = array_slice($set, $iterator, $count, true);
+        $iterator += count($results);
+
+
+        if ($count <= count($results)) {
+            // there are more elements to scan
+            return $this->returnPipedInfo([$iterator, $results]);
+        } else {
+            // the end of the list has been reached
+            return $this->returnPipedInfo([0, $results]);
+        }
+    }
+
     // Server
 
     public function dbsize()

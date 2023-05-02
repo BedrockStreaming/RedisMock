@@ -79,6 +79,7 @@ Redis command                                    | Description
 **ZREMRANGEBYSCORE** *key* *min* *max*           | Removes all members in a sorted set within the given scores
 **ZREVRANGE** *key* *start* *stop* *[withscores]*| Returns the specified range of members in a sorted set, with scores ordered from high to low
 **ZREVRANGEBYSCORE** *key* *min* *max* *options* | Returns a range of members in a sorted set, by score, with scores ordered from high to low
+**ZSCAN**                                        | Iterates elements of Sorted Sets types.
 **ZSCORE** *key* *member*                        | Returns the score of *member* in the sorted set at *key*
 **ZUNIONSTORE** *dest* *numkeys* *key* ... *[weights ...]* *[aggregate SUM/MIN/MAX]*  | Computes the union of the stored sets given by the specified keys, store the result in the destination key, and returns the number of elements of the new sorted set.
 

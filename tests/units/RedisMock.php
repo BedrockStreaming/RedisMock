@@ -2074,6 +2074,67 @@ class RedisMock extends atoum
             ->isEqualTo([0, []]);
     }
 
+    public function testZscanCommand()
+    {
+        $redisMock = new Redis();
+        $redisMock->zadd('set1', 1, 'a:1');
+        $redisMock->zadd('set1', 2, 'b:1');
+        $redisMock->zadd('set1', 3, 'c:1');
+        $redisMock->zadd('set1', 4, 'd:1');
+
+        // Could be removed: ensure we have some noise of multiple sets
+        $redisMock->zadd('set2', 1, 'x:1');
+        $redisMock->zadd('set2', 2, 'y:1');
+        $redisMock->zadd('set2', 3, 'z:1');
+
+        // It must return no values, as the key is unknown.
+        $this->assert
+            ->array($redisMock->zscan('unknown', 0, ['COUNT' => 10]))
+            ->isEqualTo([0, []]);
+
+
+        // It must return all the values with score greater than or equal to 1.
+        $this->assert
+            ->array($redisMock->zscan('set1', 0, ['MATCH' => '*', 'COUNT' => 10]))
+            ->isEqualTo([0 => 0, 1 => ['a:1' => 1, 'b:1' => 2, 'c:1' => 3, 'd:1' => 4]]);
+
+        // It must return only the matched value
+        $this->assert
+            ->array($redisMock->zscan('set1', 0, ['MATCH' => 'c*', 'COUNT' => 10]))
+            ->isEqualTo([0 => 0, 1 => ['c:1' => 3]]);
+
+        // It must return all of the values based on the match of *1
+        $this->assert
+            ->array($redisMock->zscan('set1', 0, ['MATCH' => '*1', 'COUNT' => 10]))
+            ->isEqualTo([0 => 0, 1 => ['a:1' => 1, 'b:1' => 2, 'c:1' => 3, 'd:1' => 4]]);
+
+        // It must return two values, starting cursor after the first value of the list.
+
+        $this->assert
+            ->array($redisMock->zscan('set1', 1, ['COUNT' => 2]))
+            ->isEqualTo([3, ['b:1' => 2, 'c:1' => 3]]);
+
+        // Ensure if our results are complete we return a zero cursor
+        $this->assert
+            ->array($redisMock->zscan('set1', 3, ['COUNT' => 2]))
+            ->isEqualTo([0, ['d:1' => 4]]);
+
+        // It must return all the values with score greater than or equal to 3,
+        // starting cursor after the last value of the previous scan.
+        $this->assert
+            ->array($redisMock->zscan('set1', 4, ['MATCH' => '*', 'COUNT' => 10]))
+            ->isEqualTo([0 => 0, 1 => []]);
+
+        $redisMock->expire('set1', 1);
+        sleep(2);
+
+        // It must return no values, as the key is expired.
+        $this->assert
+            ->array($redisMock->zscan('set1', 0, ['COUNT' => 2]))
+            ->isEqualTo([0, []]);
+
+    }
+
     public function testBitcountCommand()
     {
         $redisMock = new Redis();
